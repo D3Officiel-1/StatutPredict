@@ -1,5 +1,5 @@
-import { redirect } from 'next/navigation'
+import StatusPage from '@/components/status/status-page';
 
 export default function Home() {
-  redirect('/dashboard')
+  return <StatusPage />;
 }

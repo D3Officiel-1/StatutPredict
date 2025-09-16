@@ -1,8 +1,9 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ShieldAlert, Plus } from 'lucide-react';
+import { ShieldAlert, Plus, ExternalLink } from 'lucide-react';
 import AppList from '@/components/dashboard/app-list';
 import NotificationForm from '@/components/dashboard/notification-form';
+import Link from 'next/link';
 
 export default function DashboardPage() {
   const activeAppsCount = 4;
@@ -22,6 +23,12 @@ export default function DashboardPage() {
               </CardDescription>
             </div>
             <div className="flex gap-2">
+              <Button asChild variant="outline">
+                <Link href="/" target="_blank">
+                  <ExternalLink />
+                  Voir la page de statut
+                </Link>
+              </Button>
               <Button variant="destructive">
                 <ShieldAlert />
                 Maintenance globale

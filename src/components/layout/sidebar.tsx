@@ -17,8 +17,10 @@ import {
   Settings,
   Power,
   LogOut,
+  ShieldCheck,
 } from 'lucide-react';
 import { mainUser } from '@/lib/data';
+import Link from 'next/link';
 
 const AppSidebar = () => {
   const pathname = usePathname();
@@ -31,18 +33,28 @@ const AppSidebar = () => {
   return (
     <>
       <SidebarHeader>
-        <div className="flex items-center gap-3">
+        <Link href="/dashboard" className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
             <Power className="h-6 w-6 text-primary-foreground" />
           </div>
           <span className="text-lg font-semibold font-headline text-sidebar-foreground">
             Statut Predict
           </span>
-        </div>
+        </Link>
       </SidebarHeader>
 
       <SidebarContent className="p-2">
         <SidebarMenu>
+           <SidebarMenuItem>
+            <SidebarMenuButton
+              href="/"
+              tooltip="Page de Statut"
+              target="_blank"
+            >
+              <ShieldCheck />
+              <span>Page de Statut</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton
               href="/dashboard"
