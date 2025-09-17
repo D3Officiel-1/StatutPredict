@@ -54,8 +54,11 @@ export default function ManageReferralDialog({ user, open, onOpenChange, onUserU
   });
 
   const formatDate = (timestamp: any) => {
-    if (timestamp && timestamp.toDate) {
+    if (timestamp && timestamp.toDate) { // Firestore Timestamp
       return format(timestamp.toDate(), 'dd/MM/yyyy HH:mm');
+    }
+    if (timestamp instanceof Date) { // JavaScript Date object
+        return format(timestamp, 'dd/MM/yyyy HH:mm');
     }
     return 'N/A';
   };

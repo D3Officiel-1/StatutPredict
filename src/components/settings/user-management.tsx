@@ -99,7 +99,10 @@ export default function UserManagement() {
     if (timestamp && timestamp.toDate) {
       return format(timestamp.toDate(), 'dd/MM/yyyy HH:mm');
     }
-    if (typeof timestamp === 'string' || timestamp instanceof Date) {
+    if (timestamp instanceof Date) {
+        return format(timestamp, 'dd/MM/yyyy HH:mm');
+    }
+    if (typeof timestamp === 'string') {
         try {
             return format(new Date(timestamp), 'dd/MM/yyyy');
         } catch (e) {
