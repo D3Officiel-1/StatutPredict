@@ -212,7 +212,6 @@ export default function UserManagement() {
               <TableHead>Téléphone</TableHead>
               <TableHead>Jeu favori</TableHead>
               <TableHead>Code Pronostic</TableHead>
-              <TableHead>Code parrainage</TableHead>
               <TableHead>
                 <span className="sr-only">Actions</span>
               </TableHead>
@@ -222,7 +221,7 @@ export default function UserManagement() {
             {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                     <TableRow key={i}>
-                        <TableCell colSpan={13}>
+                        <TableCell colSpan={12}>
                            <Skeleton className="h-8 w-full" />
                         </TableCell>
                     </TableRow>
@@ -245,7 +244,6 @@ export default function UserManagement() {
                     <TableCell>{user.phone || 'N/A'}</TableCell>
                     <TableCell>{user.favoriteGame || 'NA'}</TableCell>
                     <TableCell>{user.pronosticCode || 'N/A'}</TableCell>
-                    <TableCell>{user.referralCode || 'N/A'}</TableCell>
                     <TableCell>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
