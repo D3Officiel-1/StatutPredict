@@ -18,13 +18,22 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { Sparkles, Send } from 'lucide-react';
 import CustomLoader from '@/components/ui/custom-loader';
+import { Checkbox } from '../ui/checkbox';
 
 const formSchema = z.object({
   currentEvents: z.string().min(10, { message: 'Veuillez décrire les événements actuels (min. 10 caractères).' }),
   appType: z.string().min(1, { message: "Le type d'application est requis." }),
   notificationMessage: z.string().min(5, { message: 'Le message de notification est requis (min. 5 caractères).' }),
   targetApps: z.array(z.string()).min(1, { message: 'Veuillez sélectionner au moins une application.' }),
+  targetUsers: z.array(z.string()).optional(),
 });
+
+const userTiers = [
+    { id: 'daily', label: 'Journalier' },
+    { id: 'weekly', label: 'Hebdomadaire' },
+    { id: 'monthly', label: 'Mensuel' },
+    { id: 'annual', label: 'Annuel' },
+];
 
 export default function NotificationForm() {
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -51,6 +60,7 @@ export default function NotificationForm() {
       appType: 'Application SaaS',
       notificationMessage: '',
       targetApps: [],
+      targetUsers: [],
     },
   });
 
@@ -203,6 +213,58 @@ export default function NotificationForm() {
                 </FormItem>
               )}
             />
+
+            <FormField
+              control={form.control}
+              name="targetUsers"
+              render={() => (
+                <FormItem>
+                  <div className="mb-4">
+                    <FormLabel className="text-base">Utilisateurs ciblés</FormLabel>
+                    <p className="text-sm text-muted-foreground">
+                      Envoyez la notification uniquement pour certains forfaits.
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    {userTiers.map((item) => (
+                      <FormField
+                        key={item.id}
+                        control={form.control}
+                        name="targetUsers"
+                        render={({ field }) => {
+                          return (
+                            <FormItem
+                              key={item.id}
+                              className="flex flex-row items-center space-x-3 space-y-0"
+                            >
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value?.includes(item.id)}
+                                  onCheckedChange={(checked) => {
+                                    return checked
+                                      ? field.onChange([...(field.value || []), item.id])
+                                      : field.onChange(
+                                          field.value?.filter(
+                                            (value) => value !== item.id
+                                          )
+                                        )
+                                  }}
+                                />
+                              </FormControl>
+                              <FormLabel className="font-normal">
+                                {item.label}
+                              </FormLabel>
+                            </FormItem>
+                          )
+                        }}
+                      />
+                    ))}
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
           </CardContent>
           <CardFooter>
             <Button type="submit" className="w-full">
