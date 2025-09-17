@@ -1,3 +1,4 @@
+
 export type AppType = 'web' | 'mobile' | 'api';
 
 export interface Application {
@@ -67,4 +68,14 @@ export interface DiscountCode {
   plan: string;
   pourcentage: string;
   tous: boolean;
+}
+
+export interface PricingPlan {
+  id: string;
+  appId: string;
+  name: string;
+  price: number;
+  currency: string;
+  period: 'daily' | 'weekly' | 'monthly' | 'annual';
+  features: string[];
 }

@@ -15,6 +15,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Globe, Smartphone, Server, Settings, Eye } from 'lucide-react';
+import PricingFormDialog from './pricing-form-dialog';
 
 const AppIcon = ({ type }: { type: Application['type'] }) => {
   const className = "h-6 w-6 text-muted-foreground";
@@ -33,6 +34,8 @@ const AppIcon = ({ type }: { type: Application['type'] }) => {
 export default function PricingManagement() {
   const [apps, setApps] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [selectedApp, setSelectedApp] = useState<Application | null>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -52,43 +55,65 @@ export default function PricingManagement() {
 
     return () => unsubscribe();
   }, []);
+  
+  const handleManageClick = (app: Application) => {
+    setSelectedApp(app);
+    setIsFormOpen(true);
+  };
+  
+  const handleFormSuccess = () => {
+    setIsFormOpen(false);
+    setSelectedApp(null);
+  }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {loading ? (
-        Array.from({ length: 3 }).map((_, i) => (
-          <Card key={i}>
-            <CardHeader><Skeleton className="h-6 w-3/4" /></CardHeader>
-            <CardContent>
-              <Skeleton className="h-4 w-1/2 mb-4" />
-              <Skeleton className="h-10 w-full" />
-            </CardContent>
-          </Card>
-        ))
-      ) : (
-        apps.map((app) => (
-          <Card key={app.id} className="flex flex-col">
-            <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-4">
-              <div className="space-y-1">
-                <CardTitle as="h3" className="text-lg font-semibold font-headline">{app.name}</CardTitle>
-                <CardDescription>Gérez les plans tarifaires de cette application.</CardDescription>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <Eye className="h-4 w-4" />
-                </Button>
-                <AppIcon type={app.type} />
-              </div>
-            </CardHeader>
-            <CardContent className="flex-grow flex flex-col justify-end">
-                <Button>
-                    <Settings className="mr-2 h-4 w-4" />
-                    Gérer les tarifs
-                </Button>
-            </CardContent>
-          </Card>
-        ))
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {loading ? (
+          Array.from({ length: 3 }).map((_, i) => (
+            <Card key={i}>
+              <CardHeader><Skeleton className="h-6 w-3/4" /></CardHeader>
+              <CardContent>
+                <Skeleton className="h-4 w-1/2 mb-4" />
+                <Skeleton className="h-10 w-full" />
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          apps.map((app) => (
+            <Card key={app.id} className="flex flex-col">
+              <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-4">
+                <div className="space-y-1">
+                  <CardTitle as="h3" className="text-lg font-semibold font-headline">{app.name}</CardTitle>
+                  <CardDescription>Gérez les plans tarifaires de cette application.</CardDescription>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Eye className="h-4 w-4" />
+                  </Button>
+                  <AppIcon type={app.type} />
+                </div>
+              </CardHeader>
+              <CardContent className="flex-grow flex flex-col justify-end">
+                  <Button onClick={() => handleManageClick(app)}>
+                      <Settings className="mr-2 h-4 w-4" />
+                      Gérer les tarifs
+                  </Button>
+              </CardContent>
+            </Card>
+          ))
+        )}
+      </div>
+      
+      {selectedApp && (
+          <PricingFormDialog
+            open={isFormOpen}
+            onOpenChange={setIsFormOpen}
+            app={selectedApp}
+            pricingPlan={null}
+            onSuccess={handleFormSuccess}
+          />
       )}
-    </div>
+    </>
   );
 }
