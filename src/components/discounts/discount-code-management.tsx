@@ -37,17 +37,19 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, PlusCircle, Trash, Edit, Copy } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Trash, Edit, Copy, Info } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import DiscountCodeFormDialog from './discount-code-form-dialog';
 import CustomLoader from '../ui/custom-loader';
+import DiscountCodeDetailsDialog from './discount-code-details-dialog';
 
 export default function DiscountCodeManagement() {
   const [discountCodes, setDiscountCodes] = useState<DiscountCode[]>([]);
   const [loading, setLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [selectedCode, setSelectedCode] = useState<DiscountCode | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [codeToDelete, setCodeToDelete] = useState<DiscountCode | null>(null);
@@ -82,6 +84,11 @@ export default function DiscountCodeManagement() {
   const handleEditCode = (code: DiscountCode) => {
     setSelectedCode(code);
     setIsFormOpen(true);
+  };
+
+  const handleDetailsClick = (code: DiscountCode) => {
+    setSelectedCode(code);
+    setIsDetailsOpen(true);
   };
   
   const openDeleteDialog = (code: DiscountCode) => {
@@ -205,6 +212,10 @@ export default function DiscountCodeManagement() {
                           </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
+                              <DropdownMenuItem onSelect={() => handleDetailsClick(code)}>
+                                  <Info className="mr-2 h-4 w-4" />
+                                  Détails
+                              </DropdownMenuItem>
                               <DropdownMenuItem onSelect={() => copyToClipboard(code.code)}>
                                   <Copy className="mr-2 h-4 w-4" />
                                   Copier le code
@@ -234,6 +245,14 @@ export default function DiscountCodeManagement() {
         discountCode={selectedCode}
         onSuccess={() => setIsFormOpen(false)}
       />
+
+      {selectedCode && (
+        <DiscountCodeDetailsDialog
+            open={isDetailsOpen}
+            onOpenChange={setIsDetailsOpen}
+            discountCode={selectedCode}
+        />
+      )}
 
        <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
