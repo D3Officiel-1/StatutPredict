@@ -14,19 +14,18 @@ import CustomLoader from '@/components/ui/custom-loader';
 
 export default function LoginPage() {
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [correctPasswordLength, setCorrectPasswordLength] = useState<number | null>(null);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [correctPassword, setCorrectPassword] = useState<string | null>(null);
   const router = useRouter();
   const { toast } = useToast();
 
   useEffect(() => {
-    const fetchPasswordInfo = async () => {
+    const fetchPassword = async () => {
       try {
         const docRef = doc(db, 'Predict', 'mot_de_passe');
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          const correctPassword = docSnap.data().Admin;
-          setCorrectPasswordLength(correctPassword.length);
+          setCorrectPassword(docSnap.data().Admin);
         } else {
             toast({
                 title: 'Erreur',
@@ -35,58 +34,31 @@ export default function LoginPage() {
             });
         }
       } catch (error) {
-        console.error("Error fetching password info: ", error);
+        console.error("Error fetching password: ", error);
+        toast({
+            title: 'Erreur de configuration',
+            description: "Impossible de contacter la base de données.",
+            variant: 'destructive',
+        });
       }
     };
-    fetchPasswordInfo();
+    fetchPassword();
   }, [toast]);
 
   useEffect(() => {
-    const handleLogin = async () => {
-      if (!correctPasswordLength || password.length !== correctPasswordLength) {
-        if (isLoading) setIsLoading(false);
-        return;
-      }
+    const handleLogin = () => {
+      if (!correctPassword) return;
 
-      setIsLoading(true);
-
-      try {
-        const docRef = doc(db, 'Predict', 'mot_de_passe');
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-          const correctPassword = docSnap.data().Admin;
-          if (password === correctPassword) {
-            router.push('/dashboard');
-          } else {
-            // Silently do nothing on incorrect password
-            // The user can continue typing.
-            // We'll stop the loader if the length becomes incorrect in the next check.
-          }
-        } else {
-          toast({
-              title: 'Erreur',
-              description: 'Impossible de vérifier le mot de passe. Veuillez réessayer.',
-              variant: 'destructive',
-            });
-        }
-      } catch (error) {
-        console.error("Error logging in: ", error);
-        toast({
-          title: 'Erreur de connexion',
-          description: "Une erreur s'est produite. Veuillez réessayer.",
-          variant: 'destructive',
-        });
-      } finally {
-        // Don't set loading to false here immediately on incorrect password
-        // to avoid visual flicker. It will be turned off if length changes.
+      if (password.length > 0 && password === correctPassword) {
+        setIsVerifying(true);
+        router.push('/dashboard');
+      } else {
+        setIsVerifying(false);
       }
     };
 
-    if (password) {
-      handleLogin();
-    }
-  }, [password, correctPasswordLength, router, toast, isLoading]);
+    handleLogin();
+  }, [password, correctPassword, router]);
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
@@ -112,14 +84,11 @@ export default function LoginPage() {
                 required 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                disabled={isLoading && password.length === correctPasswordLength}
-                className="pl-10 text-center"
+                disabled={isVerifying}
+                className="text-center"
+                placeholder=""
               />
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3">
-                {isLoading && password.length === correctPasswordLength ? <CustomLoader /> : null}
-              </div>
             </div>
-            {isLoading && password.length === correctPasswordLength && <p className="text-sm text-center text-muted-foreground">Vérification en cours...</p>}
           </div>
         </CardContent>
       </Card>
