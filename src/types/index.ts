@@ -75,6 +75,7 @@ export interface PricingPlan {
   appId: string;
   name: string;
   price: number;
+  promoPrice?: number;
   currency: string;
   period: 'daily' | 'weekly' | 'monthly' | 'annual';
   features: string[];

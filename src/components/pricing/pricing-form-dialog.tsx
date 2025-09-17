@@ -44,6 +44,7 @@ interface PricingFormDialogProps {
 const formSchema = z.object({
   name: z.string().min(3, 'Le nom du plan doit contenir au moins 3 caractères.'),
   price: z.coerce.number().min(0, 'Le prix ne peut pas être négatif.'),
+  promoPrice: z.coerce.number().optional(),
   currency: z.string().min(2, 'La devise est requise.').default('FCFA'),
   period: z.enum(['daily', 'weekly', 'monthly', 'annual']),
   features: z.string().min(10, 'Listez au moins une fonctionnalité.'),
@@ -67,6 +68,7 @@ export default function PricingFormDialog({ open, onOpenChange, app, pricingPlan
     defaultValues: {
       name: '',
       price: 0,
+      promoPrice: undefined,
       currency: 'FCFA',
       period: 'monthly',
       features: '',
@@ -79,6 +81,7 @@ export default function PricingFormDialog({ open, onOpenChange, app, pricingPlan
       form.reset({
         name: pricingPlan.name,
         price: pricingPlan.price,
+        promoPrice: pricingPlan.promoPrice,
         currency: pricingPlan.currency,
         period: pricingPlan.period,
         features: pricingPlan.features.join('\n'),
@@ -88,6 +91,7 @@ export default function PricingFormDialog({ open, onOpenChange, app, pricingPlan
       form.reset({
         name: '',
         price: 0,
+        promoPrice: undefined,
         currency: 'FCFA',
         period: 'monthly',
         features: '',
@@ -101,6 +105,7 @@ export default function PricingFormDialog({ open, onOpenChange, app, pricingPlan
     try {
       const dataToSave = {
         ...values,
+        promoPrice: values.promoPrice || null,
         features: values.features.split('\n').filter(f => f.trim() !== ''),
         missingFeatures: values.missingFeatures?.split('\n').filter(f => f.trim() !== '') || [],
         appId: app.id,
@@ -184,6 +189,18 @@ export default function PricingFormDialog({ open, onOpenChange, app, pricingPlan
                   />
                    <FormField
                     control={form.control}
+                    name="promoPrice"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Prix promotionnel (optionnel)</FormLabel>
+                        <FormControl><Input type="number" placeholder="4000" {...field} /></FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                  />
+                </div>
+                 <FormField
+                    control={form.control}
                     name="period"
                     render={({ field }) => (
                         <FormItem>
@@ -204,7 +221,6 @@ export default function PricingFormDialog({ open, onOpenChange, app, pricingPlan
                         </FormItem>
                     )}
                     />
-                </div>
                  <FormField
                     control={form.control}
                     name="features"
