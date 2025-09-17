@@ -19,7 +19,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import AppList from '@/components/dashboard/app-list';
-import NotificationForm from '@/components/dashboard/notification-form';
 import Link from 'next/link';
 import AddAppDialog from '@/components/settings/add-app-dialog';
 import { useToast } from '@/hooks/use-toast';
@@ -118,15 +117,9 @@ export default function DashboardPage() {
         </CardHeader>
       </Card>
       
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <h3 className="text-lg font-semibold mb-4 font-headline">Statut des Applications</h3>
-          <AppList />
-        </div>
-        <div className="lg:col-span-1">
-          <h3 className="text-lg font-semibold mb-4 font-headline">Notifications Centralisées</h3>
-          <NotificationForm />
-        </div>
+      <div>
+        <h3 className="text-lg font-semibold mb-4 font-headline">Statut des Applications</h3>
+        <AppList />
       </div>
     </div>
   );

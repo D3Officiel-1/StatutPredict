@@ -13,6 +13,7 @@ import {
   LayoutDashboard,
   Settings,
   ShieldCheck,
+  Send,
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -59,6 +60,18 @@ const AppSidebar = () => {
               <Link href="/dashboard">
                 <LayoutDashboard />
                 <span>Tableau de bord</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              isActive={isActive('/notifications')}
+              tooltip="Notifications"
+            >
+              <Link href="/notifications">
+                <Send />
+                <span>Notifications</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

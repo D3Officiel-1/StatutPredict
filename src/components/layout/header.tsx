@@ -20,6 +20,9 @@ function getPageTitle(pathname: string): string {
   if (pathname.startsWith('/dashboard')) {
     return 'Tableau de bord';
   }
+  if (pathname.startsWith('/notifications')) {
+    return 'Notifications';
+  }
   return 'Centre de Statut';
 }
 
