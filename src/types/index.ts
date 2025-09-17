@@ -7,6 +7,12 @@ export interface Application {
   status: AppStatus;
   url: string;
   type: AppType;
+  maintenanceConfig?: {
+    message: string;
+    buttonTitle?: string;
+    buttonUrl?: string;
+    targetUsers?: string[];
+  }
 }
 
 export type UserRole = 'Admin' | 'Viewer';

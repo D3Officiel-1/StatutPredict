@@ -1,9 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import { type Application } from '@/types';
 import {
   Dialog,
@@ -41,7 +43,7 @@ interface MaintenanceConfigDialogProps {
 const formSchema = z.object({
   maintenanceMessage: z.string().min(10, 'Le message doit contenir au moins 10 caractères.'),
   buttonTitle: z.string().optional(),
-  buttonUrl: z.string().url('Veuillez entrer une URL valide.').optional(),
+  buttonUrl: z.string().url('Veuillez entrer une URL valide.').optional().or(z.literal('')),
   targetUsers: z.array(z.string()).optional(),
 });
 
@@ -60,12 +62,21 @@ export default function MaintenanceConfigDialog({ app, children, open, onOpenCha
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      maintenanceMessage: `Notre service ${app.name} est actuellement en cours de maintenance. Nous nous excusons pour la gêne occasionnée.`,
-      buttonTitle: '',
-      buttonUrl: '',
-      targetUsers: [],
+      maintenanceMessage: app.maintenanceConfig?.message || `Notre service ${app.name} est actuellement en cours de maintenance. Nous nous excusons pour la gêne occasionnée.`,
+      buttonTitle: app.maintenanceConfig?.buttonTitle || '',
+      buttonUrl: app.maintenanceConfig?.buttonUrl || '',
+      targetUsers: app.maintenanceConfig?.targetUsers || [],
     },
   });
+
+  useEffect(() => {
+    form.reset({
+      maintenanceMessage: app.maintenanceConfig?.message || `Notre service ${app.name} est actuellement en cours de maintenance. Nous nous excusons pour la gêne occasionnée.`,
+      buttonTitle: app.maintenanceConfig?.buttonTitle || '',
+      buttonUrl: app.maintenanceConfig?.buttonUrl || '',
+      targetUsers: app.maintenanceConfig?.targetUsers || [],
+    });
+  }, [app, form, open]);
 
   const handleGenerateMessage = async () => {
     setIsGenerating(true);
@@ -95,15 +106,31 @@ export default function MaintenanceConfigDialog({ app, children, open, onOpenCha
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
-    console.log('Form values for', app.name, ':', values);
-    // Here you would typically update Firestore with these settings
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    toast({
-      title: 'Configuration enregistrée',
-      description: `Les paramètres de maintenance pour ${app.name} ont été mis à jour.`,
-    });
-    setIsSubmitting(false);
-    onOpenChange(false);
+    try {
+      const appRef = doc(db, 'applications', app.id);
+      await updateDoc(appRef, {
+        maintenanceConfig: {
+          message: values.maintenanceMessage,
+          buttonTitle: values.buttonTitle,
+          buttonUrl: values.buttonUrl,
+          targetUsers: values.targetUsers,
+        }
+      });
+      toast({
+        title: 'Configuration enregistrée',
+        description: `Les paramètres de maintenance pour ${app.name} ont été mis à jour.`,
+      });
+      onOpenChange(false);
+    } catch(error) {
+        console.error("Error updating maintenance config: ", error);
+        toast({
+            title: 'Erreur',
+            description: 'Impossible d\'enregistrer la configuration. Veuillez réessayer.',
+            variant: 'destructive',
+        });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
