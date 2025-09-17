@@ -57,3 +57,13 @@ export interface MediaItem {
   type: string;
   createdAt: any;
 }
+
+export interface DiscountCode {
+  id: string;
+  code: string;
+  discountType: 'percentage' | 'fixed';
+  value: number;
+  expiresAt: any; // Can be Firestore Timestamp
+  isActive: boolean;
+  createdAt: any; // Can be Firestore Timestamp
+}

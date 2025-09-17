@@ -29,6 +29,9 @@ function getPageTitle(pathname: string): string {
   if (pathname.startsWith('/users')) {
     return 'Utilisateurs';
   }
+  if (pathname.startsWith('/discounts')) {
+    return 'Codes de réduction';
+  }
   return 'Centre de Statut';
 }
 
