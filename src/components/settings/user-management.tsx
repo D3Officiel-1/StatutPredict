@@ -36,7 +36,7 @@ import {
   } from "@/components/ui/dialog"
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, UserPlus, Trash, Edit, Copy } from 'lucide-react';
+import { MoreHorizontal, UserPlus, Trash, Edit, Copy, Award, Gift } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -53,12 +53,28 @@ export default function UserManagement() {
     setLoading(true);
     const q = query(collection(db, "users"), orderBy('createdAt', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const usersData: User[] = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      } as User));
-      setUsers(usersData);
-      setLoading(false);
+      const usersDataPromises = snapshot.docs.map(async userDoc => {
+        const userData = {
+          id: userDoc.id,
+          ...userDoc.data()
+        } as User;
+
+        const referralCol = collection(db, `users/${userDoc.id}/referral`);
+        const pricingCol = collection(db, `users/${userDoc.id}/pricing`);
+
+        const referralSnapshot = await getDocs(referralCol);
+        const pricingSnapshot = await getDocs(pricingCol);
+        
+        userData.referralData = referralSnapshot.docs.map(d => d.data());
+        userData.pricingData = pricingSnapshot.docs.map(d => d.data());
+
+        return userData;
+      });
+
+      Promise.all(usersDataPromises).then(usersData => {
+          setUsers(usersData);
+          setLoading(false);
+      });
     });
 
     return () => unsubscribe();
@@ -201,6 +217,14 @@ export default function UserManagement() {
                         <DropdownMenuItem onSelect={() => user.uid && copyToClipboard(user.uid)}>
                             <Copy className="mr-2 h-4 w-4" />
                             Copier l'UID
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                            <Award className="mr-2 h-4 w-4" />
+                            Activer le forfait
+                        </DropdownMenuItem>
+                         <DropdownMenuItem>
+                            <Gift className="mr-2 h-4 w-4" />
+                            Gérer le parrainage
                         </DropdownMenuItem>
                         <DropdownMenuItem>
                             <Edit className="mr-2 h-4 w-4" />

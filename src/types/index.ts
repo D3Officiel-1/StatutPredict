@@ -31,6 +31,8 @@ export interface User {
   solde_referral?: number; // Kept for backward compatibility
   uid?: string;
   username?: string;
+  referralData?: any[];
+  pricingData?: any[];
 }
 
 export interface MediaItem {
