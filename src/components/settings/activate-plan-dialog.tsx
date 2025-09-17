@@ -7,9 +7,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import type { User } from '@/types';
+import type { User, PricingItem } from '@/types';
 import { motion, AnimatePresence } from 'framer-motion';
-import { addDays, addWeeks, addMonths, addYears } from 'date-fns';
+import { addDays, addWeeks, addMonths, addYears, format } from 'date-fns';
 import {
   Form,
   FormControl,
@@ -29,6 +29,8 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import CustomLoader from '../ui/custom-loader';
 import { X } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Badge } from '../ui/badge';
 
 interface ActivatePlanDialogProps {
   user: User;
@@ -50,13 +52,21 @@ const planDurations = [
 export default function ActivatePlanDialog({ user, open, onOpenChange }: ActivatePlanDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const currentPlan = user.pricingData?.[0];
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      duration: 'monthly',
+      duration: currentPlan?.idplan_jetpredict || 'monthly',
     },
   });
+
+  const formatDate = (timestamp: any) => {
+    if (timestamp && timestamp.toDate) {
+      return format(timestamp.toDate(), 'dd/MM/yyyy HH:mm');
+    }
+    return 'N/A';
+  };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (!user.uid) {
@@ -137,15 +147,43 @@ export default function ActivatePlanDialog({ user, open, onOpenChange }: Activat
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-between items-center mb-6">
               <div>
-                <h2 className="text-lg font-semibold">Activer le forfait pour {user.username || user.email}</h2>
-                <p className="text-sm text-muted-foreground">Sélectionnez la durée du forfait "JetPredict".</p>
+                <h2 className="text-lg font-semibold">Gérer le forfait de {user.username || user.email}</h2>
+                <p className="text-sm text-muted-foreground">Activez ou modifiez le forfait "JetPredict".</p>
               </div>
               <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
                   <X className="h-4 w-4" />
               </Button>
             </div>
+
+            {currentPlan && (
+                <Card className="mb-6">
+                    <CardHeader>
+                        <CardTitle className='text-base'>Forfait Actuel</CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-sm space-y-2">
+                        <div className="flex justify-between">
+                            <span className="text-muted-foreground">Statut:</span>
+                            <Badge variant={currentPlan.actif_jetpredict ? 'default' : 'destructive'} className={currentPlan.actif_jetpredict ? 'bg-green-500/20 text-green-500 border-green-500/30' : ''}>
+                                {currentPlan.actif_jetpredict ? 'Actif' : 'Inactif'}
+                            </Badge>
+                        </div>
+                        <div className="flex justify-between">
+                            <span className="text-muted-foreground">Plan:</span>
+                            <span className="font-medium capitalize">{currentPlan.idplan_jetpredict}</span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span className="text-muted-foreground">Début:</span>
+                            <span className="font-medium">{formatDate(currentPlan.startdate)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span className="text-muted-foreground">Fin:</span>
+                            <span className="font-medium">{formatDate(currentPlan.findate)}</span>
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
 
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
