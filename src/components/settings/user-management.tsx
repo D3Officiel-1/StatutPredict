@@ -50,6 +50,7 @@ export default function UserManagement() {
   const { toast } = useToast();
 
   useEffect(() => {
+    setLoading(true);
     const q = query(collection(db, "users"), orderBy('createdAt', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const usersData: User[] = snapshot.docs.map(doc => ({
@@ -67,18 +68,25 @@ export default function UserManagement() {
     if (timestamp && timestamp.toDate) {
       return format(timestamp.toDate(), 'dd/MM/yyyy HH:mm');
     }
-    if (typeof timestamp === 'string') {
+    if (typeof timestamp === 'string' || timestamp instanceof Date) {
         try {
-            // Attempt to parse strings like 'YYYY-MM-DD' or 'DD/MM/YYYY'
             return format(new Date(timestamp), 'dd/MM/yyyy');
         } catch (e) {
-            return timestamp; // return original string if parsing fails
+            return String(timestamp); 
         }
     }
     return 'N/A';
   };
 
   const copyToClipboard = (text: string) => {
+    if(!text) {
+        toast({
+            title: "Erreur",
+            description: "Aucun UID à copier.",
+            variant: "destructive",
+        });
+        return;
+    }
     navigator.clipboard.writeText(text).then(() => {
       toast({
         title: "Copié !",
@@ -156,7 +164,7 @@ export default function UserManagement() {
             {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                     <TableRow key={i}>
-                        <TableCell colSpan={14}>
+                        <TableCell colSpan={13}>
                            <Skeleton className="h-8 w-full" />
                         </TableCell>
                     </TableRow>
