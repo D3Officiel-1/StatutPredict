@@ -12,7 +12,7 @@ const fontSans = FontSans({
 export const metadata: Metadata = {
   title: 'Centre de Statut',
   description: 'Tableau de bord central pour gérer plusieurs apps web.',
-  manifest: "/manifest.webmanifest",
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({
