@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -170,11 +171,11 @@ export default function DiscountCodeManagement() {
               <TableRow>
                 <TableHead>Titre</TableHead>
                 <TableHead>Code</TableHead>
-                <TableHead>Pourcentage</TableHead>
-                <TableHead>Plan</TableHead>
-                <TableHead>Début</TableHead>
-                <TableHead>Fin</TableHead>
-                <TableHead>Statut</TableHead>
+                <TableHead className="hidden sm:table-cell">Pourcentage</TableHead>
+                <TableHead className="hidden md:table-cell">Plan</TableHead>
+                <TableHead className="hidden lg:table-cell">Début</TableHead>
+                <TableHead className="hidden lg:table-cell">Fin</TableHead>
+                <TableHead className="hidden md:table-cell">Statut</TableHead>
                 <TableHead>
                   <span className="sr-only">Actions</span>
                 </TableHead>
@@ -194,15 +195,15 @@ export default function DiscountCodeManagement() {
                   <TableRow key={code.id}>
                     <TableCell className="font-medium">{code.titre}</TableCell>
                     <TableCell>{code.code}</TableCell>
-                    <TableCell>{code.pourcentage}%</TableCell>
-                    <TableCell>
+                    <TableCell className="hidden sm:table-cell">{code.pourcentage}%</TableCell>
+                    <TableCell className="hidden md:table-cell">
                         <Badge variant="secondary" className="capitalize">
                             {code.tous ? 'Tous les forfaits' : code.plan}
                         </Badge>
                     </TableCell>
-                    <TableCell>{formatDate(code.debutdate)}</TableCell>
-                    <TableCell>{formatDate(code.findate)}</TableCell>
-                    <TableCell>{getStatus(code)}</TableCell>
+                    <TableCell className="hidden lg:table-cell">{formatDate(code.debutdate)}</TableCell>
+                    <TableCell className="hidden lg:table-cell">{formatDate(code.findate)}</TableCell>
+                    <TableCell className="hidden md:table-cell">{getStatus(code)}</TableCell>
                     <TableCell>
                       <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -273,3 +274,5 @@ export default function DiscountCodeManagement() {
     </>
   );
 }
+
+    
