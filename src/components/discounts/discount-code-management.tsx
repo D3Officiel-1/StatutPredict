@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -133,7 +134,9 @@ export default function DiscountCodeManagement() {
                     <TableCell>{code.code}</TableCell>
                     <TableCell>{code.pourcentage}%</TableCell>
                     <TableCell>
-                        <Badge variant="secondary" className="capitalize">{code.plan}</Badge>
+                        <Badge variant="secondary" className="capitalize">
+                            {code.tous ? 'Tous les forfaits' : code.plan}
+                        </Badge>
                     </TableCell>
                     <TableCell>{formatDate(code.debutdate)}</TableCell>
                     <TableCell>{formatDate(code.findate)}</TableCell>
