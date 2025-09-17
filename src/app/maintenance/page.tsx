@@ -1,32 +1,25 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar, Clock } from 'lucide-react';
+import { Calendar, Clock, CheckCircle, ChevronLeft, ChevronRight, Tool } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
-const maintenanceSchedule = [
-  {
-    id: 1,
-    date: '25 Octobre 2025',
-    time: '02:00 - 04:00 (CET)',
-    description: 'Mise à jour majeure de l\'infrastructure serveur pour améliorer les performances et la sécurité. Une interruption de service est à prévoir.',
-    apps: ['App principale', 'API de facturation'],
-  },
-  {
-    id: 2,
-    date: '15 Novembre 2025',
-    time: '03:00 - 03:30 (CET)',
-    description: 'Déploiement de nouvelles fonctionnalités sur le portail client. L\'accès pourrait être intermittent.',
-    apps: ['Portail Client'],
-  },
-  {
-    id: 3,
-    date: '05 Décembre 2025',
-    time: '23:00 - 23:59 (CET)',
-    description: 'Maintenance de routine de la base de données pour optimiser les performances.',
-    apps: ['Tous les services'],
-  },
-];
+const upcomingMaintenances = {
+  'Décembre 2024': [],
+  'Janvier 2025': [
+    {
+      id: 1,
+      title: 'Mise à jour du lecteur vidéo',
+      status: 'Résolu',
+      resolvedAt: '03 Janv à 01:00 CET',
+      description: 'Le lecteur vidéo des films et séries peut être indisponible pendant quelques minutes.',
+    },
+  ],
+  'Février 2025': [],
+};
+
 
 export default function MaintenancePage() {
   return (
@@ -48,7 +41,7 @@ export default function MaintenancePage() {
               <Link href="/" className="text-foreground/60 transition-colors hover:text-foreground/80">
                   Statut
               </Link>
-              <Link href="/maintenance" className="text-foreground/60 transition-colors hover:text-foreground/80">
+              <Link href="/maintenance" className="text-foreground transition-colors hover:text-foreground/80">
                   Maintenance
               </Link>
               <Link href="#" className="text-foreground/60 transition-colors hover:text-foreground/80">
@@ -61,44 +54,60 @@ export default function MaintenancePage() {
 
       <main className="container mx-auto px-4 py-8 md:px-6 md:py-12">
         <div className="mx-auto max-w-4xl">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold tracking-tight font-headline">Maintenances programmées</h1>
-            <p className="mt-2 text-muted-foreground">
-              Voici la liste des prochaines opérations de maintenance prévues sur nos systèmes.
-            </p>
+          <div className="mb-12 text-center">
+            <h1 className="text-4xl font-bold tracking-tight font-headline">Maintenance</h1>
+            <div className="mt-4 flex items-center justify-center gap-4 text-muted-foreground">
+                <Button variant="ghost" size="icon">
+                    <ChevronLeft className="h-5 w-5" />
+                </Button>
+                <span className="text-lg font-medium text-foreground">Déc 2024 au Févr 2025</span>
+                <Button variant="ghost" size="icon">
+                    <ChevronRight className="h-5 w-5" />
+                </Button>
+            </div>
           </div>
 
-          <div className="space-y-6">
-            {maintenanceSchedule.map((event) => (
-              <Card key={event.id} className="shadow-sm hover:shadow-md transition-shadow">
-                <CardHeader>
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                    <CardTitle as="h3" className="text-xl font-headline">{event.description}</CardTitle>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                       <div className="flex items-center gap-2">
-                         <Calendar className="h-4 w-4" />
-                         <span>{event.date}</span>
-                       </div>
-                       <div className="flex items-center gap-2">
-                         <Clock className="h-4 w-4" />
-                         <span>{event.time}</span>
-                       </div>
-                     </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div>
-                    <h4 className="font-semibold mb-2">Services impactés :</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {event.apps.map((app, index) => (
-                        <span key={index} className="px-2 py-1 text-xs rounded-full bg-secondary text-secondary-foreground">
-                          {app}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+          <div className="space-y-12">
+            {Object.entries(upcomingMaintenances).map(([month, events]) => (
+              <div key={month}>
+                <h2 className="text-xl font-semibold mb-4 font-headline">{month}</h2>
+                <Card className="bg-card/50">
+                  <CardContent className="p-6">
+                    {events.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center text-center text-muted-foreground py-8">
+                        <CheckCircle className="h-8 w-8 mb-2" />
+                        <p>Aucune maintenance</p>
+                      </div>
+                    ) : (
+                        <div className="space-y-6">
+                            {events.map(event => (
+                                <div key={event.id}>
+                                    <div className="flex justify-between items-center mb-2">
+                                      <p className="text-sm text-muted-foreground">03 Janv 2025</p>
+                                      <p className="text-sm text-muted-foreground">1 maintenance</p>
+                                    </div>
+                                    <div className="border rounded-lg p-4 bg-background">
+                                        <div className="flex justify-between items-start">
+                                            <h3 className="font-semibold text-lg">{event.title}</h3>
+                                            <Badge variant="outline">Maintenance</Badge>
+                                        </div>
+                                        <div className="mt-4 p-4 rounded-md bg-muted/50">
+                                            <div className="flex items-center gap-2 text-sm text-green-400">
+                                                <CheckCircle className="h-4 w-4" />
+                                                <span>{event.status} {event.resolvedAt}</span>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground mt-1 ml-6">
+                                                {event.description}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
             ))}
           </div>
         </div>
