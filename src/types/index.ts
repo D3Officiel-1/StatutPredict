@@ -48,6 +48,7 @@ export interface User {
   username?: string;
   referralData?: ReferralItem[];
   pricingData?: PricingItem[];
+  referrals?: User[];
 }
 
 export interface MediaItem {

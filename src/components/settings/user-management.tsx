@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, onSnapshot, orderBy, query, getDocs, doc, getDoc } from 'firebase/firestore';
+import { collection, onSnapshot, orderBy, query, getDocs, doc, getDoc, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { User } from '@/types';
 import {
@@ -58,34 +58,38 @@ export default function UserManagement() {
   useEffect(() => {
     setLoading(true);
     const q = query(collection(db, "users"), orderBy('createdAt', 'desc'));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const usersDataPromises = snapshot.docs.map(async userDoc => {
-        const userData = {
-          id: userDoc.id,
-          ...userDoc.data(),
-          uid: userDoc.id,
-        } as User;
+    
+    const unsubscribe = onSnapshot(q, async (snapshot) => {
+        const allUsersData: User[] = snapshot.docs.map(doc => ({
+            id: doc.id,
+            uid: doc.id,
+            ...doc.data()
+        } as User));
 
-        const referralCol = collection(db, `users/${userDoc.id}/referral`);
-        const pricingDocRef = doc(db, 'pricing', userDoc.id);
+        const usersWithDetailsPromises = allUsersData.map(async (user) => {
+            const referralCol = collection(db, `users/${user.id}/referral`);
+            const pricingDocRef = doc(db, 'pricing', user.id);
+            
+            const referralSnapshot = await getDocs(referralCol);
+            const pricingDocSnap = await getDoc(pricingDocRef);
 
-        const referralSnapshot = await getDocs(referralCol);
-        const pricingDocSnap = await getDoc(pricingDocRef);
+            user.referralData = referralSnapshot.docs.map(d => ({...d.data(), id: d.id}));
+            user.pricingData = pricingDocSnap.exists() ? [pricingDocSnap.data()] : [];
+
+            if (user.username) {
+                const referralsQuery = query(collection(db, 'users'), where('referralCode', '==', user.username));
+                const referralsSnapshot = await getDocs(referralsQuery);
+                user.referrals = referralsSnapshot.docs.map(doc => doc.data() as User);
+            } else {
+                user.referrals = [];
+            }
+            
+            return user;
+        });
         
-        userData.referralData = referralSnapshot.docs.map(d => ({...d.data(), id: d.id}));
-        if (pricingDocSnap.exists()) {
-          userData.pricingData = [pricingDocSnap.data()];
-        } else {
-          userData.pricingData = [];
-        }
-
-        return userData;
-      });
-
-      Promise.all(usersDataPromises).then(usersData => {
-          setUsers(usersData);
-          setLoading(false);
-      });
+        const usersWithDetails = await Promise.all(usersWithDetailsPromises);
+        setUsers(usersWithDetails);
+        setLoading(false);
     });
 
     return () => unsubscribe();
@@ -193,6 +197,7 @@ export default function UserManagement() {
               <TableHead>Code Pronostic</TableHead>
               <TableHead>Solde parrainage</TableHead>
               <TableHead>Code parrainage</TableHead>
+              <TableHead>Filleuls</TableHead>
               <TableHead>
                 <span className="sr-only">Actions</span>
               </TableHead>
@@ -202,7 +207,7 @@ export default function UserManagement() {
             {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                     <TableRow key={i}>
-                        <TableCell colSpan={14}>
+                        <TableCell colSpan={15}>
                            <Skeleton className="h-8 w-full" />
                         </TableCell>
                     </TableRow>
@@ -227,6 +232,7 @@ export default function UserManagement() {
                     <TableCell>{user.pronosticCode || 'N/A'}</TableCell>
                     <TableCell>{user.referralBalance ?? 0} FCFA</TableCell>
                     <TableCell>{user.referralCode || 'N/A'}</TableCell>
+                    <TableCell>{user.referrals?.length ?? 0}</TableCell>
                     <TableCell>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
