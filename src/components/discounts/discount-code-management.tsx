@@ -39,7 +39,7 @@ export default function DiscountCodeManagement() {
 
   useEffect(() => {
     setLoading(true);
-    const q = query(collection(db, "discountCodes"), orderBy('createdAt', 'desc'));
+    const q = query(collection(db, "promo"), orderBy('debutdate', 'desc'));
     
     const unsubscribe = onSnapshot(q, (snapshot) => {
         const codesData: DiscountCode[] = snapshot.docs.map(doc => ({
@@ -69,6 +69,23 @@ export default function DiscountCodeManagement() {
     });
   };
 
+  const getStatus = (code: DiscountCode) => {
+    const now = new Date();
+    const startDate = code.debutdate?.toDate();
+    const endDate = code.findate?.toDate();
+
+    if (startDate && endDate) {
+      if (now >= startDate && now <= endDate) {
+        return <Badge variant="default" className='bg-green-500/20 text-green-500 border-green-500/30'>Actif</Badge>;
+      } else if (now > endDate) {
+        return <Badge variant="destructive">Expiré</Badge>;
+      } else {
+        return <Badge variant="secondary">Programmé</Badge>;
+      }
+    }
+    return <Badge variant="outline">Inconnu</Badge>;
+  };
+
   return (
     <>
       <Card>
@@ -88,11 +105,13 @@ export default function DiscountCodeManagement() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Titre</TableHead>
                 <TableHead>Code</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Valeur</TableHead>
+                <TableHead>Pourcentage</TableHead>
+                <TableHead>Plan</TableHead>
+                <TableHead>Début</TableHead>
+                <TableHead>Fin</TableHead>
                 <TableHead>Statut</TableHead>
-                <TableHead>Expiration</TableHead>
                 <TableHead>
                   <span className="sr-only">Actions</span>
                 </TableHead>
@@ -102,7 +121,7 @@ export default function DiscountCodeManagement() {
               {loading ? (
                   Array.from({ length: 3 }).map((_, i) => (
                       <TableRow key={i}>
-                          <TableCell colSpan={6}>
+                          <TableCell colSpan={8}>
                             <Skeleton className="h-8 w-full" />
                           </TableCell>
                       </TableRow>
@@ -110,17 +129,15 @@ export default function DiscountCodeManagement() {
               ) : (
                 discountCodes.map((code) => (
                   <TableRow key={code.id}>
-                    <TableCell className="font-medium">{code.code}</TableCell>
+                    <TableCell className="font-medium">{code.titre}</TableCell>
+                    <TableCell>{code.code}</TableCell>
+                    <TableCell>{code.pourcentage}%</TableCell>
                     <TableCell>
-                        <Badge variant="secondary" className="capitalize">{code.discountType === 'fixed' ? 'Fixe' : 'Pourcentage'}</Badge>
+                        <Badge variant="secondary" className="capitalize">{code.plan}</Badge>
                     </TableCell>
-                    <TableCell>{code.discountType === 'fixed' ? `${code.value} FCFA` : `${code.value}%`}</TableCell>
-                    <TableCell>
-                      <Badge variant={code.isActive ? 'default' : 'outline'} className={code.isActive ? 'bg-green-500/20 text-green-500 border-green-500/30' : ''}>
-                        {code.isActive ? 'Actif' : 'Inactif'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{formatDate(code.expiresAt)}</TableCell>
+                    <TableCell>{formatDate(code.debutdate)}</TableCell>
+                    <TableCell>{formatDate(code.findate)}</TableCell>
+                    <TableCell>{getStatus(code)}</TableCell>
                     <TableCell>
                       <DropdownMenu>
                           <DropdownMenuTrigger asChild>
