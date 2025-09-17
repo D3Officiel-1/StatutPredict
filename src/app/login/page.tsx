@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -16,46 +16,77 @@ import CustomLoader from '@/components/ui/custom-loader';
 export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [correctPasswordLength, setCorrectPasswordLength] = useState<number | null>(null);
   const router = useRouter();
   const { toast } = useToast();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
+  useEffect(() => {
+    const fetchPasswordInfo = async () => {
+      try {
+        const docRef = doc(db, 'Predict', 'mot_de_passe');
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const correctPassword = docSnap.data().Admin;
+          setCorrectPasswordLength(correctPassword.length);
+        } else {
+            toast({
+                title: 'Erreur',
+                description: 'Impossible de charger la configuration du mot de passe.',
+                variant: 'destructive',
+            });
+        }
+      } catch (error) {
+        console.error("Error fetching password info: ", error);
+      }
+    };
+    fetchPasswordInfo();
+  }, [toast]);
 
-    try {
-      const docRef = doc(db, 'Predict', 'mot_de_passe');
-      const docSnap = await getDoc(docRef);
+  useEffect(() => {
+    const handleLogin = async () => {
+      if (!correctPasswordLength || password.length !== correctPasswordLength) {
+        return;
+      }
 
-      if (docSnap.exists()) {
-        const correctPassword = docSnap.data().Admin;
-        if (password === correctPassword) {
-          router.push('/dashboard');
+      setIsLoading(true);
+
+      try {
+        const docRef = doc(db, 'Predict', 'mot_de_passe');
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const correctPassword = docSnap.data().Admin;
+          if (password === correctPassword) {
+            router.push('/dashboard');
+          } else {
+            toast({
+              title: 'Erreur',
+              description: 'Mot de passe incorrect.',
+              variant: 'destructive',
+            });
+            setPassword('');
+          }
         } else {
           toast({
-            title: 'Erreur',
-            description: 'Mot de passe incorrect.',
-            variant: 'destructive',
-          });
+              title: 'Erreur',
+              description: 'Impossible de vérifier le mot de passe. Veuillez réessayer.',
+              variant: 'destructive',
+            });
         }
-      } else {
+      } catch (error) {
+        console.error("Error logging in: ", error);
         toast({
-            title: 'Erreur',
-            description: 'Impossible de vérifier le mot de passe. Veuillez réessayer.',
-            variant: 'destructive',
-          });
+          title: 'Erreur de connexion',
+          description: "Une erreur s'est produite. Veuillez réessayer.",
+          variant: 'destructive',
+        });
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error("Error logging in: ", error);
-      toast({
-        title: 'Erreur de connexion',
-        description: "Une erreur s'est produite. Veuillez réessayer.",
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    };
+
+    handleLogin();
+  }, [password, correctPasswordLength, router, toast]);
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
@@ -73,8 +104,8 @@ export default function LoginPage() {
             </div>
         </CardHeader>
         <CardContent>
-          <form className="space-y-4" onSubmit={handleLogin}>
-            <div className="space-y-2">
+          <div className="space-y-4">
+            <div className="relative">
               <Input 
                 id="password" 
                 type="password" 
@@ -83,13 +114,14 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
+                className="pl-10"
               />
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3">
+                {isLoading ? <CustomLoader /> : <Lock className="h-4 w-4 text-muted-foreground" />}
+              </div>
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? <CustomLoader /> : <Lock className="mr-2 h-4 w-4" />}
-              {isLoading ? 'Vérification...' : 'Se connecter'}
-            </Button>
-          </form>
+            {isLoading && <p className="text-sm text-center text-muted-foreground">Vérification en cours...</p>}
+          </div>
         </CardContent>
       </Card>
     </div>
