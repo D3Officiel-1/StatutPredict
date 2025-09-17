@@ -180,6 +180,10 @@ export default function UserManagement() {
               <TableHead>Code Pronostic</TableHead>
               <TableHead>Solde parrainage</TableHead>
               <TableHead>Code parrainage</TableHead>
+              <TableHead>Abonnement</TableHead>
+              <TableHead>ID Plan</TableHead>
+              <TableHead>Début</TableHead>
+              <TableHead>Fin</TableHead>
               <TableHead>
                 <span className="sr-only">Actions</span>
               </TableHead>
@@ -189,7 +193,7 @@ export default function UserManagement() {
             {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                     <TableRow key={i}>
-                        <TableCell colSpan={13}>
+                        <TableCell colSpan={18}>
                            <Skeleton className="h-8 w-full" />
                         </TableCell>
                     </TableRow>
@@ -214,6 +218,16 @@ export default function UserManagement() {
                     <TableCell>{user.pronosticCode || 'N/A'}</TableCell>
                     <TableCell>{user.referralBalance ?? 0}</TableCell>
                     <TableCell>{user.referralCode || 'N/A'}</TableCell>
+                    <TableCell>
+                        {user.pricingData && user.pricingData.length > 0 ? (
+                            <Badge variant={user.pricingData[0].actif_jetpredict ? 'default' : 'destructive'} className={user.pricingData[0].actif_jetpredict ? 'bg-green-500/20 text-green-500 border-green-500/30' : ''}>
+                                {user.pricingData[0].actif_jetpredict ? 'Actif' : 'Inactif'}
+                            </Badge>
+                        ) : 'N/A'}
+                    </TableCell>
+                    <TableCell>{user.pricingData?.[0]?.idplan_jetpredict || 'N/A'}</TableCell>
+                    <TableCell>{user.pricingData?.[0]?.startdate ? formatDate(user.pricingData[0].startdate) : 'N/A'}</TableCell>
+                    <TableCell>{user.pricingData?.[0]?.findate ? formatDate(user.pricingData[0].findate) : 'N/A'}</TableCell>
                     <TableCell>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
