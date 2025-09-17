@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { doc, writeBatch } from 'firebase/firestore';
+import { doc, writeBatch, collection } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { User } from '@/types';
 import { motion, AnimatePresence } from 'framer-motion';
