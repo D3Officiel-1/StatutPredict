@@ -37,7 +37,7 @@ import {
   } from "@/components/ui/dialog"
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, UserPlus, Trash, Edit, Copy, Award, Gift, Send } from 'lucide-react';
+import { MoreHorizontal, UserPlus, Trash, Edit, Copy, Award, Gift, Send, Info } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -253,6 +253,10 @@ export default function UserManagement() {
                         </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
+                        <DropdownMenuItem>
+                            <Info className="mr-2 h-4 w-4" />
+                            Détails
+                        </DropdownMenuItem>
                         <DropdownMenuItem onSelect={() => user.uid && copyToClipboard(user.uid)}>
                             <Copy className="mr-2 h-4 w-4" />
                             Copier l'UID
