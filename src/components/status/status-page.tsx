@@ -49,7 +49,7 @@ export default function StatusPage() {
             </Link>
           </div>
           <nav className="hidden md:flex flex-1 justify-center items-center gap-6 text-sm font-medium">
-              <Link href="#" className="text-foreground/60 transition-colors hover:text-foreground/80">
+              <Link href="/predict" className="text-foreground/60 transition-colors hover:text-foreground/80">
                   Predict
               </Link>
               <Link href="/" className="text-foreground transition-colors hover:text-foreground/80">
@@ -95,8 +95,8 @@ export default function StatusPage() {
             {Object.entries(groupedApps).map(([groupName, groupApps]) => (
                 <AccordionItem value={groupName} key={groupName} asChild>
                   <Card className="bg-card/50">
-                    <CardHeader>
-                        <AccordionTrigger className="p-0 hover:no-underline">
+                     <AccordionTrigger className="p-6 hover:no-underline">
+                        <CardHeader className="p-0 w-full">
                             <div className="flex justify-between items-center w-full">
                                 <CardTitle as="h2" className="text-xl font-semibold">
                                     {groupName}
@@ -105,8 +105,8 @@ export default function StatusPage() {
                                     <CheckCircle2 className="h-4 w-4 text-green-400" /> Opérationnel
                                 </Badge>
                             </div>
-                        </AccordionTrigger>
-                    </CardHeader>
+                        </CardHeader>
+                    </AccordionTrigger>
                     <AccordionContent asChild>
                         <CardContent className="space-y-6">
                             {groupApps.map((app) => (

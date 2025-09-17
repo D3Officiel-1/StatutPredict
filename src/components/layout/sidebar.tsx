@@ -18,6 +18,7 @@ import {
   Power,
   LogOut,
   ShieldCheck,
+  BrainCircuit,
 } from 'lucide-react';
 import { mainUser } from '@/lib/data';
 import Link from 'next/link';
@@ -62,6 +63,16 @@ const AppSidebar = () => {
             >
               <LayoutDashboard />
               <span>Tableau de bord</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+           <SidebarMenuItem>
+            <SidebarMenuButton
+              href="/predict"
+              isActive={isActive('/predict')}
+              tooltip="Prédictions"
+            >
+              <BrainCircuit />
+              <span>Prédictions</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>

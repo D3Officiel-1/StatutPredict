@@ -11,7 +11,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import { LogOut, User as UserIcon } from 'lucide-react';
+import { LogOut, User as UserIcon, BrainCircuit } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { mainUser } from '@/lib/data';
 
@@ -21,6 +21,9 @@ function getPageTitle(pathname: string): string {
   }
   if (pathname.startsWith('/dashboard')) {
     return 'Tableau de bord';
+  }
+  if (pathname.startsWith('/predict')) {
+    return 'Prédictions';
   }
   return 'Centre de Statut';
 }
