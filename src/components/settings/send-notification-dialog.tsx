@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { collection, addDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, doc, serverTimestamp, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { User, MediaItem } from '@/types';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -70,7 +70,17 @@ export default function SendNotificationDialog({ user, open, onOpenChange }: Sen
   });
   
   useEffect(() => {
-    // This could fetch user-specific media, but for now uses the global library
+    if (open) {
+      const q = query(collection(db, 'media_library'), orderBy('createdAt', 'desc'));
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        const mediaData: MediaItem[] = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        } as MediaItem));
+        setMediaLibrary(mediaData);
+      });
+      return () => unsubscribe();
+    }
   }, [open]);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
