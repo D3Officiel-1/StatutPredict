@@ -93,7 +93,8 @@ export default function StatusPage() {
 
           <Accordion type="multiple" defaultValue={Object.keys(groupedApps)} className="w-full space-y-6">
             {Object.entries(groupedApps).map(([groupName, groupApps]) => (
-                <Card as={AccordionItem} value={groupName} key={groupName} className="bg-card/50">
+                <AccordionItem value={groupName} key={groupName} asChild>
+                  <Card className="bg-card/50">
                     <CardHeader>
                         <AccordionTrigger className="p-0 hover:no-underline">
                             <div className="flex justify-between items-center w-full">
@@ -135,7 +136,8 @@ export default function StatusPage() {
                             </div>
                         </CardContent>
                     </AccordionContent>
-                </Card>
+                  </Card>
+                </AccordionItem>
             ))}
           </Accordion>
         </div>
