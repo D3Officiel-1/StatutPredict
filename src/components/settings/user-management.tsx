@@ -79,7 +79,7 @@ export default function UserManagement() {
             if (user.username) {
                 const referralsQuery = query(collection(db, 'users'), where('referralCode', '==', user.username));
                 const referralsSnapshot = await getDocs(referralsQuery);
-                user.referrals = referralsSnapshot.docs.map(doc => doc.data() as User);
+                user.referrals = referralsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as User));
             } else {
                 user.referrals = [];
             }
@@ -141,6 +141,13 @@ export default function UserManagement() {
   const handleManageReferralClick = (user: User) => {
     setSelectedUser(user);
     setIsManageReferralDialogOpen(true);
+  };
+
+  const handleUserUpdate = (updatedUser: User) => {
+    setUsers(currentUsers => currentUsers.map(u => u.id === updatedUser.id ? updatedUser : u));
+    if (selectedUser?.id === updatedUser.id) {
+        setSelectedUser(updatedUser);
+    }
   };
 
 
@@ -283,7 +290,13 @@ export default function UserManagement() {
       <ManageReferralDialog
         user={selectedUser}
         open={isManageReferralDialogOpen}
-        onOpenChange={setIsManageReferralDialogOpen}
+        onOpenChange={(isOpen) => {
+            setIsManageReferralDialogOpen(isOpen);
+            if (!isOpen) {
+                // Optionnel: rafraîchir les données de l'utilisateur à la fermeture
+            }
+        }}
+        onUserUpdate={handleUserUpdate}
       />
     )}
     </>

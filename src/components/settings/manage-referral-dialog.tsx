@@ -5,9 +5,9 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { doc, addDoc, collection, updateDoc, writeBatch } from 'firebase/firestore';
+import { doc, updateDoc, writeBatch } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import type { User, ReferralItem } from '@/types';
+import type { User } from '@/types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 import {
@@ -21,43 +21,31 @@ import {
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import CustomLoader from '../ui/custom-loader';
-import { X, PlusCircle, Save, Users } from 'lucide-react';
+import { X, Save, Users, PlusCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '../ui/card';
 import { ScrollArea } from '../ui/scroll-area';
 import { Input } from '../ui/input';
-import { Separator } from '../ui/separator';
+import AddReferralCommissionDialog from './add-referral-commission-dialog';
+
 
 interface ManageReferralDialogProps {
   user: User;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onUserUpdate: (user: User) => void;
 }
-
-const referralSchema = z.object({
-  fromUser: z.string().min(1, 'Le nom de l\'utilisateur est requis.'),
-  amount: z.coerce.number().min(1, 'Le montant doit être supérieur à 0.'),
-  plan: z.string().min(1, 'Le nom du plan est requis.'),
-});
 
 const balanceSchema = z.object({
     newBalance: z.coerce.number().min(0, 'Le solde ne peut pas être négatif.'),
 });
 
 
-export default function ManageReferralDialog({ user, open, onOpenChange }: ManageReferralDialogProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+export default function ManageReferralDialog({ user, open, onOpenChange, onUserUpdate }: ManageReferralDialogProps) {
   const [isUpdatingBalance, setIsUpdatingBalance] = useState(false);
+  const [selectedFilleul, setSelectedFilleul] = useState<User | null>(null);
+  const [isCommissionDialogOpen, setIsCommissionDialogOpen] = useState(false);
   const { toast } = useToast();
   
-  const referralForm = useForm<z.infer<typeof referralSchema>>({
-    resolver: zodResolver(referralSchema),
-    defaultValues: {
-      fromUser: '',
-      amount: 0,
-      plan: '',
-    },
-  });
-
   const balanceForm = useForm<z.infer<typeof balanceSchema>>({
     resolver: zodResolver(balanceSchema),
     defaultValues: {
@@ -72,44 +60,6 @@ export default function ManageReferralDialog({ user, open, onOpenChange }: Manag
     return 'N/A';
   };
 
-  const handleAddReferral = async (values: z.infer<typeof referralSchema>) => {
-    if (!user.uid) return;
-    setIsSubmitting(true);
-    try {
-        const batch = writeBatch(db);
-        const userRef = doc(db, 'users', user.uid);
-        const referralRef = collection(userRef, 'referral');
-        
-        const newReferral = {
-            fromUser: values.fromUser,
-            amount: values.amount,
-            plan: values.plan,
-            date: new Date(),
-        };
-        batch.set(doc(referralRef), newReferral);
-
-        const newBalance = (user.referralBalance || 0) + values.amount;
-        batch.update(userRef, { referralBalance: newBalance });
-
-        await batch.commit();
-        
-        toast({
-            title: 'Parrainage ajouté',
-            description: `Le parrainage de ${values.amount} FCFA a été ajouté pour ${user.username}.`,
-        });
-        referralForm.reset();
-    } catch (error) {
-        console.error("Error adding referral: ", error);
-        toast({
-            title: 'Erreur',
-            description: 'Impossible d\'ajouter le parrainage.',
-            variant: 'destructive',
-        });
-    } finally {
-        setIsSubmitting(false);
-    }
-  };
-
   const handleUpdateBalance = async (values: z.infer<typeof balanceSchema>) => {
     if (!user.uid) return;
     setIsUpdatingBalance(true);
@@ -118,6 +68,10 @@ export default function ManageReferralDialog({ user, open, onOpenChange }: Manag
         await updateDoc(userRef, {
             referralBalance: values.newBalance,
         });
+
+        const updatedUser = { ...user, referralBalance: values.newBalance };
+        onUserUpdate(updatedUser);
+
         toast({
             title: 'Solde mis à jour',
             description: `Le solde de parrainage de ${user.username} est maintenant de ${values.newBalance} FCFA.`,
@@ -134,7 +88,13 @@ export default function ManageReferralDialog({ user, open, onOpenChange }: Manag
     }
   };
 
+  const handleFilleulClick = (filleul: User) => {
+    setSelectedFilleul(filleul);
+    setIsCommissionDialogOpen(true);
+  }
+
   return (
+    <>
     <AnimatePresence>
       {open && (
         <motion.div
@@ -166,7 +126,7 @@ export default function ManageReferralDialog({ user, open, onOpenChange }: Manag
                 <div className="md:col-span-1 space-y-6">
                     <Card>
                         <CardHeader>
-                            <CardTitle className="text-base">Historique des parrainages</CardTitle>
+                            <CardTitle className="text-base">Historique des commissions</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <ScrollArea className="h-48">
@@ -187,7 +147,7 @@ export default function ManageReferralDialog({ user, open, onOpenChange }: Manag
                                         </div>
                                     ))
                                 ) : (
-                                    <p className="text-sm text-muted-foreground text-center py-10">Aucun parrainage pour cet utilisateur.</p>
+                                    <p className="text-sm text-muted-foreground text-center py-10">Aucune commission reçue.</p>
                                 )}
                                 </div>
                             </ScrollArea>
@@ -204,9 +164,9 @@ export default function ManageReferralDialog({ user, open, onOpenChange }: Manag
                             <ScrollArea className="h-48">
                                 <div className="space-y-2">
                                     {user.referrals && user.referrals.length > 0 ? (
-                                        user.referrals.map((referral, index) => (
-                                            <div key={index} className="p-2 bg-muted/50 rounded-md text-sm">
-                                                <p className="font-medium">{referral.username || referral.email}</p>
+                                        user.referrals.map((filleul) => (
+                                            <div key={filleul.id} className="p-2 bg-muted/50 rounded-md text-sm cursor-pointer hover:bg-muted" onClick={() => handleFilleulClick(filleul)}>
+                                                <p className="font-medium">{filleul.username || filleul.email}</p>
                                             </div>
                                         ))
                                     ) : (
@@ -248,62 +208,6 @@ export default function ManageReferralDialog({ user, open, onOpenChange }: Manag
                             </form>
                         </Form>
                     </Card>
-
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-base">Ajouter un parrainage</CardTitle>
-                        </CardHeader>
-                         <Form {...referralForm}>
-                            <form onSubmit={referralForm.handleSubmit(handleAddReferral)}>
-                                <CardContent className="space-y-4">
-                                     <FormField
-                                        control={referralForm.control}
-                                        name="fromUser"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                            <FormLabel>De l'utilisateur</FormLabel>
-                                            <FormControl>
-                                                <Input placeholder="Nom de l'utilisateur parrain" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={referralForm.control}
-                                        name="amount"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                            <FormLabel>Montant (FCFA)</FormLabel>
-                                            <FormControl>
-                                                <Input type="number" placeholder="500" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={referralForm.control}
-                                        name="plan"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                            <FormLabel>Plan souscrit</FormLabel>
-                                            <FormControl>
-                                                <Input placeholder="Ex: Mensuel" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </CardContent>
-                                <CardFooter>
-                                    <Button type="submit" disabled={isSubmitting} className="w-full">
-                                        {isSubmitting ? <CustomLoader /> : <><PlusCircle className="mr-2" />Ajouter le parrainage</>}
-                                    </Button>
-                                </CardFooter>
-                            </form>
-                        </Form>
-                    </Card>
                 </div>
             </div>
 
@@ -314,5 +218,18 @@ export default function ManageReferralDialog({ user, open, onOpenChange }: Manag
         </motion.div>
       )}
     </AnimatePresence>
+    {selectedFilleul && (
+        <AddReferralCommissionDialog
+            parrain={user}
+            filleul={selectedFilleul}
+            open={isCommissionDialogOpen}
+            onOpenChange={setIsCommissionDialogOpen}
+            onCommissionAdded={(updatedUser) => {
+                onUserUpdate(updatedUser);
+                balanceForm.setValue('newBalance', updatedUser.referralBalance || 0);
+            }}
+        />
+    )}
+    </>
   );
 }
