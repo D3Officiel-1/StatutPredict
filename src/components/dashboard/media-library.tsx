@@ -26,7 +26,7 @@ export default function MediaLibrary({ mediaItems, onSelect }: MediaLibraryProps
         {mediaItems.map((item) => (
           <div
             key={item.id}
-            className="relative aspect-square cursor-pointer group"
+            className="relative aspect-square cursor-pointer group bg-muted rounded-md overflow-hidden"
             onClick={() => onSelect(item)}
           >
             {item.type.startsWith('image/') ? (
@@ -34,20 +34,24 @@ export default function MediaLibrary({ mediaItems, onSelect }: MediaLibraryProps
                 src={item.url}
                 alt="Média de la bibliothèque"
                 layout="fill"
-                className="object-cover rounded-md transition-transform group-hover:scale-105"
+                className="object-cover transition-transform group-hover:scale-105"
               />
+            ) : item.type.startsWith('video/') ? (
+                <video
+                    src={item.url}
+                    muted
+                    className="w-full h-full object-cover"
+                />
             ) : (
-              <div className="w-full h-full bg-muted rounded-md flex items-center justify-center">
-                {item.type.startsWith('video/') ? (
-                  <Video className="w-10 h-10 text-muted-foreground" />
-                ) : item.type.startsWith('audio/') ? (
+              <div className="w-full h-full flex items-center justify-center">
+                {item.type.startsWith('audio/') ? (
                   <FileAudio className="w-10 h-10 text-muted-foreground" />
                 ) : (
                   <FileQuestion className="w-10 h-10 text-muted-foreground" />
                 )}
               </div>
             )}
-            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity rounded-md">
+            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
               <p className="text-white text-xs text-center p-1">Sélectionner</p>
             </div>
           </div>
