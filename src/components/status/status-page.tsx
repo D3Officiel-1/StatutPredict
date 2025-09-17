@@ -29,11 +29,6 @@ export default function StatusPage() {
               Statut Predict
             </span>
           </Link>
-          <Button asChild>
-            <Link href="/dashboard">
-              Accéder au tableau de bord
-            </Link>
-          </Button>
         </div>
       </header>
 
