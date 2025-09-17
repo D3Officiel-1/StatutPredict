@@ -21,7 +21,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import CustomLoader from '../ui/custom-loader';
-import { X, PlusCircle, Save } from 'lucide-react';
+import { X, PlusCircle, Save, Users } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '../ui/card';
 import { ScrollArea } from '../ui/scroll-area';
 import { Input } from '../ui/input';
@@ -145,7 +145,7 @@ export default function ManageReferralDialog({ user, open, onOpenChange }: Manag
           onClick={() => onOpenChange(false)}
         >
           <motion.div
-            className="bg-card p-6 rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+            className="bg-card p-6 rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto"
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
@@ -162,38 +162,63 @@ export default function ManageReferralDialog({ user, open, onOpenChange }: Manag
               </Button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-base">Historique des parrainages</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <ScrollArea className="h-72">
-                            <div className="space-y-4">
-                            {user.referralData && user.referralData.length > 0 ? (
-                                user.referralData.map((referral, index) => (
-                                    <div key={index} className="p-3 bg-muted/50 rounded-md text-sm">
-                                        <div className="flex justify-between items-center">
-                                            <div>
-                                                <p><span className="font-semibold">De:</span> {referral.fromUser}</p>
-                                                <p><span className="font-semibold">Montant:</span> {referral.amount} FCFA</p>
-                                            </div>
-                                            <div>
-                                                <p><span className="font-semibold">Plan:</span> {referral.plan}</p>
-                                                <p className="text-xs text-muted-foreground">{formatDate(referral.date)}</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="md:col-span-1 space-y-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-base">Historique des parrainages</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <ScrollArea className="h-48">
+                                <div className="space-y-4">
+                                {user.referralData && user.referralData.length > 0 ? (
+                                    user.referralData.map((referral, index) => (
+                                        <div key={index} className="p-3 bg-muted/50 rounded-md text-sm">
+                                            <div className="flex justify-between items-center">
+                                                <div>
+                                                    <p><span className="font-semibold">De:</span> {referral.fromUser}</p>
+                                                    <p><span className="font-semibold">Montant:</span> {referral.amount} FCFA</p>
+                                                </div>
+                                                <div>
+                                                    <p><span className="font-semibold">Plan:</span> {referral.plan}</p>
+                                                    <p className="text-xs text-muted-foreground">{formatDate(referral.date)}</p>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))
-                            ) : (
-                                <p className="text-sm text-muted-foreground text-center py-10">Aucun parrainage pour cet utilisateur.</p>
-                            )}
-                            </div>
-                        </ScrollArea>
-                    </CardContent>
-                </Card>
+                                    ))
+                                ) : (
+                                    <p className="text-sm text-muted-foreground text-center py-10">Aucun parrainage pour cet utilisateur.</p>
+                                )}
+                                </div>
+                            </ScrollArea>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-base flex items-center gap-2">
+                                <Users className="h-5 w-5" />
+                                Filleuls ({user.referrals?.length ?? 0})
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <ScrollArea className="h-48">
+                                <div className="space-y-2">
+                                    {user.referrals && user.referrals.length > 0 ? (
+                                        user.referrals.map((referral, index) => (
+                                            <div key={index} className="p-2 bg-muted/50 rounded-md text-sm">
+                                                <p className="font-medium">{referral.username || referral.email}</p>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-sm text-muted-foreground text-center py-10">Aucun filleul pour cet utilisateur.</p>
+                                    )}
+                                </div>
+                            </ScrollArea>
+                        </CardContent>
+                    </Card>
+                </div>
 
-                <div className="space-y-6">
+                <div className="md:col-span-2 space-y-6">
                     <Card>
                         <CardHeader>
                             <CardTitle className="text-base">Modifier le solde</CardTitle>
@@ -217,8 +242,7 @@ export default function ManageReferralDialog({ user, open, onOpenChange }: Manag
                                 </CardContent>
                                 <CardFooter>
                                      <Button type="submit" disabled={isUpdatingBalance} className="w-full">
-                                        {isUpdatingBalance ? <CustomLoader /> : <Save />}
-                                        Enregistrer le solde
+                                        {isUpdatingBalance ? <CustomLoader /> : <><Save className="mr-2" />Enregistrer le solde</>}
                                     </Button>
                                 </CardFooter>
                             </form>
@@ -274,8 +298,7 @@ export default function ManageReferralDialog({ user, open, onOpenChange }: Manag
                                 </CardContent>
                                 <CardFooter>
                                     <Button type="submit" disabled={isSubmitting} className="w-full">
-                                        {isSubmitting ? <CustomLoader /> : <PlusCircle />}
-                                        Ajouter le parrainage
+                                        {isSubmitting ? <CustomLoader /> : <><PlusCircle className="mr-2" />Ajouter le parrainage</>}
                                     </Button>
                                 </CardFooter>
                             </form>
