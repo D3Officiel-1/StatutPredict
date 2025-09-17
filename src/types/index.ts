@@ -16,8 +16,22 @@ export interface Application {
 
 export interface User {
   id: string;
-  name:string;
+  createdAt?: any;
+  dob?: string;
   email: string;
+  favoriteGame?: string;
+  firstName?: string;
+  gender?: string;
+  isOnline?: boolean;
+  lastName?: string;
+  phone?: string;
+  pronosticCode?: string;
+  referralBalance?: number;
+  referralCode?: string;
+  solde_referral?: number;
+  uid?: string;
+  username?: string;
+  name?: string; // Keep for backward compatibility if some docs still use it
 }
 
 export interface MediaItem {
