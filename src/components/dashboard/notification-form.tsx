@@ -5,7 +5,7 @@ import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { generateNotificationSuggestions, type NotificationSuggestionsInput } from '@/ai/flows/intelligent-notification-suggestions';
-import { collection, onSnapshot } from 'firebase/firestore';
+import { collection, onSnapshot, addDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Application } from '@/types';
 
@@ -38,6 +38,7 @@ const userTiers = [
 export default function NotificationForm() {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [applications, setApplications] = useState<Application[]>([]);
   const { toast } = useToast();
 
@@ -112,12 +113,32 @@ export default function NotificationForm() {
   };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    toast({
-      title: 'Notification envoyée!',
-      description: `Message envoyé à ${values.targetApps.length} application(s).`,
-    });
-    form.reset();
+    setIsSubmitting(true);
+    try {
+      await addDoc(collection(db, 'notifications'), {
+        message: values.notificationMessage,
+        targetApps: values.targetApps,
+        targetUsers: values.targetUsers,
+        currentEvents: values.currentEvents,
+        createdAt: new Date(),
+      });
+
+      toast({
+        title: 'Notification envoyée !',
+        description: `Message envoyé à ${values.targetApps.length} application(s) et sauvegardé.`,
+      });
+      form.reset();
+      setSuggestions([]);
+    } catch (error) {
+      console.error('Error sending notification:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Impossible d\'envoyer ou de sauvegarder la notification.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -150,11 +171,7 @@ export default function NotificationForm() {
               disabled={isGenerating || !currentEventsValue || currentEventsValue.length < 10}
               className="w-full"
             >
-              {isGenerating ? (
-                <CustomLoader />
-              ) : (
-                <Sparkles />
-              )}
+              {isGenerating ? <CustomLoader /> : <Sparkles />}
               <span>Générer des suggestions</span>
             </Button>
             
@@ -267,8 +284,8 @@ export default function NotificationForm() {
 
           </CardContent>
           <CardFooter>
-            <Button type="submit" className="w-full">
-              <Send />
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? <CustomLoader /> : <Send />}
               Envoyer la notification
             </Button>
           </CardFooter>
