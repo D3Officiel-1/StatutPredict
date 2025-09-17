@@ -3,9 +3,12 @@
 import type { Application, AppStatus } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
-import { Globe, Smartphone, Server, Power, ShieldAlert } from 'lucide-react';
+import { Globe, Smartphone, Server, Power, ShieldAlert, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
+import MaintenanceConfigDialog from './maintenance-config-dialog';
+import { Button } from '@/components/ui/button';
+import { useState } from 'react';
 
 interface AppStatusCardProps {
   app: Application;
@@ -28,6 +31,7 @@ const AppIcon = ({ type }: { type: Application['type'] }) => {
 
 export default function AppStatusCard({ app, onStatusChange }: AppStatusCardProps) {
   const isMaintenance = app.status === 'maintenance';
+  const [isConfigOpen, setIsConfigOpen] = useState(false);
 
   const handleSwitchChange = (checked: boolean) => {
     onStatusChange(app.id, checked ? 'maintenance' : 'active');
@@ -35,11 +39,18 @@ export default function AppStatusCard({ app, onStatusChange }: AppStatusCardProp
 
   return (
     <Card className="flex flex-col transition-all hover:shadow-lg">
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
+      <CardHeader className="flex flex-row items-start justify-between pb-2">
         <CardTitle as="h4" className="text-base font-medium font-headline">
           {app.name}
         </CardTitle>
-        <AppIcon type={app.type} />
+        <div className="flex items-center gap-2">
+            <AppIcon type={app.type} />
+            <MaintenanceConfigDialog app={app} open={isConfigOpen} onOpenChange={setIsConfigOpen}>
+              <Button variant="ghost" size="icon" className="h-6 w-6">
+                  <Settings className="h-4 w-4" />
+              </Button>
+            </MaintenanceConfigDialog>
+        </div>
       </CardHeader>
       <CardContent className="flex flex-grow flex-col justify-between">
         <div>
