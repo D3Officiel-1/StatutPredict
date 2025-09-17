@@ -97,14 +97,6 @@ const AppSidebar = () => {
             </div>
           )}
         </div>
-        <SidebarMenuButton
-          href="#"
-          className="mt-2"
-          tooltip="Déconnexion"
-        >
-          <LogOut />
-          <span>Déconnexion</span>
-        </SidebarMenuButton>
       </SidebarFooter>
     </>
   );

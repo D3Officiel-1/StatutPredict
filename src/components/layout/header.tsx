@@ -53,11 +53,6 @@ export default function AppHeader() {
             <UserIcon />
             <span>Profil</span>
           </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <LogOut />
-            <span>Déconnexion</span>
-          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </header>
