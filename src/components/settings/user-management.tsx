@@ -46,6 +46,7 @@ import { useToast } from '@/hooks/use-toast';
 import ActivatePlanDialog from './activate-plan-dialog';
 import ManageReferralDialog from './manage-referral-dialog';
 import SendNotificationDialog from './send-notification-dialog';
+import UserDetailsDialog from './user-details-dialog';
 
 export default function UserManagement() {
   const [users, setUsers] = useState<User[]>([]);
@@ -54,6 +55,7 @@ export default function UserManagement() {
   const [isActivatePlanDialogOpen, setIsActivatePlanDialogOpen] = useState(false);
   const [isManageReferralDialogOpen, setIsManageReferralDialogOpen] = useState(false);
   const [isSendNotificationDialogOpen, setIsSendNotificationDialogOpen] = useState(false);
+  const [isUserDetailsDialogOpen, setIsUserDetailsDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const { toast } = useToast();
 
@@ -78,8 +80,8 @@ export default function UserManagement() {
             user.referralData = referralSnapshot.docs.map(d => ({...d.data(), id: d.id}));
             user.pricingData = pricingDocSnap.exists() ? [pricingDocSnap.data()] : [];
 
-            if (user.username) {
-                const referralsQuery = query(collection(db, 'users'), where('referralCode', '==', user.username));
+            if (user.referralCode) {
+                const referralsQuery = query(collection(db, 'users'), where('referralCode', '==', user.referralCode));
                 const referralsSnapshot = await getDocs(referralsQuery);
                 user.referrals = referralsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as User));
             } else {
@@ -136,6 +138,11 @@ export default function UserManagement() {
       });
       console.error('Could not copy text: ', err);
     });
+  };
+  
+  const handleDetailsClick = (user: User) => {
+    setSelectedUser(user);
+    setIsUserDetailsDialogOpen(true);
   };
 
   const handleActivatePlanClick = (user: User) => {
@@ -202,16 +209,16 @@ export default function UserManagement() {
           <TableHeader>
             <TableRow>
               <TableHead>Username</TableHead>
-              <TableHead>Email</TableHead>
+              <TableHead className="hidden lg:table-cell">Email</TableHead>
               <TableHead>Statut</TableHead>
-              <TableHead>Prénom</TableHead>
-              <TableHead>Nom</TableHead>
-              <TableHead>Date de création</TableHead>
-              <TableHead>Date de naissance</TableHead>
-              <TableHead>Genre</TableHead>
-              <TableHead>Téléphone</TableHead>
-              <TableHead>Jeu favori</TableHead>
-              <TableHead>Code Pronostic</TableHead>
+              <TableHead className="hidden md:table-cell">Prénom</TableHead>
+              <TableHead className="hidden md:table-cell">Nom</TableHead>
+              <TableHead className="hidden xl:table-cell">Date de création</TableHead>
+              <TableHead className="hidden xl:table-cell">Date de naissance</TableHead>
+              <TableHead className="hidden xl:table-cell">Genre</TableHead>
+              <TableHead className="hidden xl:table-cell">Téléphone</TableHead>
+              <TableHead className="hidden xl:table-cell">Jeu favori</TableHead>
+              <TableHead className="hidden xl:table-cell">Code Pronostic</TableHead>
               <TableHead>
                 <span className="sr-only">Actions</span>
               </TableHead>
@@ -230,20 +237,20 @@ export default function UserManagement() {
                 users.map((user) => (
                 <TableRow key={user.id}>
                     <TableCell className="font-medium">{user.username || 'N/A'}</TableCell>
-                    <TableCell>{user.email}</TableCell>
+                    <TableCell className="hidden lg:table-cell">{user.email}</TableCell>
                     <TableCell>
                       <Badge variant={user.isOnline ? 'default' : 'outline'} className={user.isOnline ? 'bg-green-500/20 text-green-500 border-green-500/30' : ''}>
                         {user.isOnline ? 'En ligne' : 'Hors ligne'}
                       </Badge>
                     </TableCell>
-                    <TableCell>{user.firstName || 'N/A'}</TableCell>
-                    <TableCell>{user.lastName || 'N/A'}</TableCell>
-                    <TableCell>{formatDate(user.createdAt)}</TableCell>
-                    <TableCell>{formatDate(user.dob)}</TableCell>
-                    <TableCell>{user.gender || 'N/A'}</TableCell>
-                    <TableCell>{user.phone || 'N/A'}</TableCell>
-                    <TableCell>{user.favoriteGame || 'NA'}</TableCell>
-                    <TableCell>{user.pronosticCode || 'N/A'}</TableCell>
+                    <TableCell className="hidden md:table-cell">{user.firstName || 'N/A'}</TableCell>
+                    <TableCell className="hidden md:table-cell">{user.lastName || 'N/A'}</TableCell>
+                    <TableCell className="hidden xl:table-cell">{formatDate(user.createdAt)}</TableCell>
+                    <TableCell className="hidden xl:table-cell">{formatDate(user.dob)}</TableCell>
+                    <TableCell className="hidden xl:table-cell">{user.gender || 'N/A'}</TableCell>
+                    <TableCell className="hidden xl:table-cell">{user.phone || 'N/A'}</TableCell>
+                    <TableCell className="hidden xl:table-cell">{user.favoriteGame || 'NA'}</TableCell>
+                    <TableCell className="hidden xl:table-cell">{user.pronosticCode || 'N/A'}</TableCell>
                     <TableCell>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -253,7 +260,7 @@ export default function UserManagement() {
                         </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => handleDetailsClick(user)}>
                             <Info className="mr-2 h-4 w-4" />
                             Détails
                         </DropdownMenuItem>
@@ -291,6 +298,13 @@ export default function UserManagement() {
         </Table>
       </CardContent>
     </Card>
+    {selectedUser && (
+        <UserDetailsDialog
+          user={selectedUser}
+          open={isUserDetailsDialogOpen}
+          onOpenChange={setIsUserDetailsDialogOpen}
+        />
+    )}
     {selectedUser && (
       <ActivatePlanDialog
         user={selectedUser}
