@@ -44,6 +44,7 @@ export default function LoginPage() {
   useEffect(() => {
     const handleLogin = async () => {
       if (!correctPasswordLength || password.length !== correctPasswordLength) {
+        if (isLoading) setIsLoading(false);
         return;
       }
 
@@ -58,12 +59,9 @@ export default function LoginPage() {
           if (password === correctPassword) {
             router.push('/dashboard');
           } else {
-            toast({
-              title: 'Erreur',
-              description: 'Mot de passe incorrect.',
-              variant: 'destructive',
-            });
-            setPassword('');
+            // Silently do nothing on incorrect password
+            // The user can continue typing.
+            // We'll stop the loader if the length becomes incorrect in the next check.
           }
         } else {
           toast({
@@ -80,14 +78,15 @@ export default function LoginPage() {
           variant: 'destructive',
         });
       } finally {
-        setIsLoading(false);
+        // Don't set loading to false here immediately on incorrect password
+        // to avoid visual flicker. It will be turned off if length changes.
       }
     };
 
     if (password) {
       handleLogin();
     }
-  }, [password, correctPasswordLength, router, toast]);
+  }, [password, correctPasswordLength, router, toast, isLoading]);
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
@@ -113,14 +112,14 @@ export default function LoginPage() {
                 required 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                disabled={isLoading}
+                disabled={isLoading && password.length === correctPasswordLength}
                 className="pl-10 text-center"
               />
               <div className="absolute inset-y-0 left-0 flex items-center pl-3">
-                {isLoading ? <CustomLoader /> : null}
+                {isLoading && password.length === correctPasswordLength ? <CustomLoader /> : null}
               </div>
             </div>
-            {isLoading && <p className="text-sm text-center text-muted-foreground">Vérification en cours...</p>}
+            {isLoading && password.length === correctPasswordLength && <p className="text-sm text-center text-muted-foreground">Vérification en cours...</p>}
           </div>
         </CardContent>
       </Card>
