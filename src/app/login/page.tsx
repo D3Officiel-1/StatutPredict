@@ -4,9 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -85,7 +84,9 @@ export default function LoginPage() {
       }
     };
 
-    handleLogin();
+    if (password) {
+      handleLogin();
+    }
   }, [password, correctPasswordLength, router, toast]);
 
   return (
@@ -114,9 +115,10 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
+                className="pl-10"
               />
               <div className="absolute inset-y-0 left-0 flex items-center pl-3">
-                {isLoading && <CustomLoader />}
+                {isLoading ? <CustomLoader /> : null}
               </div>
             </div>
             {isLoading && <p className="text-sm text-center text-muted-foreground">Vérification en cours...</p>}
