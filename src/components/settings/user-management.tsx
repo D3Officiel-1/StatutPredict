@@ -34,9 +34,8 @@ import {
     DialogTrigger,
   } from "@/components/ui/dialog"
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, PlusCircle, Trash, Edit, UserPlus } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Trash, Edit, UserPlus, User as UserIcon } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 
@@ -95,10 +94,9 @@ export default function UserManagement() {
               <TableRow key={user.id}>
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <Avatar className="hidden h-9 w-9 sm:flex">
-                        <AvatarImage src={user.avatarUrl} alt={user.name} />
-                        <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
+                    <div className="hidden h-9 w-9 sm:flex items-center justify-center">
+                        <UserIcon />
+                    </div>
                     <div className="grid gap-0.5">
                         <p className="font-medium">{user.name}</p>
                         <p className="text-xs text-muted-foreground">{user.email}</p>

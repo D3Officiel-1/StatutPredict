@@ -11,7 +11,6 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Separator } from '@/components/ui/separator';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   LayoutDashboard,
   Settings,
@@ -19,6 +18,7 @@ import {
   LogOut,
   ShieldCheck,
   BrainCircuit,
+  User as UserIcon,
 } from 'lucide-react';
 import { mainUser } from '@/lib/data';
 import Link from 'next/link';
@@ -85,10 +85,7 @@ const AppSidebar = () => {
             state === 'collapsed' ? 'justify-center' : ''
           }`}
         >
-          <Avatar className="h-9 w-9">
-            <AvatarImage src={mainUser.avatarUrl} alt={mainUser.name} />
-            <AvatarFallback>{mainUser.name.charAt(0)}</AvatarFallback>
-          </Avatar>
+          <UserIcon className="h-9 w-9" />
           {state === 'expanded' && (
             <div className="ml-3 overflow-hidden">
               <p className="text-sm font-medium text-sidebar-foreground truncate">

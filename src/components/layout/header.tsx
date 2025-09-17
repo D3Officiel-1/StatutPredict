@@ -8,7 +8,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { LogOut, User as UserIcon, BrainCircuit } from 'lucide-react';
@@ -39,10 +38,7 @@ export default function AppHeader() {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-            <Avatar className="h-9 w-9">
-              <AvatarImage src={mainUser.avatarUrl} alt={mainUser.name} />
-              <AvatarFallback>{mainUser.name.charAt(0)}</AvatarFallback>
-            </Avatar>
+            <UserIcon />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" align="end" forceMount>
