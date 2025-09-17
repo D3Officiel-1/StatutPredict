@@ -1,35 +1,80 @@
 'use client';
 
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar, Clock, CheckCircle, ChevronLeft, ChevronRight, Tool } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { collection, getDocs, orderBy, query } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { Card, CardContent } from '@/components/ui/card';
+import { CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 
-const upcomingMaintenances = {
-  'Décembre 2024': [],
-  'Janvier 2025': [
-    {
-      id: 1,
-      date: '03 Janv 2025',
-      title: 'Mise à jour du lecteur vidéo',
-      status: 'Résolu',
-      resolvedAt: '03 Janv à 01:00 CET',
-      description: 'Le lecteur vidéo des films et séries peut être indisponible pendant quelques minutes.',
-    },
-  ],
-  'Février 2025': [],
-};
+interface MaintenanceEvent {
+  id: string;
+  date: string; // Keep as string for display consistency
+  title: string;
+  status: string;
+  resolvedAt: string;
+  description: string;
+}
 
 const allMonths = [
     "Janvier", "Février", "Mars", "Avril", "Mai", "Juin", 
     "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
 ];
 
+const monthNameToNumber: { [key: string]: number } = {
+  "Janvier": 0, "Février": 1, "Mars": 2, "Avril": 3, "Mai": 4, "Juin": 5,
+  "Juillet": 6, "Août": 7, "Septembre": 8, "Octobre": 9, "Novembre": 10, "Décembre": 11
+};
+
 export default function MaintenancePage() {
-    const [currentDate, setCurrentDate] = useState(new Date('2024-12-01'));
+    const [currentDate, setCurrentDate] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
+    const [maintenances, setMaintenances] = useState<{ [key: string]: MaintenanceEvent[] }>({});
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchMaintenances = async () => {
+            setIsLoading(true);
+            try {
+                const maintenanceCollection = collection(db, 'maintenance');
+                const q = query(maintenanceCollection, orderBy('date', 'desc'));
+                const querySnapshot = await getDocs(q);
+                
+                const eventsByMonth: { [key: string]: MaintenanceEvent[] } = {};
+
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const eventDate = (data.date as any).toDate();
+                    
+                    const monthYearKey = `${allMonths[eventDate.getMonth()]} ${eventDate.getFullYear()}`;
+                    
+                    if (!eventsByMonth[monthYearKey]) {
+                        eventsByMonth[monthYearKey] = [];
+                    }
+
+                    eventsByMonth[monthYearKey].push({
+                        id: doc.id,
+                        date: `${eventDate.getDate().toString().padStart(2, '0')} ${allMonths[eventDate.getMonth()].slice(0,3)} ${eventDate.getFullYear()}`,
+                        title: data.title,
+                        status: data.status,
+                        resolvedAt: data.resolvedAt ? `${(data.resolvedAt as any).toDate().toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} à ${(data.resolvedAt as any).toDate().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' })}` : '',
+                        description: data.description,
+                    });
+                });
+                
+                setMaintenances(eventsByMonth);
+            } catch (error) {
+                console.error("Erreur lors de la récupération des maintenances: ", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchMaintenances();
+    }, []);
 
     const handlePrevMonth = () => {
         setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
@@ -109,13 +154,26 @@ export default function MaintenancePage() {
 
           <div className="space-y-12">
             {displayedMonths.map((month) => {
-              const events = upcomingMaintenances[month as keyof typeof upcomingMaintenances] || [];
+              const events = maintenances[month] || [];
+              const [monthName, year] = month.split(' ');
+              const monthIndex = monthNameToNumber[monthName];
+              const displayDate = new Date(parseInt(year), monthIndex, 1);
+
+              const isVisible = displayDate >= new Date(currentDate.getFullYear(), currentDate.getMonth(), 1) &&
+                                displayDate <= new Date(currentDate.getFullYear(), currentDate.getMonth() + 2, 1);
+
+              if (!isVisible) return null;
+              
               return (
                 <div key={month}>
                   <h2 className="text-xl font-semibold mb-4 font-headline">{month}</h2>
                   <Card className="bg-card/50">
                     <CardContent className="p-6">
-                      {events.length === 0 ? (
+                      {isLoading ? (
+                        <div className="space-y-4">
+                            <Skeleton className="h-24 w-full" />
+                        </div>
+                      ) : events.length === 0 ? (
                         <div className="flex flex-col items-center justify-center text-center text-muted-foreground py-8">
                           <CheckCircle className="h-8 w-8 mb-2" />
                           <p>Aucune maintenance</p>
@@ -131,10 +189,10 @@ export default function MaintenancePage() {
                                       <div className="border rounded-lg p-4 bg-background">
                                           <div className="flex justify-between items-start">
                                               <h3 className="font-semibold text-lg">{event.title}</h3>
-                                              <Badge variant="outline">Maintenance</Badge>
+                                              <Badge variant={event.status === 'Résolu' ? 'outline' : 'default'}>{event.status}</Badge>
                                           </div>
                                           <div className="mt-4 p-4 rounded-md bg-muted/50">
-                                              <div className="flex items-center gap-2 text-sm text-green-400">
+                                              <div className={`flex items-center gap-2 text-sm ${event.status === 'Résolu' ? 'text-green-400' : 'text-amber-400'}`}>
                                                   <CheckCircle className="h-4 w-4" />
                                                   <span>{event.status} {event.resolvedAt}</span>
                                               </div>
