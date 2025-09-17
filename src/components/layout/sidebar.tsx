@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { mainUser } from '@/lib/data';
 import Link from 'next/link';
+import Image from 'next/image';
 
 const AppSidebar = () => {
   const pathname = usePathname();
@@ -34,9 +35,7 @@ const AppSidebar = () => {
     <>
       <SidebarHeader>
         <Link href="/dashboard" className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-            <Power className="h-6 w-6 text-primary-foreground" />
-          </div>
+          <Image src="https://i.postimg.cc/jS25XGKL/Capture-d-cran-2025-09-03-191656-4-removebg-preview.png" width={40} height={40} alt="Statut Predict Logo" />
           <span className="text-lg font-semibold font-headline text-sidebar-foreground">
             Statut Predict
           </span>

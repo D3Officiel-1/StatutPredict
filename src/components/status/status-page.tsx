@@ -7,6 +7,7 @@ import { applications as initialApplications } from '@/lib/data';
 import type { Application } from '@/types';
 import { Button } from '../ui/button';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function StatusPage() {
   const [apps, setApps] = useState<Application[]>(initialApplications);
@@ -23,9 +24,7 @@ export default function StatusPage() {
       <header className="bg-background/95 sticky top-0 z-10 border-b backdrop-blur-sm">
         <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Power className="h-6 w-6" />
-            </div>
+            <Image src="https://i.postimg.cc/jS25XGKL/Capture-d-cran-2025-09-03-191656-4-removebg-preview.png" width={40} height={40} alt="Statut Predict Logo" />
             <span className="text-lg font-bold font-headline text-foreground">
               Statut Predict
             </span>
