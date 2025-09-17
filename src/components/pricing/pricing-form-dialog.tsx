@@ -45,7 +45,7 @@ interface PricingFormDialogProps {
 const formSchema = z.object({
   name: z.string().min(3, 'Le nom du plan doit contenir au moins 3 caractères.'),
   price: z.coerce.number().min(0, 'Le prix ne peut pas être négatif.'),
-  promoPrice: z.coerce.number().optional(),
+  promoPrice: z.coerce.number().optional().nullable(),
   currency: z.string().min(2, 'La devise est requise.').default('FCFA'),
   period: z.enum(['daily', 'weekly', 'monthly', 'annual']),
   features: z.string().min(10, 'Listez au moins une fonctionnalité.'),
@@ -70,7 +70,7 @@ export default function PricingFormDialog({ open, onOpenChange, app, pricingPlan
     defaultValues: {
       name: '',
       price: 0,
-      promoPrice: undefined,
+      promoPrice: null,
       currency: 'FCFA',
       period: 'monthly',
       features: '',
@@ -84,7 +84,7 @@ export default function PricingFormDialog({ open, onOpenChange, app, pricingPlan
       form.reset({
         name: pricingPlan.name,
         price: pricingPlan.price,
-        promoPrice: pricingPlan.promoPrice || undefined,
+        promoPrice: pricingPlan.promoPrice || null,
         currency: pricingPlan.currency,
         period: pricingPlan.period,
         features: pricingPlan.features.join('\n'),
@@ -95,7 +95,7 @@ export default function PricingFormDialog({ open, onOpenChange, app, pricingPlan
       form.reset({
         name: '',
         price: 0,
-        promoPrice: undefined,
+        promoPrice: null,
         currency: 'FCFA',
         period: 'monthly',
         features: '',
@@ -198,7 +198,7 @@ export default function PricingFormDialog({ open, onOpenChange, app, pricingPlan
                     render={({ field }) => (
                         <FormItem>
                         <FormLabel>Prix promotionnel (optionnel)</FormLabel>
-                        <FormControl><Input type="number" placeholder="4000" {...field} /></FormControl>
+                        <FormControl><Input type="number" placeholder="4000" {...field} value={field.value ?? ''} onChange={field.onChange} /></FormControl>
                         <FormMessage />
                         </FormItem>
                     )}
@@ -244,7 +244,7 @@ export default function PricingFormDialog({ open, onOpenChange, app, pricingPlan
                     render={({ field }) => (
                         <FormItem>
                         <FormLabel>Fonctionnalités manquantes (optionnel)</FormLabel>
-                        <FormControl><Textarea placeholder="Fonctionnalité A\nFonctionnalité B" rows={3} {...field} /></FormControl>
+                        <FormControl><Textarea placeholder="Fonctionnalité A\nFonctionnalité B" rows={3} {...field} value={field.value ?? ''} /></FormControl>
                         <FormDescription>Listez les fonctionnalités non incluses dans ce plan.</FormDescription>
                         <FormMessage />
                         </FormItem>
