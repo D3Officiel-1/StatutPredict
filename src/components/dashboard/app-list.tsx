@@ -44,7 +44,7 @@ export default function AppList() {
   }
 
   return (
-    <div className="grid grid-cols_1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
       {apps.map(app => (
         <AppStatusCard key={app.id} app={app} onStatusChange={handleStatusChange} />
       ))}
