@@ -32,6 +32,7 @@ import { useToast } from '@/hooks/use-toast';
 import CustomLoader from '../ui/custom-loader';
 import { X, Save } from 'lucide-react';
 import { Textarea } from '../ui/textarea';
+import { Checkbox } from '../ui/checkbox';
 
 interface PricingFormDialogProps {
   open: boolean;
@@ -49,6 +50,7 @@ const formSchema = z.object({
   period: z.enum(['daily', 'weekly', 'monthly', 'annual']),
   features: z.string().min(10, 'Listez au moins une fonctionnalité.'),
   missingFeatures: z.string().optional(),
+  popular: z.boolean().default(false),
 });
 
 const periodOptions = [
@@ -73,6 +75,7 @@ export default function PricingFormDialog({ open, onOpenChange, app, pricingPlan
       period: 'monthly',
       features: '',
       missingFeatures: '',
+      popular: false,
     },
   });
 
@@ -86,6 +89,7 @@ export default function PricingFormDialog({ open, onOpenChange, app, pricingPlan
         period: pricingPlan.period,
         features: pricingPlan.features.join('\n'),
         missingFeatures: pricingPlan.missingFeatures?.join('\n') || '',
+        popular: pricingPlan.popular || false,
       });
     } else if (open && !pricingPlan) {
       form.reset({
@@ -96,6 +100,7 @@ export default function PricingFormDialog({ open, onOpenChange, app, pricingPlan
         period: 'monthly',
         features: '',
         missingFeatures: '',
+        popular: false,
       });
     }
   }, [pricingPlan, open, form]);
@@ -227,7 +232,7 @@ export default function PricingFormDialog({ open, onOpenChange, app, pricingPlan
                     render={({ field }) => (
                         <FormItem>
                         <FormLabel>Fonctionnalités incluses</FormLabel>
-                        <FormControl><Textarea placeholder="Fonctionnalité 1&#10;Fonctionnalité 2&#10;Fonctionnalité 3" rows={5} {...field} /></FormControl>
+                        <FormControl><Textarea placeholder="Fonctionnalité 1\nFonctionnalité 2\nFonctionnalité 3" rows={5} {...field} /></FormControl>
                         <FormDescription>Entrez chaque fonctionnalité sur une nouvelle ligne.</FormDescription>
                         <FormMessage />
                         </FormItem>
@@ -239,9 +244,29 @@ export default function PricingFormDialog({ open, onOpenChange, app, pricingPlan
                     render={({ field }) => (
                         <FormItem>
                         <FormLabel>Fonctionnalités manquantes (optionnel)</FormLabel>
-                        <FormControl><Textarea placeholder="Fonctionnalité A&#10;Fonctionnalité B" rows={3} {...field} /></FormControl>
+                        <FormControl><Textarea placeholder="Fonctionnalité A\nFonctionnalité B" rows={3} {...field} /></FormControl>
                         <FormDescription>Listez les fonctionnalités non incluses dans ce plan.</FormDescription>
                         <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                 <FormField
+                    control={form.control}
+                    name="popular"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
+                        <FormControl>
+                            <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                            <FormLabel>Marquer comme populaire</FormLabel>
+                            <FormDescription>
+                                Met en évidence ce forfait sur la page de tarification.
+                            </FormDescription>
+                        </div>
                         </FormItem>
                     )}
                 />
