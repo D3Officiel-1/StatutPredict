@@ -17,6 +17,13 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
@@ -35,6 +42,13 @@ const commissionSchema = z.object({
   plan: z.string().min(1, 'Le nom du plan est requis.'),
   amount: z.coerce.number().min(1, 'Le montant doit être supérieur à 0.'),
 });
+
+const planDurations = [
+    { value: 'daily', label: 'Journalier' },
+    { value: 'weekly', label: 'Hebdomadaire' },
+    { value: 'monthly', label: 'Mensuel' },
+    { value: 'annual', label: 'Annuel' },
+];
 
 export default function AddReferralCommissionDialog({ parrain, filleul, open, onOpenChange, onCommissionAdded }: AddReferralCommissionDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -142,9 +156,18 @@ export default function AddReferralCommissionDialog({ parrain, filleul, open, on
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Plan souscrit par le filleul</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Ex: Forfait Mensuel" {...field} />
-                      </FormControl>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Sélectionnez un forfait" />
+                                </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                {planDurations.map(d => (
+                                    <SelectItem key={d.value} value={d.label}>{d.label}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                       <FormMessage />
                     </FormItem>
                   )}
