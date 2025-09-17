@@ -32,9 +32,6 @@ function getPageTitle(pathname: string): string {
   if (pathname.startsWith('/discounts')) {
     return 'Codes de réduction';
   }
-  if (pathname.startsWith('/pricing')) {
-    return 'Tarifs';
-  }
   return 'Centre de Statut';
 }
 
