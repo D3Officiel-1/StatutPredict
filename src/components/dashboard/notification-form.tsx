@@ -5,9 +5,9 @@ import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { generateNotificationSuggestions, type NotificationSuggestionsInput } from '@/ai/flows/intelligent-notification-suggestions';
-import { collection, onSnapshot, addDoc, doc, writeBatch } from 'firebase/firestore';
+import { collection, onSnapshot, addDoc, doc, writeBatch, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import type { Application } from '@/types';
+import type { Application, MediaItem } from '@/types';
 
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,9 +16,13 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
-import { Sparkles, Send } from 'lucide-react';
+import { Sparkles, Send, Upload, GalleryHorizontal } from 'lucide-react';
 import CustomLoader from '@/components/ui/custom-loader';
 import { Checkbox } from '../ui/checkbox';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import MediaLibrary from './media-library';
+import { Input } from '../ui/input';
+import Image from 'next/image';
 
 const formSchema = z.object({
   currentEvents: z.string().min(10, { message: 'Veuillez décrire les événements actuels (min. 10 caractères).' }),
@@ -26,6 +30,7 @@ const formSchema = z.object({
   notificationMessage: z.string().min(5, { message: 'Le message de notification est requis (min. 5 caractères).' }),
   targetApps: z.array(z.string()).min(1, { message: 'Veuillez sélectionner au moins une application.' }),
   targetUsers: z.array(z.string()).optional(),
+  mediaUrl: z.string().url().optional().or(z.literal('')),
 });
 
 const userTiers = [
@@ -35,15 +40,22 @@ const userTiers = [
     { id: 'annual', label: 'Annuel' },
 ];
 
+const CLOUDINARY_CLOUD_NAME = 'dlxomrluy';
+const CLOUDINARY_UPLOAD_PRESET = 'predict_uploads';
+
 export default function NotificationForm() {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [applications, setApplications] = useState<Application[]>([]);
+  const [mediaLibrary, setMediaLibrary] = useState<MediaItem[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadedMediaUrl, setUploadedMediaUrl] = useState<string | null>(null);
+
   const { toast } = useToast();
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, 'applications'), (snapshot) => {
+    const unsubscribeApps = onSnapshot(collection(db, 'applications'), (snapshot) => {
       const appsData: Application[] = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
@@ -51,7 +63,19 @@ export default function NotificationForm() {
       setApplications(appsData);
     });
 
-    return () => unsubscribe();
+    const q = query(collection(db, 'media_library'), orderBy('createdAt', 'desc'));
+    const unsubscribeMedia = onSnapshot(q, (snapshot) => {
+        const mediaData: MediaItem[] = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        } as MediaItem));
+        setMediaLibrary(mediaData);
+    });
+
+    return () => {
+        unsubscribeApps();
+        unsubscribeMedia();
+    };
   }, []);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -62,6 +86,7 @@ export default function NotificationForm() {
       notificationMessage: '',
       targetApps: [],
       targetUsers: [],
+      mediaUrl: '',
     },
   });
 
@@ -112,6 +137,60 @@ export default function NotificationForm() {
     setSuggestions([]);
   };
 
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+    try {
+      const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUploadedMediaUrl(data.secure_url);
+        form.setValue('mediaUrl', data.secure_url, { shouldValidate: true });
+        
+        await addDoc(collection(db, 'media_library'), {
+          url: data.secure_url,
+          type: file.type,
+          createdAt: new Date(),
+        });
+        
+        toast({
+          title: 'Téléversement réussi',
+          description: 'Votre média a été téléversé et ajouté à la bibliothèque.',
+        });
+      } else {
+        throw new Error('Upload failed');
+      }
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      toast({
+        title: 'Erreur de téléversement',
+        description: 'Impossible de téléverser le fichier. Veuillez réessayer.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+  
+  const handleMediaSelect = (media: MediaItem) => {
+    setUploadedMediaUrl(media.url);
+    form.setValue('mediaUrl', media.url, { shouldValidate: true });
+    toast({
+        title: 'Média sélectionné',
+        description: 'Le média a été sélectionné depuis la bibliothèque.',
+    })
+  };
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
     try {
@@ -120,6 +199,7 @@ export default function NotificationForm() {
         message: values.notificationMessage,
         targetUsers: values.targetUsers,
         currentEvents: values.currentEvents,
+        mediaUrl: uploadedMediaUrl,
         createdAt: new Date(),
       };
 
@@ -138,6 +218,7 @@ export default function NotificationForm() {
       });
       form.reset();
       setSuggestions([]);
+      setUploadedMediaUrl(null);
     } catch (error) {
       console.error('Error sending notification:', error);
       toast({
@@ -216,6 +297,53 @@ export default function NotificationForm() {
                 </FormItem>
               )}
             />
+
+            <Tabs defaultValue="upload" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="upload">
+                        <Upload className="mr-2 h-4 w-4"/>
+                        Téléverser un média
+                    </TabsTrigger>
+                    <TabsTrigger value="library">
+                        <GalleryHorizontal className="mr-2 h-4 w-4"/>
+                        Bibliothèque
+                    </TabsTrigger>
+                </TabsList>
+                <TabsContent value="upload">
+                    <div className="space-y-4 rounded-md border p-4 mt-4">
+                        <h4 className="text-sm font-medium">Média (image, vidéo, audio)</h4>
+                        <FormField
+                            control={form.control}
+                            name="mediaUrl"
+                            render={() => (
+                                <FormItem>
+                                    <FormControl>
+                                        <Input type="file" accept="image/*,video/*,audio/*" onChange={handleFileUpload} disabled={isUploading} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        {isUploading && <CustomLoader />}
+                        {uploadedMediaUrl && !isUploading && (
+                             <div className="mt-2 relative w-full h-48">
+                                {uploadedMediaUrl.includes('video') ? (
+                                    <video src={uploadedMediaUrl} controls className="w-full h-full object-contain rounded-md" />
+                                ) : uploadedMediaUrl.includes('audio') ? (
+                                    <audio src={uploadedMediaUrl} controls className="w-full" />
+                                ) : (
+                                    <Image src={uploadedMediaUrl} alt="Média téléversé" layout="fill" className="rounded-md object-contain" />
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </TabsContent>
+                <TabsContent value="library">
+                    <div className="mt-4">
+                        <MediaLibrary mediaItems={mediaLibrary} onSelect={handleMediaSelect} />
+                    </div>
+                </TabsContent>
+            </Tabs>
             
             <FormField
               control={form.control}
@@ -302,7 +430,7 @@ export default function NotificationForm() {
 
           </CardContent>
           <CardFooter>
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
+            <Button type="submit" className="w-full" disabled={isSubmitting || isUploading}>
               {isSubmitting ? <CustomLoader /> : <Send />}
               Envoyer la notification
             </Button>
@@ -312,3 +440,5 @@ export default function NotificationForm() {
     </Card>
   );
 }
+
+    

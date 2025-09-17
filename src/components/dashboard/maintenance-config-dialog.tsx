@@ -276,13 +276,12 @@ export default function MaintenanceConfigDialog({ app, children, open, onOpenCha
                     </TabsList>
                     <TabsContent value="upload">
                       <div className="space-y-4 rounded-md border p-4 mt-4">
-                          <h4 className="text-sm font-medium">Téléverser un média</h4>
+                          <h4 className="text-sm font-medium">Média (image, vidéo, audio)</h4>
                           <FormField
                               control={form.control}
                               name="mediaUrl"
                               render={() => (
                                   <FormItem>
-                                      <FormLabel>Média (image, vidéo, audio)</FormLabel>
                                       <FormControl>
                                           <Input type="file" accept="image/*,video/*,audio/*" onChange={handleFileUpload} disabled={isUploading} />
                                       </FormControl>
@@ -407,3 +406,5 @@ export default function MaintenanceConfigDialog({ app, children, open, onOpenCha
     </>
   );
 }
+
+    
