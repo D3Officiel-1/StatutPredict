@@ -56,7 +56,7 @@ export default function AppStatusCard({ app, onStatusChange }: AppStatusCardProp
             )}
             <span>{isMaintenance ? 'Maintenance' : 'Actif'}</span>
           </div>
-          <p className="text-xs text-muted-foreground mt-1">{app.url}</p>
+          <p className="text-xs text-muted-foreground mt-1 truncate">{app.url}</p>
         </div>
         <div className="mt-4 flex items-center justify-between">
           <Label htmlFor={`maintenance-switch-${app.id}`} className="text-sm text-muted-foreground">
