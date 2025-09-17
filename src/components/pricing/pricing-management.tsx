@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Globe, Smartphone, Server, Settings } from 'lucide-react';
+import { Globe, Smartphone, Server, Settings, Eye } from 'lucide-react';
 
 const AppIcon = ({ type }: { type: Application['type'] }) => {
   const className = "h-6 w-6 text-muted-foreground";
@@ -73,7 +73,12 @@ export default function PricingManagement() {
                 <CardTitle as="h3" className="text-lg font-semibold font-headline">{app.name}</CardTitle>
                 <CardDescription>Gérez les plans tarifaires de cette application.</CardDescription>
               </div>
-              <AppIcon type={app.type} />
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <Eye className="h-4 w-4" />
+                </Button>
+                <AppIcon type={app.type} />
+              </div>
             </CardHeader>
             <CardContent className="flex-grow flex flex-col justify-end">
                 <Button>
