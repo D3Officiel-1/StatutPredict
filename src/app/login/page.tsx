@@ -114,10 +114,9 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
-                className="pl-10"
               />
               <div className="absolute inset-y-0 left-0 flex items-center pl-3">
-                {isLoading ? <CustomLoader /> : <Lock className="h-4 w-4 text-muted-foreground" />}
+                {isLoading && <CustomLoader />}
               </div>
             </div>
             {isLoading && <p className="text-sm text-center text-muted-foreground">Vérification en cours...</p>}
