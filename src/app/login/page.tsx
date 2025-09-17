@@ -71,10 +71,6 @@ export default function LoginPage() {
             <div className="flex justify-center mb-4">
                 <Image src="https://i.postimg.cc/jS25XGKL/Capture-d-cran-2025-09-03-191656-4-removebg-preview.png" width={60} height={60} alt="Statut Predict Logo" />
             </div>
-          <CardTitle>Accès au tableau de bord</CardTitle>
-          <CardDescription>
-            Veuillez entrer votre mot de passe pour continuer.
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <form className="space-y-4" onSubmit={handleLogin}>
