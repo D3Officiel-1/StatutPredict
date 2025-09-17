@@ -5,7 +5,7 @@ import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { generateNotificationSuggestions, type NotificationSuggestionsInput } from '@/ai/flows/intelligent-notification-suggestions';
-import { collection, onSnapshot, addDoc } from 'firebase/firestore';
+import { collection, onSnapshot, addDoc, doc, writeBatch } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Application } from '@/types';
 
@@ -115,17 +115,26 @@ export default function NotificationForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
     try {
-      await addDoc(collection(db, 'notifications'), {
+      const batch = writeBatch(db);
+      const notificationData = {
         message: values.notificationMessage,
-        targetApps: values.targetApps,
         targetUsers: values.targetUsers,
         currentEvents: values.currentEvents,
         createdAt: new Date(),
+      };
+
+      values.targetApps.forEach(appId => {
+        const appRef = doc(db, 'applications', appId);
+        const notificationCollectionRef = collection(appRef, 'notifications');
+        const newNotificationRef = doc(notificationCollectionRef);
+        batch.set(newNotificationRef, notificationData);
       });
+      
+      await batch.commit();
 
       toast({
         title: 'Notification envoyée !',
-        description: `Message envoyé à ${values.targetApps.length} application(s) et sauvegardé.`,
+        description: `Message envoyé et sauvegardé pour ${values.targetApps.length} application(s).`,
       });
       form.reset();
       setSuggestions([]);
@@ -214,18 +223,19 @@ export default function NotificationForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Applications cibles</FormLabel>
-                  <Select onValueChange={(value) => field.onChange(value ? [value] : [])}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Sélectionnez une ou plusieurs apps" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {applications.map(app => (
-                        <SelectItem key={app.id} value={app.id}>{app.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    <Select onValueChange={(value) => field.onChange(value ? value.split(',') : [])}>
+                        <FormControl>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Sélectionnez une ou plusieurs apps" />
+                            </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                            <SelectItem value={applications.map(app => app.id).join(',')}>Toutes les applications</SelectItem>
+                            {applications.map(app => (
+                                <SelectItem key={app.id} value={app.id}>{app.name}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                   <FormMessage />
                 </FormItem>
               )}
