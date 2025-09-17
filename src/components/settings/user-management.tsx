@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { users as initialUsers } from '@/lib/data';
+import { useState, useEffect } from 'react';
+import { collection, onSnapshot } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import type { User } from '@/types';
 import {
   Card,
@@ -38,10 +39,25 @@ import { Badge } from '@/components/ui/badge';
 import { MoreHorizontal, PlusCircle, Trash, Edit, UserPlus, User as UserIcon } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function UserManagement() {
-  const [users, setUsers] = useState<User[]>(initialUsers);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, "users"), (snapshot) => {
+      const usersData: User[] = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as User));
+      setUsers(usersData);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   return (
     <Card>
@@ -90,44 +106,62 @@ export default function UserManagement() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {users.map((user) => (
-              <TableRow key={user.id}>
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <div className="hidden h-9 w-9 sm:flex items-center justify-center">
-                        <UserIcon />
+            {loading ? (
+                Array.from({ length: 3 }).map((_, i) => (
+                    <TableRow key={i}>
+                        <TableCell>
+                            <div className="flex items-center gap-3">
+                                <Skeleton className="h-9 w-9 rounded-full" />
+                                <div className="grid gap-1">
+                                    <Skeleton className="h-4 w-24" />
+                                    <Skeleton className="h-3 w-32" />
+                                </div>
+                            </div>
+                        </TableCell>
+                        <TableCell><Skeleton className="h-6 w-16 rounded-full" /></TableCell>
+                        <TableCell><Skeleton className="h-8 w-8" /></TableCell>
+                    </TableRow>
+                ))
+            ) : (
+                users.map((user) => (
+                <TableRow key={user.id}>
+                    <TableCell>
+                    <div className="flex items-center gap-3">
+                        <div className="hidden h-9 w-9 sm:flex items-center justify-center rounded-full bg-muted">
+                            <UserIcon />
+                        </div>
+                        <div className="grid gap-0.5">
+                            <p className="font-medium">{user.name}</p>
+                            <p className="text-xs text-muted-foreground">{user.email}</p>
+                        </div>
                     </div>
-                    <div className="grid gap-0.5">
-                        <p className="font-medium">{user.name}</p>
-                        <p className="text-xs text-muted-foreground">{user.email}</p>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Badge variant={user.role === 'Admin' ? 'default' : 'secondary'}>{user.role}</Badge>
-                </TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button aria-haspopup="true" size="icon" variant="ghost">
-                        <MoreHorizontal className="h-4 w-4" />
-                        <span className="sr-only">Toggle menu</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem>
-                        <Edit className="mr-2 h-4 w-4" />
-                        Modifier le rôle
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10">
-                        <Trash className="mr-2 h-4 w-4" />
-                        Supprimer
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            ))}
+                    </TableCell>
+                    <TableCell>
+                    <Badge variant={user.role === 'Admin' ? 'default' : 'secondary'}>{user.role}</Badge>
+                    </TableCell>
+                    <TableCell>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                        <Button aria-haspopup="true" size="icon" variant="ghost">
+                            <MoreHorizontal className="h-4 w-4" />
+                            <span className="sr-only">Toggle menu</span>
+                        </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                        <DropdownMenuItem>
+                            <Edit className="mr-2 h-4 w-4" />
+                            Modifier le rôle
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10">
+                            <Trash className="mr-2 h-4 w-4" />
+                            Supprimer
+                        </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                    </TableCell>
+                </TableRow>
+                ))
+            )}
           </TableBody>
         </Table>
       </CardContent>

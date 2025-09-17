@@ -37,18 +37,3 @@ export const applications: Application[] = [
     type: 'api',
   },
 ];
-
-export const users: User[] = [
-    {
-        id: '2',
-        name: 'Bob Leclerc',
-        email: 'bob.leclerc@example.com',
-        role: 'Viewer',
-    },
-    {
-        id: '3',
-        name: 'Chloé Martin',
-        email: 'chloe.martin@example.com',
-        role: 'Viewer',
-    }
-]
