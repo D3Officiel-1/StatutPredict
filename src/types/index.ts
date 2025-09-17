@@ -14,6 +14,20 @@ export interface Application {
   }
 }
 
+export interface ReferralItem {
+  amount: number;
+  date: any;
+  fromUser: string;
+  plan: string;
+}
+
+export interface PricingItem {
+  actif_jetpredict: boolean;
+  findate: any;
+  idplan_jetpredict: string;
+  startdate: any;
+}
+
 export interface User {
   id: string;
   createdAt?: any;
@@ -31,8 +45,8 @@ export interface User {
   solde_referral?: number; // Kept for backward compatibility
   uid?: string;
   username?: string;
-  referralData?: any[];
-  pricingData?: any[];
+  referralData?: ReferralItem[];
+  pricingData?: PricingItem[];
 }
 
 export interface MediaItem {
