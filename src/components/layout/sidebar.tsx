@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   Send,
   HeartPulse,
+  Users,
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -85,6 +86,18 @@ const AppSidebar = () => {
               <Link href="/notifications">
                 <Send />
                 <span>Notifications</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              isActive={isActive('/users')}
+              tooltip="Utilisateurs"
+            >
+              <Link href="/users">
+                <Users />
+                <span>Utilisateurs</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

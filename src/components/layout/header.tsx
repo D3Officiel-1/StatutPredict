@@ -26,6 +26,9 @@ function getPageTitle(pathname: string): string {
   if (pathname.startsWith('/status')) {
     return 'Statut des applications';
   }
+  if (pathname.startsWith('/users')) {
+    return 'Utilisateurs';
+  }
   return 'Centre de Statut';
 }
 
