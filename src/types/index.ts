@@ -78,4 +78,5 @@ export interface PricingPlan {
   currency: string;
   period: 'daily' | 'weekly' | 'monthly' | 'annual';
   features: string[];
+  missingFeatures?: string[];
 }

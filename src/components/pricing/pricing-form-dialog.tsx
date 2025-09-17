@@ -47,6 +47,7 @@ const formSchema = z.object({
   currency: z.string().min(2, 'La devise est requise.').default('FCFA'),
   period: z.enum(['daily', 'weekly', 'monthly', 'annual']),
   features: z.string().min(10, 'Listez au moins une fonctionnalité.'),
+  missingFeatures: z.string().optional(),
 });
 
 const periodOptions = [
@@ -69,6 +70,7 @@ export default function PricingFormDialog({ open, onOpenChange, app, pricingPlan
       currency: 'FCFA',
       period: 'monthly',
       features: '',
+      missingFeatures: '',
     },
   });
 
@@ -80,6 +82,7 @@ export default function PricingFormDialog({ open, onOpenChange, app, pricingPlan
         currency: pricingPlan.currency,
         period: pricingPlan.period,
         features: pricingPlan.features.join('\n'),
+        missingFeatures: pricingPlan.missingFeatures?.join('\n') || '',
       });
     } else if (open && !pricingPlan) {
       form.reset({
@@ -88,6 +91,7 @@ export default function PricingFormDialog({ open, onOpenChange, app, pricingPlan
         currency: 'FCFA',
         period: 'monthly',
         features: '',
+        missingFeatures: '',
       });
     }
   }, [pricingPlan, open, form]);
@@ -98,6 +102,7 @@ export default function PricingFormDialog({ open, onOpenChange, app, pricingPlan
       const dataToSave = {
         ...values,
         features: values.features.split('\n').filter(f => f.trim() !== ''),
+        missingFeatures: values.missingFeatures?.split('\n').filter(f => f.trim() !== '') || [],
         appId: app.id,
       };
       
@@ -205,9 +210,21 @@ export default function PricingFormDialog({ open, onOpenChange, app, pricingPlan
                     name="features"
                     render={({ field }) => (
                         <FormItem>
-                        <FormLabel>Fonctionnalités</FormLabel>
+                        <FormLabel>Fonctionnalités incluses</FormLabel>
                         <FormControl><Textarea placeholder="Fonctionnalité 1&#10;Fonctionnalité 2&#10;Fonctionnalité 3" rows={5} {...field} /></FormControl>
                         <FormDescription>Entrez chaque fonctionnalité sur une nouvelle ligne.</FormDescription>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="missingFeatures"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Fonctionnalités manquantes (optionnel)</FormLabel>
+                        <FormControl><Textarea placeholder="Fonctionnalité A&#10;Fonctionnalité B" rows={3} {...field} /></FormControl>
+                        <FormDescription>Listez les fonctionnalités non incluses dans ce plan.</FormDescription>
                         <FormMessage />
                         </FormItem>
                     )}
