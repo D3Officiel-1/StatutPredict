@@ -14,8 +14,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Globe, Smartphone, Server, Settings, ExternalLink } from 'lucide-react';
-import Link from 'next/link';
+import { Globe, Smartphone, Server, Settings } from 'lucide-react';
 
 const AppIcon = ({ type }: { type: Application['type'] }) => {
   const className = "h-6 w-6 text-muted-foreground";
@@ -72,10 +71,7 @@ export default function PricingManagement() {
             <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-4">
               <div className="space-y-1">
                 <CardTitle as="h3" className="text-lg font-semibold font-headline">{app.name}</CardTitle>
-                <Link href={app.url.startsWith('http') ? app.url : `https://${app.url}`} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:underline flex items-center gap-1">
-                  {app.url}
-                  <ExternalLink className="h-3 w-3" />
-                </Link>
+                <CardDescription>Gérez les plans tarifaires de cette application.</CardDescription>
               </div>
               <AppIcon type={app.type} />
             </CardHeader>
