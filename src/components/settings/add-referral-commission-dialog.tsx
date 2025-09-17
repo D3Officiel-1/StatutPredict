@@ -75,7 +75,7 @@ export default function AddReferralCommissionDialog({ parrain, filleul, open, on
       const newReferralRef = doc(collection(db, `users/${parrain.uid}/referral`));
       batch.set(newReferralRef, {
         fromUser: filleul.username || filleul.email,
-        amount: commissionAmount,
+        amount: values.amount,
         plan: values.plan,
         date: new Date(),
       });
@@ -94,7 +94,7 @@ export default function AddReferralCommissionDialog({ parrain, filleul, open, on
             { 
                 id: newReferralRef.id,
                 fromUser: filleul.username || filleul.email,
-                amount: commissionAmount,
+                amount: values.amount,
                 plan: values.plan,
                 date: new Date(),
             }
