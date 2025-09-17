@@ -1,15 +1,15 @@
-import PricingPlans from "@/components/pricing/pricing-plans";
+import PricingManagement from "@/components/pricing/pricing-management";
 
 export default function PricingPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight font-headline">Tarifs</h2>
+        <h2 className="text-2xl font-bold tracking-tight font-headline">Tarifs des Applications</h2>
         <p className="text-muted-foreground">
-          Gérez vos plans tarifaires et abonnements.
+          Gérez les plans tarifaires pour chacune de vos applications.
         </p>
       </div>
-      <PricingPlans />
+      <PricingManagement />
     </div>
   )
 }
