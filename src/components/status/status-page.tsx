@@ -20,7 +20,7 @@ export default function StatusPage() {
   const allSystemsOperational = apps.every(app => app.status === 'active');
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <header className="bg-background/95 sticky top-0 z-10 border-b backdrop-blur-sm">
         <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
           <div className="flex items-center gap-3">
@@ -42,12 +42,12 @@ export default function StatusPage() {
           <div className="mb-8 rounded-lg border bg-card p-6 shadow-sm">
             <div
               className={`flex items-center gap-3 text-xl font-bold ${
-                allSystemsOperational ? 'text-green-600' : 'text-orange-600'
+                allSystemsOperational ? 'text-green-400' : 'text-orange-400'
               }`}
             >
               <div
                 className={`h-4 w-4 rounded-full ${
-                  allSystemsOperational ? 'bg-green-500' : 'bg-orange-500'
+                  allSystemsOperational ? 'bg-green-400' : 'bg-orange-400'
                 }`}
               ></div>
               <span>

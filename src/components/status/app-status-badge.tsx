@@ -13,9 +13,9 @@ export default function AppStatusBadge({ app }: { app: Application }) {
         <div
           className={cn(
             'h-3 w-3 rounded-full',
-            isActive && 'bg-green-500',
-            isMaintenance && 'bg-orange-500',
-            !isActive && !isMaintenance && 'bg-gray-400'
+            isActive && 'bg-green-400',
+            isMaintenance && 'bg-orange-400',
+            !isActive && !isMaintenance && 'bg-gray-500'
           )}
         />
         <div>
@@ -26,9 +26,9 @@ export default function AppStatusBadge({ app }: { app: Application }) {
       <div
         className={cn(
           'rounded-full px-3 py-1 text-sm font-medium',
-          isActive && 'bg-green-100 text-green-800',
-          isMaintenance && 'bg-orange-100 text-orange-800',
-          !isActive && !isMaintenance && 'bg-gray-100 text-gray-800'
+          isActive && 'bg-green-900/50 text-green-300',
+          isMaintenance && 'bg-orange-900/50 text-orange-300',
+          !isActive && !isMaintenance && 'bg-gray-800 text-gray-300'
         )}
       >
         {app.status === 'active'
