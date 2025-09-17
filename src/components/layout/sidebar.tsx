@@ -8,27 +8,21 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarFooter,
-  useSidebar,
 } from '@/components/ui/sidebar';
-import { Separator } from '@/components/ui/separator';
 import {
   LayoutDashboard,
   Settings,
-  Power,
-  LogOut,
   ShieldCheck,
-  BrainCircuit,
-  User as UserIcon,
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 
 const AppSidebar = () => {
   const pathname = usePathname();
-  const { state } = useSidebar();
 
   const isActive = (path: string) => {
-    return pathname === path || pathname.startsWith(`${path}/`);
+    if (path === '/') return pathname === path;
+    return pathname.startsWith(path);
   };
 
   return (
@@ -46,32 +40,38 @@ const AppSidebar = () => {
         <SidebarMenu>
            <SidebarMenuItem>
             <SidebarMenuButton
-              href="/"
+              asChild
+              isActive={isActive('/')}
               tooltip="Page de Statut"
-              target="_blank"
             >
-              <ShieldCheck />
-              <span>Page de Statut</span>
+              <Link href="/">
+                <ShieldCheck />
+                <span>Page de Statut</span>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton
-              href="/dashboard"
+              asChild
               isActive={isActive('/dashboard')}
               tooltip="Tableau de bord"
             >
-              <LayoutDashboard />
-              <span>Tableau de bord</span>
+              <Link href="/dashboard">
+                <LayoutDashboard />
+                <span>Tableau de bord</span>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton 
-              href="/settings"
+              asChild
               isActive={isActive('/settings')}
               tooltip="Paramètres"
             >
-              <Settings />
-              <span>Paramètres</span>
+              <Link href="/settings">
+                <Settings />
+                <span>Paramètres</span>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
