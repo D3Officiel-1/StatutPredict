@@ -223,7 +223,13 @@ export default function NotificationForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Applications cibles</FormLabel>
-                    <Select onValueChange={(value) => field.onChange(value ? value.split(',') : [])}>
+                    <Select onValueChange={(value) => {
+                      if (value === 'all') {
+                        field.onChange(applications.map(app => app.id));
+                      } else {
+                        field.onChange(value ? value.split(',') : []);
+                      }
+                    }}>
                         <FormControl>
                             <SelectTrigger>
                                 <SelectValue placeholder="Sélectionnez une ou plusieurs apps" />
@@ -231,7 +237,7 @@ export default function NotificationForm() {
                         </FormControl>
                         <SelectContent>
                             {applications.length > 0 && (
-                                <SelectItem value={applications.map(app => app.id).join(',')}>Toutes les applications</SelectItem>
+                                <SelectItem value="all">Toutes les applications</SelectItem>
                             )}
                             {applications.map(app => (
                                 <SelectItem key={app.id} value={app.id}>{app.name}</SelectItem>
