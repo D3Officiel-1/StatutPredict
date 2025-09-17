@@ -165,7 +165,7 @@ export default function UserManagement() {
     setIsSubmitting(true);
     try {
         const referralCode = 'user' + Date.now().toString().slice(-6);
-        const password = Math.random().toString(36).slice(-8);
+        const password = 'Predict0000';
 
         await addDoc(collection(db, "users"), {
             email: inviteEmail,
@@ -177,7 +177,7 @@ export default function UserManagement() {
         });
         toast({
             title: "Utilisateur invité",
-            description: `${inviteEmail} a été ajouté. Mot de passe: ${password}`,
+            description: `${inviteEmail} a été ajouté avec succès.`,
         });
         setInviteEmail('');
         setIsInviteDialogOpen(false);
