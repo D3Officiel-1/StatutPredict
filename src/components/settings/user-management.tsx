@@ -37,7 +37,7 @@ import {
   } from "@/components/ui/dialog"
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, UserPlus, Trash, Edit, Copy, Award, Gift } from 'lucide-react';
+import { MoreHorizontal, UserPlus, Trash, Edit, Copy, Award, Gift, Send } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -45,6 +45,7 @@ import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import ActivatePlanDialog from './activate-plan-dialog';
 import ManageReferralDialog from './manage-referral-dialog';
+import SendNotificationDialog from './send-notification-dialog';
 
 export default function UserManagement() {
   const [users, setUsers] = useState<User[]>([]);
@@ -52,6 +53,7 @@ export default function UserManagement() {
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   const [isActivatePlanDialogOpen, setIsActivatePlanDialogOpen] = useState(false);
   const [isManageReferralDialogOpen, setIsManageReferralDialogOpen] = useState(false);
+  const [isSendNotificationDialogOpen, setIsSendNotificationDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const { toast } = useToast();
 
@@ -144,6 +146,11 @@ export default function UserManagement() {
   const handleManageReferralClick = (user: User) => {
     setSelectedUser(user);
     setIsManageReferralDialogOpen(true);
+  };
+
+  const handleSendNotificationClick = (user: User) => {
+    setSelectedUser(user);
+    setIsSendNotificationDialogOpen(true);
   };
 
   const handleUserUpdate = (updatedUser: User) => {
@@ -260,6 +267,10 @@ export default function UserManagement() {
                             <Gift className="mr-2 h-4 w-4" />
                             Gérer le parrainage
                         </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => handleSendNotificationClick(user)}>
+                            <Send className="mr-2 h-4 w-4" />
+                            Envoyer une notification
+                        </DropdownMenuItem>
                         <DropdownMenuItem>
                             <Edit className="mr-2 h-4 w-4" />
                             Modifier
@@ -296,6 +307,13 @@ export default function UserManagement() {
             }
         }}
         onUserUpdate={handleUserUpdate}
+      />
+    )}
+    {selectedUser && (
+      <SendNotificationDialog
+        user={selectedUser}
+        open={isSendNotificationDialogOpen}
+        onOpenChange={setIsSendNotificationDialogOpen}
       />
     )}
     </>
