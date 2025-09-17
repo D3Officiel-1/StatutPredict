@@ -110,12 +110,11 @@ export default function LoginPage() {
               <Input 
                 id="password" 
                 type="password" 
-                placeholder="Mot de passe" 
                 required 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
-                className="pl-10"
+                className="pl-10 text-center"
               />
               <div className="absolute inset-y-0 left-0 flex items-center pl-3">
                 {isLoading ? <CustomLoader /> : null}
