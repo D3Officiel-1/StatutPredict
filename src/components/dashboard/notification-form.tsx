@@ -13,8 +13,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
-import { Sparkles, Send, Loader2 } from 'lucide-react';
+import { Sparkles, Send } from 'lucide-react';
 import { applications } from '@/lib/data';
+import CustomLoader from '@/components/ui/custom-loader';
 
 const formSchema = z.object({
   currentEvents: z.string().min(10, { message: 'Veuillez décrire les événements actuels (min. 10 caractères).' }),
@@ -125,7 +126,7 @@ export default function NotificationForm() {
               className="w-full"
             >
               {isGenerating ? (
-                <Loader2 className="animate-spin" />
+                <CustomLoader />
               ) : (
                 <Sparkles />
               )}
