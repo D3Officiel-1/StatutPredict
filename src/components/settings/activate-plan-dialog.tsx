@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -8,7 +9,7 @@ import { doc, setDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { User } from '@/types';
 import { motion, AnimatePresence } from 'framer-motion';
-import { addMonths } from 'date-fns';
+import { addDays, addWeeks, addMonths, addYears } from 'date-fns';
 import {
   Form,
   FormControl,
@@ -40,10 +41,10 @@ const formSchema = z.object({
 });
 
 const planDurations = [
-    { value: '1', label: '1 Mois' },
-    { value: '3', label: '3 Mois' },
-    { value: '6', label: '6 Mois' },
-    { value: '12', label: '12 Mois' },
+    { value: 'daily', label: 'Journalier' },
+    { value: 'weekly', label: 'Hebdomadaire' },
+    { value: 'monthly', label: 'Mensuel' },
+    { value: 'annual', label: 'Annuel' },
 ];
 
 export default function ActivatePlanDialog({ user, open, onOpenChange }: ActivatePlanDialogProps) {
@@ -53,7 +54,7 @@ export default function ActivatePlanDialog({ user, open, onOpenChange }: Activat
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      duration: '1',
+      duration: 'monthly',
     },
   });
 
@@ -71,18 +72,37 @@ export default function ActivatePlanDialog({ user, open, onOpenChange }: Activat
     try {
       const planRef = doc(db, 'pricing', user.uid);
       const startDate = new Date();
-      const endDate = addMonths(startDate, parseInt(values.duration));
+      let endDate: Date;
+
+      switch (values.duration) {
+          case 'daily':
+              endDate = addDays(startDate, 1);
+              break;
+          case 'weekly':
+              endDate = addWeeks(startDate, 1);
+              break;
+          case 'monthly':
+              endDate = addMonths(startDate, 1);
+              break;
+          case 'annual':
+              endDate = addYears(startDate, 1);
+              break;
+          default:
+              endDate = addMonths(startDate, 1);
+      }
       
       await setDoc(planRef, {
-        idplan_jetpredict: `jetpredict_${values.duration}m`,
+        idplan_jetpredict: values.duration,
         actif_jetpredict: true,
         startdate: startDate,
         findate: endDate,
       });
 
+      const selectedPlan = planDurations.find(p => p.value === values.duration);
+
       toast({
         title: 'Forfait activé !',
-        description: `Le forfait pour ${user.username || user.email} a été activé pour ${values.duration} mois.`,
+        description: `Le forfait pour ${user.username || user.email} a été activé en mode ${selectedPlan?.label}.`,
       });
       onOpenChange(false);
       form.reset();
