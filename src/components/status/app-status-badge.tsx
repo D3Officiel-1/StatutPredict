@@ -13,8 +13,8 @@ export default function AppStatusBadge({ app }: { app: Application }) {
         <div
           className={cn(
             'h-3 w-3 rounded-full',
-            isActive && 'bg-green-400',
-            isMaintenance && 'bg-orange-400',
+            isActive && 'bg-green-500',
+            isMaintenance && 'bg-orange-500',
             !isActive && !isMaintenance && 'bg-gray-500'
           )}
         />

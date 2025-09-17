@@ -20,15 +20,15 @@ export default function StatusPage() {
   const allSystemsOperational = apps.every(app => app.status === 'active');
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <header className="bg-background/95 sticky top-0 z-10 border-b backdrop-blur-sm">
         <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
-          <div className="flex items-center gap-3">
+          <Link href="/login" className="flex items-center gap-3">
             <Image src="https://i.postimg.cc/jS25XGKL/Capture-d-cran-2025-09-03-191656-4-removebg-preview.png" width={40} height={40} alt="Statut Predict Logo" />
             <span className="text-lg font-bold font-headline text-foreground">
               Statut Predict
             </span>
-          </div>
+          </Link>
           <Button asChild>
             <Link href="/dashboard">
               Accéder au tableau de bord
@@ -42,12 +42,12 @@ export default function StatusPage() {
           <div className="mb-8 rounded-lg border bg-card p-6 shadow-sm">
             <div
               className={`flex items-center gap-3 text-xl font-bold ${
-                allSystemsOperational ? 'text-emerald-400' : 'text-amber-400'
+                allSystemsOperational ? 'text-green-500' : 'text-orange-500'
               }`}
             >
               <div
                 className={`h-4 w-4 rounded-full ${
-                  allSystemsOperational ? 'bg-emerald-400' : 'bg-amber-400'
+                  allSystemsOperational ? 'bg-green-500' : 'bg-orange-500'
                 }`}
               ></div>
               <span>
@@ -81,7 +81,7 @@ export default function StatusPage() {
       </main>
 
       <footer className="py-8 text-center text-muted-foreground">
-        <p>&copy; 2025 Statut Predict — #D3 Officiel</p>
+        <p>© 2025 Statut Predict — #D3 Officiel</p>
       </footer>
     </div>
   );
