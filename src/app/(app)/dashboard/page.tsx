@@ -1,13 +1,20 @@
+
+'use client';
+
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ShieldAlert, Plus, ExternalLink } from 'lucide-react';
 import AppList from '@/components/dashboard/app-list';
 import NotificationForm from '@/components/dashboard/notification-form';
 import Link from 'next/link';
+import AddAppDialog from '@/components/settings/add-app-dialog';
+
 
 export default function DashboardPage() {
   const activeAppsCount = 4;
   const totalAppsCount = 5;
+  const [isAddAppDialogOpen, setIsAddAppDialogOpen] = useState(false);
 
   return (
     <div className="flex flex-col gap-8">
@@ -33,10 +40,15 @@ export default function DashboardPage() {
                 <ShieldAlert />
                 Maintenance globale
               </Button>
-              <Button>
-                <Plus />
-                Ajouter une app
-              </Button>
+              <AddAppDialog
+                open={isAddAppDialogOpen}
+                onOpenChange={setIsAddAppDialogOpen}
+              >
+                <Button>
+                  <Plus />
+                  Ajouter une app
+                </Button>
+              </AddAppDialog>
             </div>
           </div>
         </CardHeader>

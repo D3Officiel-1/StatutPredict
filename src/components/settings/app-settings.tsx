@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { applications as initialApplications } from '@/lib/data';
+import { useState, useEffect } from 'react';
+import { collection, onSnapshot } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import type { Application } from '@/types';
 import {
   Card,
@@ -24,24 +25,29 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-  } from "@/components/ui/dialog"
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { MoreHorizontal, PlusCircle, Trash, Edit } from 'lucide-react';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
+import AddAppDialog from './add-app-dialog';
 
 export default function AppSettings() {
-  const [apps, setApps] = useState<Application[]>(initialApplications);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [apps, setApps] = useState<Application[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isAddAppDialogOpen, setIsAddAppDialogOpen] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    const unsubscribe = onSnapshot(collection(db, 'applications'), (snapshot) => {
+      const appsData: Application[] = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as Application));
+      setApps(appsData);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   return (
     <Card>
@@ -52,35 +58,12 @@ export default function AppSettings() {
             Ajoutez, modifiez ou supprimez vos applications gérées.
           </CardDescription>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-                <Button>
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Ajouter une app
-                </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                    <DialogTitle>Ajouter une nouvelle application</DialogTitle>
-                    <DialogDescription>
-                        Remplissez les détails ci-dessous pour ajouter une nouvelle application à votre tableau de bord.
-                    </DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="name" className="text-right">Nom</Label>
-                        <Input id="name" placeholder="Mon App" className="col-span-3" />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="url" className="text-right">URL/API</Label>
-                        <Input id="url" placeholder="app.example.com" className="col-span-3" />
-                    </div>
-                </div>
-                <DialogFooter>
-                    <Button type="submit" onClick={() => setIsDialogOpen(false)}>Ajouter l'application</Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+        <AddAppDialog open={isAddAppDialogOpen} onOpenChange={setIsAddAppDialogOpen}>
+            <Button>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Ajouter une app
+            </Button>
+        </AddAppDialog>
       </CardHeader>
       <CardContent>
         <Table>
