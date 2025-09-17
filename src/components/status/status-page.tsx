@@ -35,10 +35,10 @@ export default function StatusPage() {
               <Link href="#" className="text-foreground/60 transition-colors hover:text-foreground/80">
                   Predict
               </Link>
-              <Link href="#" className="text-foreground/60 transition-colors hover:text-foreground/80">
+              <Link href="/" className="text-foreground/60 transition-colors hover:text-foreground/80">
                   Statut
               </Link>
-              <Link href="#" className="text-foreground/60 transition-colors hover:text-foreground/80">
+              <Link href="/maintenance" className="text-foreground/60 transition-colors hover:text-foreground/80">
                   Maintenance
               </Link>
               <Link href="#" className="text-foreground/60 transition-colors hover:text-foreground/80">
