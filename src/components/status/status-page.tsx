@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Power, CheckCircle2, Megaphone } from 'lucide-react';
-import { applications as initialApplications } from '@/lib/data';
+import { collection, onSnapshot } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { Power, CheckCircle2, Megaphone, ChevronDown } from 'lucide-react';
 import type { Application } from '@/types';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -16,14 +17,22 @@ import {
 } from "@/components/ui/accordion"
 import ResponseTimeChart from '@/components/status/response-time-chart';
 import { Badge } from '@/components/ui/badge';
-import { ChevronDown } from 'lucide-react';
 
 export default function StatusPage() {
-  const [apps, setApps] = useState<Application[]>(initialApplications);
+  const [apps, setApps] = useState<Application[]>([]);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   useEffect(() => {
-    setLastUpdated(new Date());
+    const unsubscribe = onSnapshot(collection(db, 'applications'), (snapshot) => {
+      const appsData: Application[] = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as Application));
+      setApps(appsData);
+      setLastUpdated(new Date());
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const allSystemsOperational = apps.every(app => app.status === 'active');
@@ -94,10 +103,10 @@ export default function StatusPage() {
 
           <Accordion type="multiple" defaultValue={Object.keys(groupedApps)} className="w-full space-y-6">
             {Object.entries(groupedApps).map(([groupName, groupApps]) => (
-                <AccordionItem value={groupName} key={groupName} asChild>
+                <AccordionItem value={groupName} key={groupName} className="border-none">
                   <Card className="bg-card/50">
-                    <AccordionTrigger>
-                        <div className="p-6 flex justify-between items-center w-full">
+                    <AccordionTrigger className="p-6 hover:no-underline">
+                        <div className="flex justify-between items-center w-full">
                             <CardHeader className="p-0">
                                 <CardTitle as="h2" className="text-xl font-semibold">
                                     {groupName}

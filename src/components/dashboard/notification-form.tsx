@@ -1,10 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { generateNotificationSuggestions, type NotificationSuggestionsInput } from '@/ai/flows/intelligent-notification-suggestions';
+import { collection, onSnapshot } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import type { Application } from '@/types';
 
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,7 +17,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { Sparkles, Send } from 'lucide-react';
-import { applications } from '@/lib/data';
 import CustomLoader from '@/components/ui/custom-loader';
 
 const formSchema = z.object({
@@ -27,7 +29,20 @@ const formSchema = z.object({
 export default function NotificationForm() {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [applications, setApplications] = useState<Application[]>([]);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, 'applications'), (snapshot) => {
+      const appsData: Application[] = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as Application));
+      setApplications(appsData);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
