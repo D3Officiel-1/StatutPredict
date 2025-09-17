@@ -7,15 +7,7 @@ import { z } from 'zod';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { type Application } from '@/types';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Form,
   FormControl,
@@ -27,7 +19,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Sparkles, Upload } from 'lucide-react';
+import { Sparkles, Upload, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import CustomLoader from '../ui/custom-loader';
 import { Checkbox } from '../ui/checkbox';
@@ -184,155 +176,180 @@ export default function MaintenanceConfigDialog({ app, children, open, onOpenCha
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Maintenance pour {app.name}</DialogTitle>
-          <DialogDescription>
-            Configurez le message et les options pour la page de maintenance.
-          </DialogDescription>
-        </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <div className="space-y-2">
-                <FormField
-                    control={form.control}
-                    name="maintenanceMessage"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Message de maintenance</FormLabel>
-                            <FormControl>
-                                <Textarea rows={4} {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <Button type="button" variant="outline" size="sm" onClick={handleGenerateMessage} disabled={isGenerating}>
-                    {isGenerating ? <CustomLoader /> : <Sparkles className="mr-2 h-4 w-4" />}
-                    Générer avec l'IA
+    <>
+      <div onClick={() => onOpenChange(true)}>
+          {children}
+      </div>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => onOpenChange(false)}
+          >
+            <motion.div
+              className="bg-card p-6 rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center mb-4">
+                <div>
+                    <h2 className="text-lg font-semibold">Maintenance pour {app.name}</h2>
+                    <p className="text-sm text-muted-foreground">Configurez le message et les options pour la page de maintenance.</p>
+                </div>
+                <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
+                    <X className="h-4 w-4" />
                 </Button>
-            </div>
+              </div>
 
-            <div className="space-y-4 rounded-md border p-4">
-                <h4 className="text-sm font-medium">Téléverser un média</h4>
-                <FormField
-                    control={form.control}
-                    name="mediaUrl"
-                    render={() => (
-                        <FormItem>
-                            <FormLabel>Média (image, vidéo, audio)</FormLabel>
-                            <FormControl>
-                                <Input type="file" accept="image/*,video/*,audio/*" onChange={handleFileUpload} disabled={isUploading} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                {isUploading && <CustomLoader />}
-                {uploadedMediaUrl && !isUploading && (
-                    <div className="mt-2">
-                        {uploadedMediaUrl.includes('video') ? (
-                            <video src={uploadedMediaUrl} controls className="max-w-full h-auto rounded-md" />
-                        ) : uploadedMediaUrl.includes('audio') ? (
-                             <audio src={uploadedMediaUrl} controls className="w-full" />
-                        ) : (
-                            <Image src={uploadedMediaUrl} alt="Média téléversé" width={100} height={100} className="rounded-md object-cover" />
-                        )}
-                    </div>
-                )}
-            </div>
-
-            <div className="space-y-4 rounded-md border p-4">
-                <h4 className="text-sm font-medium">Bouton d'action (Optionnel)</h4>
-                 <FormField
-                    control={form.control}
-                    name="buttonTitle"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Titre du bouton</FormLabel>
-                            <FormControl>
-                                <Input placeholder="Ex: Suivez-nous sur X" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                 <FormField
-                    control={form.control}
-                    name="buttonUrl"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>URL de redirection</FormLabel>
-                            <FormControl>
-                                <Input placeholder="https://x.com/username" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-            </div>
-
-            <FormField
-              control={form.control}
-              name="targetUsers"
-              render={() => (
-                <FormItem>
-                  <div className="mb-4">
-                    <FormLabel className="text-base">Utilisateurs ciblés</FormLabel>
-                    <p className="text-sm text-muted-foreground">
-                      Affichez la page de maintenance uniquement pour certains forfaits.
-                    </p>
-                  </div>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                   <div className="space-y-2">
-                    {userTiers.map((item) => (
                       <FormField
-                        key={item.id}
-                        control={form.control}
-                        name="targetUsers"
-                        render={({ field }) => {
-                          return (
-                            <FormItem
-                              key={item.id}
-                              className="flex flex-row items-center space-x-3 space-y-0"
-                            >
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value?.includes(item.id)}
-                                  onCheckedChange={(checked) => {
-                                    return checked
-                                      ? field.onChange([...(field.value || []), item.id])
-                                      : field.onChange(
-                                          field.value?.filter(
-                                            (value) => value !== item.id
-                                          )
-                                        )
-                                  }}
-                                />
-                              </FormControl>
-                              <FormLabel className="font-normal">
-                                {item.label}
-                              </FormLabel>
-                            </FormItem>
-                          )
-                        }}
+                          control={form.control}
+                          name="maintenanceMessage"
+                          render={({ field }) => (
+                              <FormItem>
+                                  <FormLabel>Message de maintenance</FormLabel>
+                                  <FormControl>
+                                      <Textarea rows={4} {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                              </FormItem>
+                          )}
                       />
-                    ))}
+                      <Button type="button" variant="outline" size="sm" onClick={handleGenerateMessage} disabled={isGenerating}>
+                          {isGenerating ? <CustomLoader /> : <Sparkles className="mr-2 h-4 w-4" />}
+                          Générer avec l'IA
+                      </Button>
                   </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
-            <DialogFooter>
-              <Button type="submit" disabled={isSubmitting || isUploading}>
-                {isSubmitting ? <CustomLoader /> : 'Enregistrer'}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+                  <div className="space-y-4 rounded-md border p-4">
+                      <h4 className="text-sm font-medium">Téléverser un média</h4>
+                      <FormField
+                          control={form.control}
+                          name="mediaUrl"
+                          render={() => (
+                              <FormItem>
+                                  <FormLabel>Média (image, vidéo, audio)</FormLabel>
+                                  <FormControl>
+                                      <Input type="file" accept="image/*,video/*,audio/*" onChange={handleFileUpload} disabled={isUploading} />
+                                  </FormControl>
+                                  <FormMessage />
+                              </FormItem>
+                          )}
+                      />
+                      {isUploading && <CustomLoader />}
+                      {uploadedMediaUrl && !isUploading && (
+                          <div className="mt-2">
+                              {uploadedMediaUrl.includes('video') ? (
+                                  <video src={uploadedMediaUrl} controls className="max-w-full h-auto rounded-md" />
+                              ) : uploadedMediaUrl.includes('audio') ? (
+                                  <audio src={uploadedMediaUrl} controls className="w-full" />
+                              ) : (
+                                  <Image src={uploadedMediaUrl} alt="Média téléversé" width={100} height={100} className="rounded-md object-cover" />
+                              )}
+                          </div>
+                      )}
+                  </div>
+
+                  <div className="space-y-4 rounded-md border p-4">
+                      <h4 className="text-sm font-medium">Bouton d'action (Optionnel)</h4>
+                      <FormField
+                          control={form.control}
+                          name="buttonTitle"
+                          render={({ field }) => (
+                              <FormItem>
+                                  <FormLabel>Titre du bouton</FormLabel>
+                                  <FormControl>
+                                      <Input placeholder="Ex: Suivez-nous sur X" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                              </FormItem>
+                          )}
+                      />
+                      <FormField
+                          control={form.control}
+                          name="buttonUrl"
+                          render={({ field }) => (
+                              <FormItem>
+                                  <FormLabel>URL de redirection</FormLabel>
+                                  <FormControl>
+                                      <Input placeholder="https://x.com/username" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                              </FormItem>
+                          )}
+                      />
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="targetUsers"
+                    render={() => (
+                      <FormItem>
+                        <div className="mb-4">
+                          <FormLabel className="text-base">Utilisateurs ciblés</FormLabel>
+                          <p className="text-sm text-muted-foreground">
+                            Affichez la page de maintenance uniquement pour certains forfaits.
+                          </p>
+                        </div>
+                        <div className="space-y-2">
+                          {userTiers.map((item) => (
+                            <FormField
+                              key={item.id}
+                              control={form.control}
+                              name="targetUsers"
+                              render={({ field }) => {
+                                return (
+                                  <FormItem
+                                    key={item.id}
+                                    className="flex flex-row items-center space-x-3 space-y-0"
+                                  >
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value?.includes(item.id)}
+                                        onCheckedChange={(checked) => {
+                                          return checked
+                                            ? field.onChange([...(field.value || []), item.id])
+                                            : field.onChange(
+                                                field.value?.filter(
+                                                  (value) => value !== item.id
+                                                )
+                                              )
+                                        }}
+                                      />
+                                    </FormControl>
+                                    <FormLabel className="font-normal">
+                                      {item.label}
+                                    </FormLabel>
+                                  </FormItem>
+                                )
+                              }}
+                            />
+                          ))}
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="flex justify-end">
+                    <Button type="submit" disabled={isSubmitting || isUploading}>
+                      {isSubmitting ? <CustomLoader /> : 'Enregistrer'}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
