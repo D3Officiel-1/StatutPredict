@@ -65,7 +65,7 @@ export default function UserManagement() {
         <div>
           <CardTitle>Utilisateurs</CardTitle>
           <CardDescription>
-            Invitez et gérez les utilisateurs et leurs permissions.
+            Invitez et gérez les utilisateurs.
           </CardDescription>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -99,7 +99,6 @@ export default function UserManagement() {
           <TableHeader>
             <TableRow>
               <TableHead>Nom</TableHead>
-              <TableHead>Rôle</TableHead>
               <TableHead>
                 <span className="sr-only">Actions</span>
               </TableHead>
@@ -118,7 +117,6 @@ export default function UserManagement() {
                                 </div>
                             </div>
                         </TableCell>
-                        <TableCell><Skeleton className="h-6 w-16 rounded-full" /></TableCell>
                         <TableCell><Skeleton className="h-8 w-8" /></TableCell>
                     </TableRow>
                 ))
@@ -137,9 +135,6 @@ export default function UserManagement() {
                     </div>
                     </TableCell>
                     <TableCell>
-                    <Badge variant={user.role === 'Admin' ? 'default' : 'secondary'}>{user.role}</Badge>
-                    </TableCell>
-                    <TableCell>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                         <Button aria-haspopup="true" size="icon" variant="ghost">
@@ -150,7 +145,7 @@ export default function UserManagement() {
                         <DropdownMenuContent align="end">
                         <DropdownMenuItem>
                             <Edit className="mr-2 h-4 w-4" />
-                            Modifier le rôle
+                            Modifier
                         </DropdownMenuItem>
                         <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10">
                             <Trash className="mr-2 h-4 w-4" />

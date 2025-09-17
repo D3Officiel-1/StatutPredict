@@ -14,13 +14,10 @@ export interface Application {
   }
 }
 
-export type UserRole = 'Admin' | 'Viewer';
-
 export interface User {
   id: string;
   name:string;
   email: string;
-  role: UserRole;
 }
 
 export interface MediaItem {
