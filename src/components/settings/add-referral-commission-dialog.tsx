@@ -81,14 +81,14 @@ export default function AddReferralCommissionDialog({ parrain, filleul, open, on
       });
 
       // 2. Update parrain's referral balance
-      const newBalance = (parrain.referralBalance || 0) + commissionAmount;
-      batch.update(parrainRef, { referralBalance: newBalance });
+      const newBalance = (parrain.solde_referral || 0) + commissionAmount;
+      batch.update(parrainRef, { solde_referral: newBalance });
 
       await batch.commit();
 
       const updatedParrain = {
         ...parrain,
-        referralBalance: newBalance,
+        solde_referral: newBalance,
         referralData: [
             ...(parrain.referralData || []),
             { 

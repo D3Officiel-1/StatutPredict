@@ -41,9 +41,8 @@ export interface User {
   lastName?: string;
   phone?: string;
   pronosticCode?: string;
-  referralBalance?: number;
   referralCode?: string;
-  solde_referral?: number; // Kept for backward compatibility
+  solde_referral?: number;
   uid?: string;
   username?: string;
   referralData?: ReferralItem[];

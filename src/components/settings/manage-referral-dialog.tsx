@@ -49,7 +49,7 @@ export default function ManageReferralDialog({ user, open, onOpenChange, onUserU
   const balanceForm = useForm<z.infer<typeof balanceSchema>>({
     resolver: zodResolver(balanceSchema),
     defaultValues: {
-        newBalance: user.referralBalance || 0,
+        newBalance: user.solde_referral || 0,
     },
   });
 
@@ -66,10 +66,10 @@ export default function ManageReferralDialog({ user, open, onOpenChange, onUserU
     try {
         const userRef = doc(db, 'users', user.uid);
         await updateDoc(userRef, {
-            referralBalance: values.newBalance,
+            solde_referral: values.newBalance,
         });
 
-        const updatedUser = { ...user, referralBalance: values.newBalance };
+        const updatedUser = { ...user, solde_referral: values.newBalance };
         onUserUpdate(updatedUser);
 
         toast({
@@ -226,7 +226,7 @@ export default function ManageReferralDialog({ user, open, onOpenChange, onUserU
             onOpenChange={setIsCommissionDialogOpen}
             onCommissionAdded={(updatedUser) => {
                 onUserUpdate(updatedUser);
-                balanceForm.setValue('newBalance', updatedUser.referralBalance || 0);
+                balanceForm.setValue('newBalance', updatedUser.solde_referral || 0);
             }}
         />
     )}
