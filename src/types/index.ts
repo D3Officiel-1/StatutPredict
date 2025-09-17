@@ -10,7 +10,6 @@ export interface Application {
     message: string;
     buttonTitle?: string;
     buttonUrl?: string;
-    targetUsers?: string[];
     mediaUrl?: string;
   }
 }
