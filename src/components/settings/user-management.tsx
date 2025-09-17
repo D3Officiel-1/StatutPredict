@@ -43,12 +43,14 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import ActivatePlanDialog from './activate-plan-dialog';
+import ManageReferralDialog from './manage-referral-dialog';
 
 export default function UserManagement() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   const [isActivatePlanDialogOpen, setIsActivatePlanDialogOpen] = useState(false);
+  const [isManageReferralDialogOpen, setIsManageReferralDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const { toast } = useToast();
 
@@ -59,7 +61,8 @@ export default function UserManagement() {
       const usersDataPromises = snapshot.docs.map(async userDoc => {
         const userData = {
           id: userDoc.id,
-          ...userDoc.data()
+          ...userDoc.data(),
+          uid: userDoc.id,
         } as User;
 
         const referralCol = collection(db, `users/${userDoc.id}/referral`);
@@ -68,7 +71,7 @@ export default function UserManagement() {
         const referralSnapshot = await getDocs(referralCol);
         const pricingDocSnap = await getDoc(pricingDocRef);
         
-        userData.referralData = referralSnapshot.docs.map(d => d.data());
+        userData.referralData = referralSnapshot.docs.map(d => ({...d.data(), id: d.id}));
         if (pricingDocSnap.exists()) {
           userData.pricingData = [pricingDocSnap.data()];
         } else {
@@ -128,6 +131,11 @@ export default function UserManagement() {
   const handleActivatePlanClick = (user: User) => {
     setSelectedUser(user);
     setIsActivatePlanDialogOpen(true);
+  };
+
+  const handleManageReferralClick = (user: User) => {
+    setSelectedUser(user);
+    setIsManageReferralDialogOpen(true);
   };
 
 
@@ -235,7 +243,7 @@ export default function UserManagement() {
                             <Award className="mr-2 h-4 w-4" />
                             Activer le forfait
                         </DropdownMenuItem>
-                         <DropdownMenuItem>
+                         <DropdownMenuItem onSelect={() => handleManageReferralClick(user)}>
                             <Gift className="mr-2 h-4 w-4" />
                             Gérer le parrainage
                         </DropdownMenuItem>
@@ -262,6 +270,13 @@ export default function UserManagement() {
         user={selectedUser}
         open={isActivatePlanDialogOpen}
         onOpenChange={setIsActivatePlanDialogOpen}
+      />
+    )}
+    {selectedUser && (
+      <ManageReferralDialog
+        user={selectedUser}
+        open={isManageReferralDialogOpen}
+        onOpenChange={setIsManageReferralDialogOpen}
       />
     )}
     </>

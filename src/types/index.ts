@@ -15,6 +15,7 @@ export interface Application {
 }
 
 export interface ReferralItem {
+  id: string;
   amount: number;
   date: any;
   fromUser: string;
