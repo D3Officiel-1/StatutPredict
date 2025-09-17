@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { collection, onSnapshot, doc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import AppStatusCard from './app-status-card';
-import type { Application, AppStatus } from '@/types';
+import type { Application } from '@/types';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function AppList() {
@@ -24,7 +24,7 @@ export default function AppList() {
     return () => unsubscribe();
   }, []);
 
-  const handleStatusChange = async (appId: string, newStatus: AppStatus) => {
+  const handleStatusChange = async (appId: string, newStatus: boolean) => {
     const appRef = doc(db, 'applications', appId);
     try {
       await updateDoc(appRef, { status: newStatus });

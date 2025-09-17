@@ -41,7 +41,7 @@ export default function DashboardPage() {
       const batch = writeBatch(db);
 
       appsSnapshot.forEach((doc) => {
-        batch.update(doc.ref, { status: 'maintenance' });
+        batch.update(doc.ref, { status: false });
       });
 
       await batch.commit();

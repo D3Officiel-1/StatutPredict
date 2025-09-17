@@ -35,7 +35,7 @@ export default function StatusPage() {
     return () => unsubscribe();
   }, []);
 
-  const allSystemsOperational = apps.every(app => app.status === 'active');
+  const allSystemsOperational = apps.every(app => app.status);
   const groupedApps = apps.reduce((acc, app) => {
     const groupName = app.name.includes("XalaFlix") ? "XalaFlix" : "Services Généraux";
     if (!acc[groupName]) {
@@ -81,7 +81,7 @@ export default function StatusPage() {
           <div className="mb-8 text-center">
             <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-4" />
             <h1 className="text-4xl font-bold tracking-tight text-foreground">
-                Tous les services sont opérationnels
+                { allSystemsOperational ? "Tous les services sont opérationnels" : "Certains services sont affectés"}
             </h1>
             <p className="mt-2 text-muted-foreground">
               Dernière mise à jour le{' '}
@@ -113,7 +113,7 @@ export default function StatusPage() {
                                 </CardTitle>
                             </CardHeader>
                             <div className="flex items-center gap-4">
-                                <Badge variant={groupApps.every(app => app.status === 'active') ? "outline" : "destructive"} className="flex gap-2 items-center">
+                                <Badge variant={groupApps.every(app => app.status) ? "outline" : "destructive"} className="flex gap-2 items-center">
                                     <CheckCircle2 className="h-4 w-4 text-green-400" /> Opérationnel
                                 </Badge>
                                 <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
@@ -126,14 +126,14 @@ export default function StatusPage() {
                                 <div key={app.id}>
                                     <div className="flex justify-between items-center mb-2">
                                         <div className="flex items-center gap-2">
-                                            <CheckCircle2 className="h-5 w-5 text-green-400"/>
+                                            <CheckCircle2 className={`h-5 w-5 ${app.status ? 'text-green-400' : 'text-orange-400'}`}/>
                                             <p className="font-medium text-foreground">{app.name}</p>
                                         </div>
-                                        <p className="text-sm text-green-400 font-semibold">100.000% de disponibilité</p>
+                                        <p className={`text-sm ${app.status ? 'text-green-400' : 'text-orange-400'} font-semibold`}>{app.status ? 'Opérationnel' : 'Maintenance'}</p>
                                     </div>
                                     <div className="flex gap-0.5 w-full h-2">
                                         {Array.from({ length: 30 }).map((_, i) => (
-                                            <div key={i} className="flex-1 bg-green-500 rounded-sm" />
+                                            <div key={i} className={`flex-1 ${app.status ? 'bg-green-500' : 'bg-orange-500'} rounded-sm`} />
                                         ))}
                                     </div>
                                     <div className="flex justify-between text-xs text-muted-foreground mt-1">

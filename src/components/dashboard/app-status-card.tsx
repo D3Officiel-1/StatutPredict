@@ -1,6 +1,6 @@
 'use client';
 
-import type { Application, AppStatus } from '@/types';
+import type { Application } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Globe, Smartphone, Server, Power, ShieldAlert, Settings } from 'lucide-react';
@@ -12,7 +12,7 @@ import { useState } from 'react';
 
 interface AppStatusCardProps {
   app: Application;
-  onStatusChange: (appId: string, newStatus: AppStatus) => void;
+  onStatusChange: (appId: string, newStatus: boolean) => void;
 }
 
 const AppIcon = ({ type }: { type: Application['type'] }) => {
@@ -30,11 +30,11 @@ const AppIcon = ({ type }: { type: Application['type'] }) => {
 };
 
 export default function AppStatusCard({ app, onStatusChange }: AppStatusCardProps) {
-  const isMaintenance = app.status === 'maintenance';
+  const isMaintenance = !app.status;
   const [isConfigOpen, setIsConfigOpen] = useState(false);
 
   const handleSwitchChange = (checked: boolean) => {
-    onStatusChange(app.id, checked ? 'maintenance' : 'active');
+    onStatusChange(app.id, !checked);
   };
 
   return (

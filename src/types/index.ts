@@ -1,10 +1,9 @@
-export type AppStatus = 'active' | 'maintenance';
 export type AppType = 'web' | 'mobile' | 'api';
 
 export interface Application {
   id: string;
   name: string;
-  status: AppStatus;
+  status: boolean;
   url: string;
   type: AppType;
   maintenanceConfig?: {
