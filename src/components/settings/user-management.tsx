@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, onSnapshot, orderBy, query, getDocs } from 'firebase/firestore';
+import { collection, onSnapshot, orderBy, query, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { User } from '@/types';
 import {
@@ -63,13 +63,14 @@ export default function UserManagement() {
         } as User;
 
         const referralCol = collection(db, `users/${userDoc.id}/referral`);
-        const pricingCol = collection(db, `users/${userDoc.id}/pricing`);
+        const pricingDocRef = doc(db, `users/${userDoc.id}/pricing/jetpredict`);
 
         const referralSnapshot = await getDocs(referralCol);
-        const pricingSnapshot = await getDocs(pricingCol);
+        const pricingDocSnap = await getDoc(pricingDocRef);
         
         userData.referralData = referralSnapshot.docs.map(d => d.data());
-        userData.pricingData = pricingSnapshot.docs.map(d => d.data());
+        userData.pricingData = pricingDocSnap.exists() ? [pricingDocSnap.data()] : [];
+
 
         return userData;
       });
@@ -223,7 +224,7 @@ export default function UserManagement() {
                             <Badge variant={user.pricingData[0].actif_jetpredict ? 'default' : 'destructive'} className={user.pricingData[0].actif_jetpredict ? 'bg-green-500/20 text-green-500 border-green-500/30' : ''}>
                                 {user.pricingData[0].actif_jetpredict ? 'Actif' : 'Inactif'}
                             </Badge>
-                        ) : 'N/A'}
+                        ) : <Badge variant="secondary">Aucun</Badge>}
                     </TableCell>
                     <TableCell>{user.pricingData?.[0]?.idplan_jetpredict || 'N/A'}</TableCell>
                     <TableCell>{user.pricingData?.[0]?.startdate ? formatDate(user.pricingData[0].startdate) : 'N/A'}</TableCell>
