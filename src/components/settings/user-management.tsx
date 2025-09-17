@@ -63,14 +63,17 @@ export default function UserManagement() {
         } as User;
 
         const referralCol = collection(db, `users/${userDoc.id}/referral`);
-        const pricingDocRef = doc(db, `users/${userDoc.id}/pricing/jetpredict`);
+        const pricingDocRef = doc(db, 'pricing', userDoc.id);
 
         const referralSnapshot = await getDocs(referralCol);
         const pricingDocSnap = await getDoc(pricingDocRef);
         
         userData.referralData = referralSnapshot.docs.map(d => d.data());
-        userData.pricingData = pricingDocSnap.exists() ? [pricingDocSnap.data()] : [];
-
+        if (pricingDocSnap.exists()) {
+          userData.pricingData = [pricingDocSnap.data()];
+        } else {
+          userData.pricingData = [];
+        }
 
         return userData;
       });

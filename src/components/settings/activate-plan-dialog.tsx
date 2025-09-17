@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { User } from '@/types';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -69,7 +69,7 @@ export default function ActivatePlanDialog({ user, open, onOpenChange }: Activat
     
     setIsSubmitting(true);
     try {
-      const planRef = doc(db, 'users', user.uid, 'pricing', 'jetpredict');
+      const planRef = doc(db, 'pricing', user.uid);
       const startDate = new Date();
       const endDate = addMonths(startDate, parseInt(values.duration));
       
