@@ -40,12 +40,6 @@ export const applications: Application[] = [
 
 export const users: User[] = [
     {
-        id: '1',
-        name: 'Alice Dubois',
-        email: 'alice.dubois@example.com',
-        role: 'Admin',
-    },
-    {
         id: '2',
         name: 'Bob Leclerc',
         email: 'bob.leclerc@example.com',
@@ -58,10 +52,3 @@ export const users: User[] = [
         role: 'Viewer',
     }
 ]
-
-export const mainUser: User = {
-    id: '1',
-    name: 'Alice Dubois',
-    email: 'alice.dubois@example.com',
-    role: 'Admin',
-}

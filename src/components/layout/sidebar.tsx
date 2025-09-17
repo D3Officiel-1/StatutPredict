@@ -20,7 +20,6 @@ import {
   BrainCircuit,
   User as UserIcon,
 } from 'lucide-react';
-import { mainUser } from '@/lib/data';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -79,24 +78,6 @@ const AppSidebar = () => {
       </SidebarContent>
 
       <SidebarFooter>
-        <Separator className="my-2 bg-sidebar-border" />
-        <div
-          className={`flex items-center p-2 rounded-md transition-colors duration-200 ${
-            state === 'collapsed' ? 'justify-center' : ''
-          }`}
-        >
-          <UserIcon className="h-9 w-9" />
-          {state === 'expanded' && (
-            <div className="ml-3 overflow-hidden">
-              <p className="text-sm font-medium text-sidebar-foreground truncate">
-                {mainUser.name}
-              </p>
-              <p className="text-xs text-sidebar-foreground/70 truncate">
-                {mainUser.email}
-              </p>
-            </div>
-          )}
-        </div>
       </SidebarFooter>
     </>
   );

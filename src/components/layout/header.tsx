@@ -12,7 +12,6 @@ import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { LogOut, User as UserIcon, BrainCircuit } from 'lucide-react';
 import { usePathname } from 'next/navigation';
-import { mainUser } from '@/lib/data';
 
 function getPageTitle(pathname: string): string {
   if (pathname.startsWith('/settings')) {
@@ -35,26 +34,6 @@ export default function AppHeader() {
         <h1 className="text-xl font-semibold font-headline">{pageTitle}</h1>
       </div>
 
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-            <UserIcon />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56" align="end" forceMount>
-          <DropdownMenuLabel className="font-normal">
-            <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">{mainUser.name}</p>
-              <p className="text-xs leading-none text-muted-foreground">{mainUser.email}</p>
-            </div>
-          </DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <UserIcon />
-            <span>Profil</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
     </header>
   );
 }

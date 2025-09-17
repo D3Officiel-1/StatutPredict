@@ -68,7 +68,7 @@ export default function DashboardPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <CardTitle as="h2" className="font-headline text-2xl">
-                Bonjour, {`Alice`}!
+                Bonjour !
               </CardTitle>
               <CardDescription className="mt-1">
                 Voici l'état de vos applications. {activeAppsCount} sur {totalAppsCount} sont actives.
