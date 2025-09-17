@@ -42,11 +42,14 @@ import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
+import ActivatePlanDialog from './activate-plan-dialog';
 
 export default function UserManagement() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
+  const [isActivatePlanDialogOpen, setIsActivatePlanDialogOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -118,8 +121,14 @@ export default function UserManagement() {
     });
   };
 
+  const handleActivatePlanClick = (user: User) => {
+    setSelectedUser(user);
+    setIsActivatePlanDialogOpen(true);
+  };
+
 
   return (
+    <>
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
@@ -128,7 +137,7 @@ export default function UserManagement() {
             Invitez et gérez les utilisateurs.
           </CardDescription>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog open={isInviteDialogOpen} onOpenChange={setIsInviteDialogOpen}>
             <DialogTrigger asChild>
                 <Button>
                     <UserPlus className="mr-2 h-4 w-4" />
@@ -149,7 +158,7 @@ export default function UserManagement() {
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button type="submit" onClick={() => setIsDialogOpen(false)}>Envoyer l'invitation</Button>
+                    <Button type="submit" onClick={() => setIsInviteDialogOpen(false)}>Envoyer l'invitation</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
@@ -218,7 +227,7 @@ export default function UserManagement() {
                             <Copy className="mr-2 h-4 w-4" />
                             Copier l'UID
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => handleActivatePlanClick(user)}>
                             <Award className="mr-2 h-4 w-4" />
                             Activer le forfait
                         </DropdownMenuItem>
@@ -244,5 +253,13 @@ export default function UserManagement() {
         </Table>
       </CardContent>
     </Card>
+    {selectedUser && (
+      <ActivatePlanDialog
+        user={selectedUser}
+        open={isActivatePlanDialogOpen}
+        onOpenChange={setIsActivatePlanDialogOpen}
+      />
+    )}
+    </>
   );
 }
