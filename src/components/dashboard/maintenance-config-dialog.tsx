@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc, addDoc, collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { type Application } from '@/types';
+import type { Application, MediaItem } from '@/types';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Form,
@@ -19,12 +19,15 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Sparkles, Upload, X } from 'lucide-react';
+import { Sparkles, Upload, X, GalleryHorizontal } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import CustomLoader from '../ui/custom-loader';
 import { Checkbox } from '../ui/checkbox';
 import { generateMaintenanceMessage } from '@/ai/flows/maintenance-message-generator';
 import Image from 'next/image';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import MediaLibrary from './media-library';
+
 
 interface MaintenanceConfigDialogProps {
   app: Application;
@@ -38,7 +41,7 @@ const formSchema = z.object({
   buttonTitle: z.string().optional(),
   buttonUrl: z.string().url('Veuillez entrer une URL valide.').optional().or(z.literal('')),
   targetUsers: z.array(z.string()).optional(),
-  mediaUrl: z.string().url().optional(),
+  mediaUrl: z.string().url().optional().or(z.literal('')),
 });
 
 const userTiers = [
@@ -56,6 +59,7 @@ export default function MaintenanceConfigDialog({ app, children, open, onOpenCha
   const [isGenerating, setIsGenerating] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedMediaUrl, setUploadedMediaUrl] = useState<string | null>(app.maintenanceConfig?.mediaUrl || null);
+  const [mediaLibrary, setMediaLibrary] = useState<MediaItem[]>([]);
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -68,6 +72,20 @@ export default function MaintenanceConfigDialog({ app, children, open, onOpenCha
       mediaUrl: app.maintenanceConfig?.mediaUrl || '',
     },
   });
+
+  useEffect(() => {
+    if (open) {
+      const q = query(collection(db, 'media_library'), orderBy('createdAt', 'desc'));
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        const mediaData: MediaItem[] = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        } as MediaItem));
+        setMediaLibrary(mediaData);
+      });
+      return () => unsubscribe();
+    }
+  }, [open]);
 
   useEffect(() => {
     const mediaUrl = app.maintenanceConfig?.mediaUrl || '';
@@ -125,9 +143,16 @@ export default function MaintenanceConfigDialog({ app, children, open, onOpenCha
         const data = await response.json();
         setUploadedMediaUrl(data.secure_url);
         form.setValue('mediaUrl', data.secure_url, { shouldValidate: true });
+        
+        await addDoc(collection(db, 'media_library'), {
+          url: data.secure_url,
+          type: file.type,
+          createdAt: new Date(),
+        });
+        
         toast({
           title: 'Téléversement réussi',
-          description: 'Votre média a été téléversé avec succès.',
+          description: 'Votre média a été téléversé et ajouté à la bibliothèque.',
         });
       } else {
         throw new Error('Upload failed');
@@ -143,6 +168,15 @@ export default function MaintenanceConfigDialog({ app, children, open, onOpenCha
       setIsUploading(false);
     }
   };
+  
+  const handleMediaSelect = (media: MediaItem) => {
+    setUploadedMediaUrl(media.url);
+    form.setValue('mediaUrl', media.url, { shouldValidate: true });
+    toast({
+        title: 'Média sélectionné',
+        description: 'Le média a été sélectionné depuis la bibliothèque.',
+    })
+  };
 
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -155,7 +189,7 @@ export default function MaintenanceConfigDialog({ app, children, open, onOpenCha
           buttonTitle: values.buttonTitle,
           buttonUrl: values.buttonUrl,
           targetUsers: values.targetUsers,
-          mediaUrl: values.mediaUrl,
+          mediaUrl: uploadedMediaUrl,
         }
       });
       toast({
@@ -183,14 +217,14 @@ export default function MaintenanceConfigDialog({ app, children, open, onOpenCha
       <AnimatePresence>
         {open && (
           <motion.div
-            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => onOpenChange(false)}
           >
             <motion.div
-              className="bg-card p-6 rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto"
+              className="bg-card p-6 rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
@@ -228,35 +262,55 @@ export default function MaintenanceConfigDialog({ app, children, open, onOpenCha
                           Générer avec l'IA
                       </Button>
                   </div>
-
-                  <div className="space-y-4 rounded-md border p-4">
-                      <h4 className="text-sm font-medium">Téléverser un média</h4>
-                      <FormField
-                          control={form.control}
-                          name="mediaUrl"
-                          render={() => (
-                              <FormItem>
-                                  <FormLabel>Média (image, vidéo, audio)</FormLabel>
-                                  <FormControl>
-                                      <Input type="file" accept="image/*,video/*,audio/*" onChange={handleFileUpload} disabled={isUploading} />
-                                  </FormControl>
-                                  <FormMessage />
-                              </FormItem>
-                          )}
-                      />
-                      {isUploading && <CustomLoader />}
-                      {uploadedMediaUrl && !isUploading && (
-                          <div className="mt-2">
-                              {uploadedMediaUrl.includes('video') ? (
-                                  <video src={uploadedMediaUrl} controls className="max-w-full h-auto rounded-md" />
-                              ) : uploadedMediaUrl.includes('audio') ? (
-                                  <audio src={uploadedMediaUrl} controls className="w-full" />
-                              ) : (
-                                  <Image src={uploadedMediaUrl} alt="Média téléversé" width={100} height={100} className="rounded-md object-cover" />
+                  
+                  <Tabs defaultValue="upload" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="upload">
+                            <Upload className="mr-2 h-4 w-4"/>
+                            Téléverser un média
+                        </TabsTrigger>
+                        <TabsTrigger value="library">
+                            <GalleryHorizontal className="mr-2 h-4 w-4"/>
+                            Bibliothèque
+                        </TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="upload">
+                      <div className="space-y-4 rounded-md border p-4 mt-4">
+                          <h4 className="text-sm font-medium">Téléverser un média</h4>
+                          <FormField
+                              control={form.control}
+                              name="mediaUrl"
+                              render={() => (
+                                  <FormItem>
+                                      <FormLabel>Média (image, vidéo, audio)</FormLabel>
+                                      <FormControl>
+                                          <Input type="file" accept="image/*,video/*,audio/*" onChange={handleFileUpload} disabled={isUploading} />
+                                      </FormControl>
+                                      <FormMessage />
+                                  </FormItem>
                               )}
-                          </div>
-                      )}
-                  </div>
+                          />
+                          {isUploading && <CustomLoader />}
+                          {uploadedMediaUrl && !isUploading && (
+                              <div className="mt-2 relative w-full h-48">
+                                  {uploadedMediaUrl.includes('video') ? (
+                                      <video src={uploadedMediaUrl} controls className="w-full h-full object-contain rounded-md" />
+                                  ) : uploadedMediaUrl.includes('audio') ? (
+                                      <audio src={uploadedMediaUrl} controls className="w-full" />
+                                  ) : (
+                                      <Image src={uploadedMediaUrl} alt="Média téléversé" layout="fill" className="rounded-md object-contain" />
+                                  )}
+                              </div>
+                          )}
+                      </div>
+                    </TabsContent>
+                    <TabsContent value="library">
+                        <div className="mt-4">
+                           <MediaLibrary mediaItems={mediaLibrary} onSelect={handleMediaSelect} />
+                        </div>
+                    </TabsContent>
+                  </Tabs>
+
 
                   <div className="space-y-4 rounded-md border p-4">
                       <h4 className="text-sm font-medium">Bouton d'action (Optionnel)</h4>

@@ -25,3 +25,10 @@ export interface User {
   role: UserRole;
   avatarUrl: string;
 }
+
+export interface MediaItem {
+  id: string;
+  url: string;
+  type: string;
+  createdAt: any;
+}
