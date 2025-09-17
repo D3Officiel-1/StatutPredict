@@ -1,8 +1,7 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
+import { collection, onSnapshot, orderBy, query, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { DiscountCode } from '@/types';
 import {
@@ -26,16 +25,33 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { MoreHorizontal, PlusCircle, Trash, Edit, Copy } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
+import DiscountCodeFormDialog from './discount-code-form-dialog';
+import CustomLoader from '../ui/custom-loader';
 
 export default function DiscountCodeManagement() {
   const [discountCodes, setDiscountCodes] = useState<DiscountCode[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [selectedCode, setSelectedCode] = useState<DiscountCode | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [codeToDelete, setCodeToDelete] = useState<DiscountCode | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -49,10 +65,49 @@ export default function DiscountCodeManagement() {
         } as DiscountCode));
         setDiscountCodes(codesData);
         setLoading(false);
+    }, (error) => {
+        console.error("Error fetching discount codes:", error);
+        toast({ title: "Erreur", description: "Impossible de charger les codes de réduction.", variant: "destructive" });
+        setLoading(false);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [toast]);
+
+  const handleAddCode = () => {
+    setSelectedCode(null);
+    setIsFormOpen(true);
+  };
+
+  const handleEditCode = (code: DiscountCode) => {
+    setSelectedCode(code);
+    setIsFormOpen(true);
+  };
+  
+  const openDeleteDialog = (code: DiscountCode) => {
+    setCodeToDelete(code);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteCode = async () => {
+    if (!codeToDelete) return;
+    setIsDeleting(true);
+    try {
+        await deleteDoc(doc(db, "promo", codeToDelete.id));
+        toast({
+            title: "Code supprimé",
+            description: `Le code "${codeToDelete.titre}" a été supprimé avec succès.`,
+        });
+        setIsDeleteDialogOpen(false);
+        setCodeToDelete(null);
+    } catch (error) {
+        console.error("Error deleting code: ", error);
+        toast({ title: 'Erreur', description: "Impossible de supprimer le code.", variant: 'destructive'});
+    } finally {
+        setIsDeleting(false);
+    }
+  };
+
 
   const formatDate = (timestamp: any) => {
     if (timestamp && timestamp.toDate) {
@@ -97,7 +152,7 @@ export default function DiscountCodeManagement() {
               Liste de tous les codes de réduction créés.
             </CardDescription>
           </div>
-          <Button>
+          <Button onClick={handleAddCode}>
             <PlusCircle className="mr-2 h-4 w-4" />
             Ajouter un code
           </Button>
@@ -154,11 +209,11 @@ export default function DiscountCodeManagement() {
                                   <Copy className="mr-2 h-4 w-4" />
                                   Copier le code
                               </DropdownMenuItem>
-                              <DropdownMenuItem>
+                              <DropdownMenuItem onSelect={() => handleEditCode(code)}>
                                   <Edit className="mr-2 h-4 w-4" />
                                   Modifier
                               </DropdownMenuItem>
-                              <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10">
+                              <DropdownMenuItem onSelect={() => openDeleteDialog(code)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
                                   <Trash className="mr-2 h-4 w-4" />
                                   Supprimer
                               </DropdownMenuItem>
@@ -172,6 +227,30 @@ export default function DiscountCodeManagement() {
           </Table>
         </CardContent>
       </Card>
+      
+      <DiscountCodeFormDialog
+        open={isFormOpen}
+        onOpenChange={setIsFormOpen}
+        discountCode={selectedCode}
+        onSuccess={() => setIsFormOpen(false)}
+      />
+
+       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Cette action est irréversible. Le code "{codeToDelete?.titre}" sera définitivement supprimé.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setCodeToDelete(null)}>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteCode} disabled={isDeleting}>
+              {isDeleting ? <CustomLoader /> : 'Supprimer'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
     </>
   );
 }
