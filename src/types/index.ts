@@ -17,7 +17,7 @@ export interface Application {
 export interface User {
   id: string;
   createdAt?: any;
-  dob?: string;
+  dob?: string | any;
   email: string;
   favoriteGame?: string;
   firstName?: string;
@@ -28,10 +28,9 @@ export interface User {
   pronosticCode?: string;
   referralBalance?: number;
   referralCode?: string;
-  solde_referral?: number;
+  solde_referral?: number; // Kept for backward compatibility
   uid?: string;
   username?: string;
-  name?: string; // Keep for backward compatibility if some docs still use it
 }
 
 export interface MediaItem {

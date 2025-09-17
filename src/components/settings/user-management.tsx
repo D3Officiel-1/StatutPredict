@@ -65,6 +65,14 @@ export default function UserManagement() {
     if (timestamp && timestamp.toDate) {
       return format(timestamp.toDate(), 'dd/MM/yyyy HH:mm');
     }
+    if (typeof timestamp === 'string') {
+        try {
+            // Attempt to parse strings like 'YYYY-MM-DD' or 'DD/MM/YYYY'
+            return format(new Date(timestamp), 'dd/MM/yyyy');
+        } catch (e) {
+            return timestamp; // return original string if parsing fails
+        }
+    }
     return 'N/A';
   };
 
@@ -121,6 +129,7 @@ export default function UserManagement() {
               <TableHead>Code Pronostic</TableHead>
               <TableHead>Solde parrainage</TableHead>
               <TableHead>Code parrainage</TableHead>
+              <TableHead>UID</TableHead>
               <TableHead>
                 <span className="sr-only">Actions</span>
               </TableHead>
@@ -130,7 +139,7 @@ export default function UserManagement() {
             {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                     <TableRow key={i}>
-                        <TableCell colSpan={14}>
+                        <TableCell colSpan={15}>
                            <Skeleton className="h-8 w-full" />
                         </TableCell>
                     </TableRow>
@@ -148,13 +157,14 @@ export default function UserManagement() {
                     <TableCell>{user.firstName || 'N/A'}</TableCell>
                     <TableCell>{user.lastName || 'N/A'}</TableCell>
                     <TableCell>{formatDate(user.createdAt)}</TableCell>
-                    <TableCell>{user.dob || 'N/A'}</TableCell>
+                    <TableCell>{formatDate(user.dob)}</TableCell>
                     <TableCell>{user.gender || 'N/A'}</TableCell>
                     <TableCell>{user.phone || 'N/A'}</TableCell>
                     <TableCell>{user.favoriteGame || 'N/A'}</TableCell>
                     <TableCell>{user.pronosticCode || 'N/A'}</TableCell>
-                    <TableCell>{user.referralBalance ?? user.solde_referral ?? 0}</TableCell>
+                    <TableCell>{user.referralBalance ?? 0}</TableCell>
                     <TableCell>{user.referralCode || 'N/A'}</TableCell>
+                    <TableCell>{user.uid || 'N/A'}</TableCell>
                     <TableCell>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
