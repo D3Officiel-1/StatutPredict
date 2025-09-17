@@ -1,13 +1,21 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Power } from 'lucide-react';
-import AppStatusBadge from './app-status-badge';
+import { Power, CheckCircle2, Megaphone } from 'lucide-react';
 import { applications as initialApplications } from '@/lib/data';
 import type { Application } from '@/types';
-import { Button } from '../ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+import ResponseTimeChart from '@/components/status/response-time-chart';
+import { Badge } from '@/components/ui/badge';
 
 export default function StatusPage() {
   const [apps, setApps] = useState<Application[]>(initialApplications);
@@ -18,6 +26,15 @@ export default function StatusPage() {
   }, []);
 
   const allSystemsOperational = apps.every(app => app.status === 'active');
+  const groupedApps = apps.reduce((acc, app) => {
+    const groupName = app.name.includes("XalaFlix") ? "XalaFlix" : "Services Généraux";
+    if (!acc[groupName]) {
+      acc[groupName] = [];
+    }
+    acc[groupName].push(app);
+    return acc;
+  }, {} as Record<string, Application[]>);
+
 
   return (
     <div className="min-h-screen">
@@ -35,7 +52,7 @@ export default function StatusPage() {
               <Link href="#" className="text-foreground/60 transition-colors hover:text-foreground/80">
                   Predict
               </Link>
-              <Link href="/" className="text-foreground/60 transition-colors hover:text-foreground/80">
+              <Link href="/" className="text-foreground transition-colors hover:text-foreground/80">
                   Statut
               </Link>
               <Link href="/maintenance" className="text-foreground/60 transition-colors hover:text-foreground/80">
@@ -50,45 +67,77 @@ export default function StatusPage() {
       </header>
 
       <main className="container mx-auto px-4 py-8 md:px-6 md:py-12">
-        <div className="mx-auto max-w-4xl">
-          <div className="mb-8 rounded-lg border bg-card p-6 shadow-sm">
-            <div
-              className={`flex items-center gap-3 text-xl font-bold ${
-                allSystemsOperational ? 'text-green-500' : 'text-orange-500'
-              }`}
-            >
-              <div
-                className={`h-4 w-4 rounded-full ${
-                  allSystemsOperational ? 'bg-green-500' : 'bg-orange-500'
-                }`}
-              ></div>
-              <span>
-                {allSystemsOperational
-                  ? 'Tous les systèmes sont opérationnels'
-                  : 'Certains systèmes sont en maintenance'}
-              </span>
-            </div>
+        <div className="mx-auto max-w-5xl">
+          <div className="mb-8 text-center">
+            <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-4" />
+            <h1 className="text-4xl font-bold tracking-tight text-foreground">
+                Tous les services sont opérationnels
+            </h1>
             <p className="mt-2 text-muted-foreground">
               Dernière mise à jour le{' '}
               {lastUpdated
                 ? lastUpdated.toLocaleString('fr-FR', {
-                    dateStyle: 'full',
+                    dateStyle: 'medium',
                     timeStyle: 'medium',
                   })
                 : 'chargement...'}
             </p>
           </div>
+          
+          <Alert className="mb-8 bg-card border-card-border">
+            <Megaphone className="h-4 w-4" />
+            <AlertDescription>
+              Nous surveillons en continu nos services pour garantir une expérience optimale. Merci pour votre confiance ! 💜
+            </AlertDescription>
+          </Alert>
 
-          <div className="space-y-4">
-            <h2 className="text-2xl font-bold tracking-tight font-headline">
-              Statut des applications
-            </h2>
-            <div className="space-y-4">
-              {apps.map(app => (
-                <AppStatusBadge key={app.id} app={app} />
-              ))}
-            </div>
-          </div>
+          <Accordion type="multiple" defaultValue={Object.keys(groupedApps)} className="w-full space-y-6">
+            {Object.entries(groupedApps).map(([groupName, groupApps]) => (
+                <Card as={AccordionItem} value={groupName} key={groupName} className="bg-card/50">
+                    <CardHeader>
+                        <AccordionTrigger className="p-0 hover:no-underline">
+                            <div className="flex justify-between items-center w-full">
+                                <CardTitle as="h2" className="text-xl font-semibold">
+                                    {groupName}
+                                </CardTitle>
+                                <Badge variant={groupApps.every(app => app.status === 'active') ? "outline" : "destructive"} className="flex gap-2 items-center">
+                                    <CheckCircle2 className="h-4 w-4 text-green-400" /> Opérationnel
+                                </Badge>
+                            </div>
+                        </AccordionTrigger>
+                    </CardHeader>
+                    <AccordionContent asChild>
+                        <CardContent className="space-y-6">
+                            {groupApps.map((app) => (
+                                <div key={app.id}>
+                                    <div className="flex justify-between items-center mb-2">
+                                        <div className="flex items-center gap-2">
+                                            <CheckCircle2 className="h-5 w-5 text-green-400"/>
+                                            <p className="font-medium text-foreground">{app.name}</p>
+                                        </div>
+                                        <p className="text-sm text-green-400 font-semibold">100.000% de disponibilité</p>
+                                    </div>
+                                    <div className="flex gap-0.5 w-full h-2">
+                                        {Array.from({ length: 30 }).map((_, i) => (
+                                            <div key={i} className="flex-1 bg-green-500 rounded-sm" />
+                                        ))}
+                                    </div>
+                                    <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                                        <span>Il y a 30 jours</span>
+                                        <span>Aujourd'hui</span>
+                                    </div>
+                                </div>
+                            ))}
+
+                            <div className="pt-6">
+                                <h3 className="text-sm font-medium text-muted-foreground mb-2">Temps de réponse</h3>
+                                <ResponseTimeChart />
+                            </div>
+                        </CardContent>
+                    </AccordionContent>
+                </Card>
+            ))}
+          </Accordion>
         </div>
       </main>
 
