@@ -127,62 +127,7 @@ export default function ManageReferralDialog({ user, open, onOpenChange, onUserU
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="md:col-span-1 space-y-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-base">Historique des commissions</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <ScrollArea className="h-48">
-                                <div className="space-y-4">
-                                {user.referralData && user.referralData.length > 0 ? (
-                                    user.referralData.map((referral, index) => (
-                                        <div key={index} className="p-3 bg-muted/50 rounded-md text-sm">
-                                            <div className="flex justify-between items-center">
-                                                <div>
-                                                    <p><span className="font-semibold">De:</span> {referral.fromUser}</p>
-                                                    <p><span className="font-semibold">Montant:</span> {referral.amount} FCFA</p>
-                                                </div>
-                                                <div>
-                                                    <p><span className="font-semibold">Plan:</span> {referral.plan}</p>
-                                                    <p className="text-xs text-muted-foreground">{formatDate(referral.date)}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <p className="text-sm text-muted-foreground text-center py-10">Aucune commission reçue.</p>
-                                )}
-                                </div>
-                            </ScrollArea>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-base flex items-center gap-2">
-                                <Users className="h-5 w-5" />
-                                Filleuls ({user.referrals?.length ?? 0})
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <ScrollArea className="h-48">
-                                <div className="space-y-2">
-                                    {user.referrals && user.referrals.length > 0 ? (
-                                        user.referrals.map((filleul) => (
-                                            <div key={filleul.id} className="p-2 bg-muted/50 rounded-md text-sm cursor-pointer hover:bg-muted" onClick={() => handleFilleulClick(filleul)}>
-                                                <p className="font-medium">{filleul.username || filleul.email}</p>
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <p className="text-sm text-muted-foreground text-center py-10">Aucun filleul pour cet utilisateur.</p>
-                                    )}
-                                </div>
-                            </ScrollArea>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                <div className="md:col-span-2 space-y-6">
-                    <Card>
+                     <Card>
                         <CardHeader>
                             <CardTitle className="text-base">Modifier le solde</CardTitle>
                         </CardHeader>
@@ -210,6 +155,61 @@ export default function ManageReferralDialog({ user, open, onOpenChange, onUserU
                                 </CardFooter>
                             </form>
                         </Form>
+                    </Card>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-base flex items-center gap-2">
+                                <Users className="h-5 w-5" />
+                                Filleuls ({user.referrals?.length ?? 0})
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <ScrollArea className="h-48">
+                                <div className="space-y-2">
+                                    {user.referrals && user.referrals.length > 0 ? (
+                                        user.referrals.map((filleul) => (
+                                            <div key={filleul.id} className="p-2 bg-muted/50 rounded-md text-sm cursor-pointer hover:bg-muted" onClick={() => handleFilleulClick(filleul)}>
+                                                <p className="font-medium">{filleul.username || filleul.email}</p>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-sm text-muted-foreground text-center py-10">Aucun filleul pour cet utilisateur.</p>
+                                    )}
+                                </div>
+                            </ScrollArea>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                <div className="md:col-span-2 space-y-6">
+                   <Card>
+                        <CardHeader>
+                            <CardTitle className="text-base">Historique des commissions</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <ScrollArea className="h-[28.5rem]">
+                                <div className="space-y-4">
+                                {user.referralData && user.referralData.length > 0 ? (
+                                    user.referralData.map((referral, index) => (
+                                        <div key={index} className="p-3 bg-muted/50 rounded-md text-sm">
+                                            <div className="flex justify-between items-center">
+                                                <div>
+                                                    <p><span className="font-semibold">De:</span> {referral.fromUser}</p>
+                                                    <p><span className="font-semibold">Montant:</span> {referral.amount} FCFA</p>
+                                                </div>
+                                                <div>
+                                                    <p><span className="font-semibold">Plan:</span> {referral.plan}</p>
+                                                    <p className="text-xs text-muted-foreground">{formatDate(referral.date)}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p className="text-sm text-muted-foreground text-center py-10">Aucune commission reçue.</p>
+                                )}
+                                </div>
+                            </ScrollArea>
+                        </CardContent>
                     </Card>
                 </div>
             </div>
