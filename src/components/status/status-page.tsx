@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/accordion"
 import ResponseTimeChart from '@/components/status/response-time-chart';
 import { Badge } from '@/components/ui/badge';
+import { ChevronDown } from 'lucide-react';
 
 export default function StatusPage() {
   const [apps, setApps] = useState<Application[]>(initialApplications);
@@ -58,7 +59,7 @@ export default function StatusPage() {
               <Link href="/maintenance" className="text-foreground/60 transition-colors hover:text-foreground/80">
                   Maintenance
               </Link>
-              <Link href="#" className="text-foreground/60 transition-colors hover:text-foreground/80">
+              <Link href="https://whatsapp.com/channel/0029VbAyaNz3WHTSsxF39V2n" target="_blank" rel="noopener noreferrer" className="text-foreground/60 transition-colors hover:text-foreground/80">
                   Chaîne
               </Link>
           </nav>
@@ -95,19 +96,22 @@ export default function StatusPage() {
             {Object.entries(groupedApps).map(([groupName, groupApps]) => (
                 <AccordionItem value={groupName} key={groupName} asChild>
                   <Card className="bg-card/50">
-                     <AccordionTrigger className="p-6 hover:no-underline">
-                        <CardHeader className="p-0 w-full">
-                            <div className="flex justify-between items-center w-full">
+                    <AccordionTrigger>
+                        <div className="p-6 flex justify-between items-center w-full">
+                            <CardHeader className="p-0">
                                 <CardTitle as="h2" className="text-xl font-semibold">
                                     {groupName}
                                 </CardTitle>
+                            </CardHeader>
+                            <div className="flex items-center gap-4">
                                 <Badge variant={groupApps.every(app => app.status === 'active') ? "outline" : "destructive"} className="flex gap-2 items-center">
                                     <CheckCircle2 className="h-4 w-4 text-green-400" /> Opérationnel
                                 </Badge>
+                                <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
                             </div>
-                        </CardHeader>
+                        </div>
                     </AccordionTrigger>
-                    <AccordionContent asChild>
+                    <AccordionContent>
                         <CardContent className="space-y-6">
                             {groupApps.map((app) => (
                                 <div key={app.id}>

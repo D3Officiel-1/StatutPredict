@@ -44,7 +44,7 @@ export default function PredictPage() {
               <Link href="/maintenance" className="text-foreground/60 transition-colors hover:text-foreground/80">
                   Maintenance
               </Link>
-              <Link href="#" className="text-foreground/60 transition-colors hover:text-foreground/80">
+              <Link href="https://whatsapp.com/channel/0029VbAyaNz3WHTSsxF39V2n" target="_blank" rel="noopener noreferrer" className="text-foreground/60 transition-colors hover:text-foreground/80">
                   Chaîne
               </Link>
           </nav>
