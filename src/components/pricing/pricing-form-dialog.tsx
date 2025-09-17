@@ -84,7 +84,7 @@ export default function PricingFormDialog({ open, onOpenChange, app, pricingPlan
       form.reset({
         name: pricingPlan.name,
         price: pricingPlan.price,
-        promoPrice: pricingPlan.promoPrice,
+        promoPrice: pricingPlan.promoPrice || undefined,
         currency: pricingPlan.currency,
         period: pricingPlan.period,
         features: pricingPlan.features.join('\n'),

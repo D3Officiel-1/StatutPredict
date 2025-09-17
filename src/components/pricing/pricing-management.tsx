@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import type { Application } from '@/types';
+import type { Application, PricingPlan } from '@/types';
 import {
   Card,
   CardContent,
@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Globe, Smartphone, Server, Settings, Eye } from 'lucide-react';
 import PricingFormDialog from './pricing-form-dialog';
+import PricingPlansListDialog from './pricing-plans-list-dialog';
 
 const AppIcon = ({ type }: { type: Application['type'] }) => {
   const className = "h-6 w-6 text-muted-foreground";
@@ -35,7 +36,9 @@ export default function PricingManagement() {
   const [apps, setApps] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isListOpen, setIsListOpen] = useState(false);
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<PricingPlan | null>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -56,15 +59,31 @@ export default function PricingManagement() {
     return () => unsubscribe();
   }, []);
   
-  const handleManageClick = (app: Application) => {
+  const handleAddPlanClick = (app: Application) => {
     setSelectedApp(app);
+    setSelectedPlan(null);
     setIsFormOpen(true);
+  };
+
+  const handleEditPlanClick = (app: Application, plan: PricingPlan) => {
+    setSelectedApp(app);
+    setSelectedPlan(plan);
+    setIsListOpen(false); // Close list dialog
+    setIsFormOpen(true); // Open form dialog for editing
+  };
+  
+  const handleViewPlansClick = (app: Application) => {
+    setSelectedApp(app);
+    setIsListOpen(true);
   };
   
   const handleFormSuccess = () => {
     setIsFormOpen(false);
     setSelectedApp(null);
-  }
+    setSelectedPlan(null);
+    // If we came from the list, we might want to re-open it
+    // For simplicity, we just close everything for now.
+  };
 
   return (
     <>
@@ -88,14 +107,14 @@ export default function PricingManagement() {
                   <CardDescription>Gérez les plans tarifaires de cette application.</CardDescription>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleViewPlansClick(app)}>
                       <Eye className="h-4 w-4" />
                   </Button>
                   <AppIcon type={app.type} />
                 </div>
               </CardHeader>
               <CardContent className="flex-grow flex flex-col justify-end">
-                  <Button onClick={() => handleManageClick(app)}>
+                  <Button onClick={() => handleAddPlanClick(app)}>
                       <Settings className="mr-2 h-4 w-4" />
                       Gérer les tarifs
                   </Button>
@@ -110,9 +129,22 @@ export default function PricingManagement() {
             open={isFormOpen}
             onOpenChange={setIsFormOpen}
             app={selectedApp}
-            pricingPlan={null}
+            pricingPlan={selectedPlan}
             onSuccess={handleFormSuccess}
           />
+      )}
+
+      {selectedApp && (
+        <PricingPlansListDialog
+          open={isListOpen}
+          onOpenChange={setIsListOpen}
+          app={selectedApp}
+          onAddPlan={() => {
+            setIsListOpen(false);
+            handleAddPlanClick(selectedApp);
+          }}
+          onEditPlan={(plan) => handleEditPlanClick(selectedApp, plan)}
+        />
       )}
     </>
   );
