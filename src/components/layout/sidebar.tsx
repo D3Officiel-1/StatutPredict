@@ -17,6 +17,7 @@ import {
   HeartPulse,
   Users,
   TicketPercent,
+  CreditCard,
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -111,6 +112,18 @@ const AppSidebar = () => {
               <Link href="/discounts">
                 <TicketPercent />
                 <span>Codes de réduction</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              isActive={isActive('/pricing')}
+              tooltip="Tarifs"
+            >
+              <Link href="/pricing">
+                <CreditCard />
+                <span>Tarifs</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
