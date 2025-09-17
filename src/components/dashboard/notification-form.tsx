@@ -75,7 +75,7 @@ export default function NotificationForm() {
     if (!currentEvents || !appType) {
       toast({
         title: 'Erreur',
-        description: "Veuillez remplir les champs 'Événements actuels' et 'Type d\'application'.",
+        description: "Veuillez remplir les champs 'Événements actuels' et 'Type d\\'application'.",
         variant: 'destructive',
       });
       return;
@@ -230,7 +230,9 @@ export default function NotificationForm() {
                             </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                            <SelectItem value={applications.map(app => app.id).join(',')}>Toutes les applications</SelectItem>
+                            {applications.length > 0 && (
+                                <SelectItem value={applications.map(app => app.id).join(',')}>Toutes les applications</SelectItem>
+                            )}
                             {applications.map(app => (
                                 <SelectItem key={app.id} value={app.id}>{app.name}</SelectItem>
                             ))}
