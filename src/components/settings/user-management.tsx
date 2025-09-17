@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -224,7 +225,7 @@ export default function UserManagement() {
                     <TableCell>{user.phone || 'N/A'}</TableCell>
                     <TableCell>{user.favoriteGame || 'N/A'}</TableCell>
                     <TableCell>{user.pronosticCode || 'N/A'}</TableCell>
-                    <TableCell>{user.referralBalance ?? 0}</TableCell>
+                    <TableCell>{user.referralBalance ?? 0} FCFA</TableCell>
                     <TableCell>{user.referralCode || 'N/A'}</TableCell>
                     <TableCell>
                     <DropdownMenu>

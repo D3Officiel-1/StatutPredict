@@ -84,7 +84,7 @@ export default function ManageReferralDialog({ user, open, onOpenChange }: Manag
                                     <div className="flex justify-between items-center">
                                         <div>
                                             <p><span className="font-semibold">De:</span> {referral.fromUser}</p>
-                                            <p><span className="font-semibold">Montant:</span> {referral.amount}€</p>
+                                            <p><span className="font-semibold">Montant:</span> {referral.amount} FCFA</p>
                                         </div>
                                          <div>
                                             <p><span className="font-semibold">Plan:</span> {referral.plan}</p>
