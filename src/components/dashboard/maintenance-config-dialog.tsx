@@ -27,11 +27,12 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import CustomLoader from '../ui/custom-loader';
 import { Checkbox } from '../ui/checkbox';
 import { generateMaintenanceMessage } from '@/ai/flows/maintenance-message-generator';
+import Image from 'next/image';
 
 interface MaintenanceConfigDialogProps {
   app: Application;
@@ -45,6 +46,7 @@ const formSchema = z.object({
   buttonTitle: z.string().optional(),
   buttonUrl: z.string().url('Veuillez entrer une URL valide.').optional().or(z.literal('')),
   targetUsers: z.array(z.string()).optional(),
+  mediaUrl: z.string().url().optional(),
 });
 
 const userTiers = [
@@ -54,9 +56,14 @@ const userTiers = [
     { id: 'annual', label: 'Annuel' },
 ];
 
+const CLOUDINARY_CLOUD_NAME = 'dlxomrluy';
+const CLOUDINARY_UPLOAD_PRESET = 'predict_uploads';
+
 export default function MaintenanceConfigDialog({ app, children, open, onOpenChange }: MaintenanceConfigDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadedMediaUrl, setUploadedMediaUrl] = useState<string | null>(app.maintenanceConfig?.mediaUrl || null);
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -66,16 +73,20 @@ export default function MaintenanceConfigDialog({ app, children, open, onOpenCha
       buttonTitle: app.maintenanceConfig?.buttonTitle || '',
       buttonUrl: app.maintenanceConfig?.buttonUrl || '',
       targetUsers: app.maintenanceConfig?.targetUsers || [],
+      mediaUrl: app.maintenanceConfig?.mediaUrl || '',
     },
   });
 
   useEffect(() => {
+    const mediaUrl = app.maintenanceConfig?.mediaUrl || '';
     form.reset({
       maintenanceMessage: app.maintenanceConfig?.message || `Notre service ${app.name} est actuellement en cours de maintenance. Nous nous excusons pour la gêne occasionnée.`,
       buttonTitle: app.maintenanceConfig?.buttonTitle || '',
       buttonUrl: app.maintenanceConfig?.buttonUrl || '',
       targetUsers: app.maintenanceConfig?.targetUsers || [],
+      mediaUrl: mediaUrl,
     });
+    setUploadedMediaUrl(mediaUrl);
   }, [app, form, open]);
 
   const handleGenerateMessage = async () => {
@@ -103,6 +114,44 @@ export default function MaintenanceConfigDialog({ app, children, open, onOpenCha
     }
   };
 
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+    try {
+      const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUploadedMediaUrl(data.secure_url);
+        form.setValue('mediaUrl', data.secure_url, { shouldValidate: true });
+        toast({
+          title: 'Téléversement réussi',
+          description: 'Votre média a été téléversé avec succès.',
+        });
+      } else {
+        throw new Error('Upload failed');
+      }
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      toast({
+        title: 'Erreur de téléversement',
+        description: 'Impossible de téléverser le fichier. Veuillez réessayer.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
@@ -114,6 +163,7 @@ export default function MaintenanceConfigDialog({ app, children, open, onOpenCha
           buttonTitle: values.buttonTitle,
           buttonUrl: values.buttonUrl,
           targetUsers: values.targetUsers,
+          mediaUrl: values.mediaUrl,
         }
       });
       toast({
@@ -163,6 +213,35 @@ export default function MaintenanceConfigDialog({ app, children, open, onOpenCha
                     {isGenerating ? <CustomLoader /> : <Sparkles className="mr-2 h-4 w-4" />}
                     Générer avec l'IA
                 </Button>
+            </div>
+
+            <div className="space-y-4 rounded-md border p-4">
+                <h4 className="text-sm font-medium">Téléverser un média</h4>
+                <FormField
+                    control={form.control}
+                    name="mediaUrl"
+                    render={() => (
+                        <FormItem>
+                            <FormLabel>Média (image, vidéo, audio)</FormLabel>
+                            <FormControl>
+                                <Input type="file" accept="image/*,video/*,audio/*" onChange={handleFileUpload} disabled={isUploading} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                {isUploading && <CustomLoader />}
+                {uploadedMediaUrl && !isUploading && (
+                    <div className="mt-2">
+                        {uploadedMediaUrl.includes('video') ? (
+                            <video src={uploadedMediaUrl} controls className="max-w-full h-auto rounded-md" />
+                        ) : uploadedMediaUrl.includes('audio') ? (
+                             <audio src={uploadedMediaUrl} controls className="w-full" />
+                        ) : (
+                            <Image src={uploadedMediaUrl} alt="Média téléversé" width={100} height={100} className="rounded-md object-cover" />
+                        )}
+                    </div>
+                )}
             </div>
 
             <div className="space-y-4 rounded-md border p-4">
@@ -247,7 +326,7 @@ export default function MaintenanceConfigDialog({ app, children, open, onOpenCha
             />
 
             <DialogFooter>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting || isUploading}>
                 {isSubmitting ? <CustomLoader /> : 'Enregistrer'}
               </Button>
             </DialogFooter>

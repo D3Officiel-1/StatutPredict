@@ -12,6 +12,7 @@ export interface Application {
     buttonTitle?: string;
     buttonUrl?: string;
     targetUsers?: string[];
+    mediaUrl?: string;
   }
 }
 
