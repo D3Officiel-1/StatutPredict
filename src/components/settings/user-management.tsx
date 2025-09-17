@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, onSnapshot, orderBy, query, getDocs, doc, getDoc, where } from 'firebase/firestore';
+import { collection, onSnapshot, orderBy, query, getDocs, doc, getDoc, where, addDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { User } from '@/types';
 import {
@@ -27,6 +27,16 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
     Dialog,
     DialogContent,
     DialogDescription,
@@ -48,6 +58,7 @@ import ManageReferralDialog from './manage-referral-dialog';
 import SendNotificationDialog from './send-notification-dialog';
 import UserDetailsDialog from './user-details-dialog';
 import EditUserDialog from './edit-user-dialog';
+import CustomLoader from '../ui/custom-loader';
 
 export default function UserManagement() {
   const [users, setUsers] = useState<User[]>([]);
@@ -58,7 +69,11 @@ export default function UserManagement() {
   const [isSendNotificationDialogOpen, setIsSendNotificationDialogOpen] = useState(false);
   const [isUserDetailsDialogOpen, setIsUserDetailsDialogOpen] = useState(false);
   const [isEditUserDialogOpen, setIsEditUserDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState('');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -82,13 +97,13 @@ export default function UserManagement() {
             user.referralData = referralSnapshot.docs.map(d => ({...d.data(), id: d.id}));
             user.pricingData = pricingDocSnap.exists() ? [pricingDocSnap.data()] : [];
 
-            if (user.referralCode) {
-                const referralsQuery = query(collection(db, 'users'), where('referralCode', '==', user.referralCode));
-                const referralsSnapshot = await getDocs(referralsQuery);
-                user.referrals = referralsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as User));
-            } else {
-                user.referrals = [];
-            }
+            // if (user.referralCode) {
+            //     const referralsQuery = query(collection(db, 'users'), where('referralCode', '==', user.referralCode));
+            //     const referralsSnapshot = await getDocs(referralsQuery);
+            //     user.referrals = referralsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as User));
+            // } else {
+            //     user.referrals = [];
+            // }
             
             return user;
         });
@@ -141,6 +156,57 @@ export default function UserManagement() {
       console.error('Could not copy text: ', err);
     });
   };
+
+  const handleInviteUser = async () => {
+    if (!inviteEmail) {
+        toast({ title: "L'email est requis", variant: 'destructive'});
+        return;
+    }
+    setIsSubmitting(true);
+    try {
+        const referralCode = 'user' + Date.now().toString().slice(-6);
+        const password = Math.random().toString(36).slice(-8);
+
+        await addDoc(collection(db, "users"), {
+            email: inviteEmail,
+            username: inviteEmail.split('@')[0],
+            createdAt: new Date(),
+            isOnline: false,
+            referralCode,
+            password, // Storing password directly might not be secure depending on your app's architecture
+        });
+        toast({
+            title: "Utilisateur invité",
+            description: `${inviteEmail} a été ajouté. Mot de passe: ${password}`,
+        });
+        setInviteEmail('');
+        setIsInviteDialogOpen(false);
+    } catch (error) {
+        console.error("Error inviting user:", error);
+        toast({ title: 'Erreur', description: "Impossible d'inviter l'utilisateur", variant: 'destructive'});
+    } finally {
+        setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    if (!userToDelete) return;
+    setIsSubmitting(true);
+    try {
+        await deleteDoc(doc(db, "users", userToDelete.id));
+        toast({
+            title: "Utilisateur supprimé",
+            description: `${userToDelete.username || userToDelete.email} a été supprimé.`,
+        });
+        setUserToDelete(null);
+        setIsDeleteDialogOpen(false);
+    } catch (error) {
+        console.error("Error deleting user:", error);
+        toast({ title: 'Erreur', description: "Impossible de supprimer l'utilisateur.", variant: 'destructive'});
+    } finally {
+        setIsSubmitting(false);
+    }
+  };
   
   const handleDetailsClick = (user: User) => {
     setSelectedUser(user);
@@ -165,6 +231,11 @@ export default function UserManagement() {
   const handleEditUserClick = (user: User) => {
     setSelectedUser(user);
     setIsEditUserDialogOpen(true);
+  };
+
+  const openDeleteDialog = (user: User) => {
+    setUserToDelete(user);
+    setIsDeleteDialogOpen(true);
   };
 
   const handleUserUpdate = (updatedUser: User) => {
@@ -202,11 +273,14 @@ export default function UserManagement() {
                 <div className="grid gap-4 py-4">
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="email" className="text-right">Email</Label>
-                        <Input id="email" type="email" placeholder="utilisateur@example.com" className="col-span-3" />
+                        <Input id="email" type="email" placeholder="utilisateur@example.com" className="col-span-3" value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} />
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button type="submit" onClick={() => setIsInviteDialogOpen(false)}>Envoyer l'invitation</Button>
+                    <Button type="button" variant="outline" onClick={() => setIsInviteDialogOpen(false)}>Annuler</Button>
+                    <Button onClick={handleInviteUser} disabled={isSubmitting}>
+                        {isSubmitting ? <CustomLoader /> : "Envoyer l'invitation"}
+                    </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
@@ -220,6 +294,10 @@ export default function UserManagement() {
               <TableHead>Statut</TableHead>
               <TableHead className="hidden md:table-cell">Prénom</TableHead>
               <TableHead className="hidden md:table-cell">Nom</TableHead>
+              <TableHead className="hidden lg:table-cell">Jeu favori</TableHead>
+              <TableHead className="hidden xl:table-cell">Date de naissance</TableHead>
+              <TableHead className="hidden xl:table-cell">Genre</TableHead>
+              <TableHead className="hidden xl:table-cell">Téléphone</TableHead>
               <TableHead>
                 <span className="sr-only">Actions</span>
               </TableHead>
@@ -229,7 +307,7 @@ export default function UserManagement() {
             {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                     <TableRow key={i}>
-                        <TableCell colSpan={12}>
+                        <TableCell colSpan={10}>
                            <Skeleton className="h-8 w-full" />
                         </TableCell>
                     </TableRow>
@@ -246,6 +324,10 @@ export default function UserManagement() {
                     </TableCell>
                     <TableCell className="hidden md:table-cell">{user.firstName || 'N/A'}</TableCell>
                     <TableCell className="hidden md:table-cell">{user.lastName || 'N/A'}</TableCell>
+                    <TableCell className="hidden lg:table-cell">{user.favoriteGame || 'N/A'}</TableCell>
+                    <TableCell className="hidden xl:table-cell">{formatDate(user.dob)}</TableCell>
+                    <TableCell className="hidden xl:table-cell">{user.gender || 'N/A'}</TableCell>
+                    <TableCell className="hidden xl:table-cell">{user.phone || 'N/A'}</TableCell>
                     <TableCell>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -279,7 +361,7 @@ export default function UserManagement() {
                             <Edit className="mr-2 h-4 w-4" />
                             Modifier
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10">
+                        <DropdownMenuItem onSelect={() => openDeleteDialog(user)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
                             <Trash className="mr-2 h-4 w-4" />
                             Supprimer
                         </DropdownMenuItem>
@@ -293,6 +375,22 @@ export default function UserManagement() {
         </Table>
       </CardContent>
     </Card>
+     <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Êtes-vous sûr de vouloir supprimer cet utilisateur ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Cette action est irréversible. L'utilisateur "{userToDelete?.username || userToDelete?.email}" sera définitivement supprimé.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setUserToDelete(null)}>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteUser} disabled={isSubmitting}>
+              {isSubmitting ? <CustomLoader /> : 'Supprimer'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
     {selectedUser && (
         <UserDetailsDialog
           user={selectedUser}

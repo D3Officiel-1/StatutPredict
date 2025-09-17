@@ -45,6 +45,7 @@ export interface User {
   solde_referral?: number;
   uid?: string;
   username?: string;
+  password?: string;
   referralData?: ReferralItem[];
   pricingData?: PricingItem[];
   referrals?: User[];
