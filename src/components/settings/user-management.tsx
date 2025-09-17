@@ -207,7 +207,6 @@ export default function UserManagement() {
               <TableHead>Code Pronostic</TableHead>
               <TableHead>Solde parrainage</TableHead>
               <TableHead>Code parrainage</TableHead>
-              <TableHead>Filleuls</TableHead>
               <TableHead>
                 <span className="sr-only">Actions</span>
               </TableHead>
@@ -217,7 +216,7 @@ export default function UserManagement() {
             {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                     <TableRow key={i}>
-                        <TableCell colSpan={15}>
+                        <TableCell colSpan={14}>
                            <Skeleton className="h-8 w-full" />
                         </TableCell>
                     </TableRow>
@@ -238,11 +237,10 @@ export default function UserManagement() {
                     <TableCell>{formatDate(user.dob)}</TableCell>
                     <TableCell>{user.gender || 'N/A'}</TableCell>
                     <TableCell>{user.phone || 'N/A'}</TableCell>
-                    <TableCell>{user.favoriteGame || 'N/A'}</TableCell>
+                    <TableCell>{user.favoriteGame || 'NA'}</TableCell>
                     <TableCell>{user.pronosticCode || 'N/A'}</TableCell>
                     <TableCell>{user.solde_referral ?? 0} FCFA</TableCell>
                     <TableCell>{user.referralCode || 'N/A'}</TableCell>
-                    <TableCell>{user.referrals?.length ?? 0}</TableCell>
                     <TableCell>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
