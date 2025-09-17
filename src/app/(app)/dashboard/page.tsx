@@ -18,7 +18,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import AppList from '@/components/dashboard/app-list';
 import Link from 'next/link';
 import AddAppDialog from '@/components/settings/add-app-dialog';
 import { useToast } from '@/hooks/use-toast';
@@ -116,11 +115,6 @@ export default function DashboardPage() {
           </div>
         </CardHeader>
       </Card>
-      
-      <div>
-        <h3 className="text-lg font-semibold mb-4 font-headline">Statut des Applications</h3>
-        <AppList />
-      </div>
     </div>
   );
 }

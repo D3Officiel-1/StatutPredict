@@ -23,6 +23,9 @@ function getPageTitle(pathname: string): string {
   if (pathname.startsWith('/notifications')) {
     return 'Notifications';
   }
+  if (pathname.startsWith('/status')) {
+    return 'Statut des applications';
+  }
   return 'Centre de Statut';
 }
 

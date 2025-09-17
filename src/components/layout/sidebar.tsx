@@ -14,6 +14,7 @@ import {
   Settings,
   ShieldCheck,
   Send,
+  HeartPulse,
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -43,11 +44,11 @@ const AppSidebar = () => {
             <SidebarMenuButton
               asChild
               isActive={isActive('/')}
-              tooltip="Page de Statut"
+              tooltip="Page de Statut Publique"
             >
-              <Link href="/">
+              <Link href="/" target="_blank">
                 <ShieldCheck />
-                <span>Page de Statut</span>
+                <span>Page Publique</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -60,6 +61,18 @@ const AppSidebar = () => {
               <Link href="/dashboard">
                 <LayoutDashboard />
                 <span>Tableau de bord</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              isActive={isActive('/status')}
+              tooltip="Statut des applications"
+            >
+              <Link href="/status">
+                <HeartPulse />
+                <span>Statut</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
