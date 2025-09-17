@@ -1,4 +1,6 @@
+'use client';
 
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calendar, Clock, CheckCircle, ChevronLeft, ChevronRight, Tool } from 'lucide-react';
 import Link from 'next/link';
@@ -11,6 +13,7 @@ const upcomingMaintenances = {
   'Janvier 2025': [
     {
       id: 1,
+      date: '03 Janv 2025',
       title: 'Mise à jour du lecteur vidéo',
       status: 'Résolu',
       resolvedAt: '03 Janv à 01:00 CET',
@@ -20,8 +23,43 @@ const upcomingMaintenances = {
   'Février 2025': [],
 };
 
+const allMonths = [
+    "Janvier", "Février", "Mars", "Avril", "Mai", "Juin", 
+    "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
+];
 
 export default function MaintenancePage() {
+    const [currentDate, setCurrentDate] = useState(new Date('2024-12-01'));
+
+    const handlePrevMonth = () => {
+        setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+    };
+
+    const handleNextMonth = () => {
+        setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+    };
+
+    const formatMonthYear = (date: Date) => {
+        const month = allMonths[date.getMonth()].slice(0,3);
+        const year = date.getFullYear();
+        return `${month} ${year}`;
+    };
+    
+    const getEndDate = (startDate: Date) => {
+        return new Date(startDate.getFullYear(), startDate.getMonth() + 2, 1);
+    }
+    
+    const getDisplayedMonths = (startDate: Date) => {
+        const months = [];
+        for (let i = 0; i < 3; i++) {
+            const date = new Date(startDate.getFullYear(), startDate.getMonth() + i, 1);
+            months.push(`${allMonths[date.getMonth()]} ${date.getFullYear()}`);
+        }
+        return months;
+    };
+
+    const displayedMonths = getDisplayedMonths(currentDate);
+
   return (
     <div className="min-h-screen">
        <header className="bg-background/95 sticky top-0 z-10 border-b backdrop-blur-sm">
@@ -57,58 +95,63 @@ export default function MaintenancePage() {
           <div className="mb-12 text-center">
             <h1 className="text-4xl font-bold tracking-tight font-headline">Maintenance</h1>
             <div className="mt-4 flex items-center justify-center gap-4 text-muted-foreground">
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" onClick={handlePrevMonth}>
                     <ChevronLeft className="h-5 w-5" />
                 </Button>
-                <span className="text-lg font-medium text-foreground">Déc 2024 au Févr 2025</span>
-                <Button variant="ghost" size="icon">
+                <span className="text-lg font-medium text-foreground">
+                    {formatMonthYear(currentDate)} au {formatMonthYear(getEndDate(currentDate))}
+                </span>
+                <Button variant="ghost" size="icon" onClick={handleNextMonth}>
                     <ChevronRight className="h-5 w-5" />
                 </Button>
             </div>
           </div>
 
           <div className="space-y-12">
-            {Object.entries(upcomingMaintenances).map(([month, events]) => (
-              <div key={month}>
-                <h2 className="text-xl font-semibold mb-4 font-headline">{month}</h2>
-                <Card className="bg-card/50">
-                  <CardContent className="p-6">
-                    {events.length === 0 ? (
-                      <div className="flex flex-col items-center justify-center text-center text-muted-foreground py-8">
-                        <CheckCircle className="h-8 w-8 mb-2" />
-                        <p>Aucune maintenance</p>
-                      </div>
-                    ) : (
-                        <div className="space-y-6">
-                            {events.map(event => (
-                                <div key={event.id}>
-                                    <div className="flex justify-between items-center mb-2">
-                                      <p className="text-sm text-muted-foreground">03 Janv 2025</p>
-                                      <p className="text-sm text-muted-foreground">1 maintenance</p>
-                                    </div>
-                                    <div className="border rounded-lg p-4 bg-background">
-                                        <div className="flex justify-between items-start">
-                                            <h3 className="font-semibold text-lg">{event.title}</h3>
-                                            <Badge variant="outline">Maintenance</Badge>
-                                        </div>
-                                        <div className="mt-4 p-4 rounded-md bg-muted/50">
-                                            <div className="flex items-center gap-2 text-sm text-green-400">
-                                                <CheckCircle className="h-4 w-4" />
-                                                <span>{event.status} {event.resolvedAt}</span>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mt-1 ml-6">
-                                                {event.description}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
+            {displayedMonths.map((month) => {
+              const events = upcomingMaintenances[month as keyof typeof upcomingMaintenances] || [];
+              return (
+                <div key={month}>
+                  <h2 className="text-xl font-semibold mb-4 font-headline">{month}</h2>
+                  <Card className="bg-card/50">
+                    <CardContent className="p-6">
+                      {events.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center text-center text-muted-foreground py-8">
+                          <CheckCircle className="h-8 w-8 mb-2" />
+                          <p>Aucune maintenance</p>
                         </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
-            ))}
+                      ) : (
+                          <div className="space-y-6">
+                              {events.map(event => (
+                                  <div key={event.id}>
+                                      <div className="flex justify-between items-center mb-2">
+                                        <p className="text-sm text-muted-foreground">{event.date}</p>
+                                        <p className="text-sm text-muted-foreground">1 maintenance</p>
+                                      </div>
+                                      <div className="border rounded-lg p-4 bg-background">
+                                          <div className="flex justify-between items-start">
+                                              <h3 className="font-semibold text-lg">{event.title}</h3>
+                                              <Badge variant="outline">Maintenance</Badge>
+                                          </div>
+                                          <div className="mt-4 p-4 rounded-md bg-muted/50">
+                                              <div className="flex items-center gap-2 text-sm text-green-400">
+                                                  <CheckCircle className="h-4 w-4" />
+                                                  <span>{event.status} {event.resolvedAt}</span>
+                                              </div>
+                                              <p className="text-sm text-muted-foreground mt-1 ml-6">
+                                                  {event.description}
+                                              </p>
+                                          </div>
+                                      </div>
+                                  </div>
+                              ))}
+                          </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+              )
+            })}
           </div>
         </div>
       </main>
