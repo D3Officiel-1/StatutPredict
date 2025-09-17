@@ -36,16 +36,18 @@ import {
   } from "@/components/ui/dialog"
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, UserPlus, Trash, Edit, User as UserIcon } from 'lucide-react';
+import { MoreHorizontal, UserPlus, Trash, Edit, Copy } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
+import { useToast } from '@/hooks/use-toast';
 
 export default function UserManagement() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     const q = query(collection(db, "users"), orderBy('createdAt', 'desc'));
@@ -74,6 +76,22 @@ export default function UserManagement() {
         }
     }
     return 'N/A';
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      toast({
+        title: "Copié !",
+        description: "L'UID a été copié dans le presse-papiers.",
+      });
+    }, (err) => {
+      toast({
+        title: "Erreur",
+        description: "Impossible de copier l'UID.",
+        variant: "destructive",
+      });
+      console.error('Could not copy text: ', err);
+    });
   };
 
 
@@ -129,7 +147,6 @@ export default function UserManagement() {
               <TableHead>Code Pronostic</TableHead>
               <TableHead>Solde parrainage</TableHead>
               <TableHead>Code parrainage</TableHead>
-              <TableHead>UID</TableHead>
               <TableHead>
                 <span className="sr-only">Actions</span>
               </TableHead>
@@ -139,7 +156,7 @@ export default function UserManagement() {
             {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                     <TableRow key={i}>
-                        <TableCell colSpan={15}>
+                        <TableCell colSpan={14}>
                            <Skeleton className="h-8 w-full" />
                         </TableCell>
                     </TableRow>
@@ -164,7 +181,6 @@ export default function UserManagement() {
                     <TableCell>{user.pronosticCode || 'N/A'}</TableCell>
                     <TableCell>{user.referralBalance ?? 0}</TableCell>
                     <TableCell>{user.referralCode || 'N/A'}</TableCell>
-                    <TableCell>{user.uid || 'N/A'}</TableCell>
                     <TableCell>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -174,6 +190,10 @@ export default function UserManagement() {
                         </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
+                        <DropdownMenuItem onSelect={() => user.uid && copyToClipboard(user.uid)}>
+                            <Copy className="mr-2 h-4 w-4" />
+                            Copier l'UID
+                        </DropdownMenuItem>
                         <DropdownMenuItem>
                             <Edit className="mr-2 h-4 w-4" />
                             Modifier
