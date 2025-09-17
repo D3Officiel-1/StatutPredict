@@ -29,6 +29,20 @@ export default function StatusPage() {
               Statut Predict
             </span>
           </Link>
+          <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
+              <Link href="#" className="text-foreground/60 transition-colors hover:text-foreground/80">
+                  Predict
+              </Link>
+              <Link href="#" className="text-foreground/60 transition-colors hover:text-foreground/80">
+                  Statut
+              </Link>
+              <Link href="#" className="text-foreground/60 transition-colors hover:text-foreground/80">
+                  Maintenance
+              </Link>
+              <Link href="#" className="text-foreground/60 transition-colors hover:text-foreground/80">
+                  Chaîne
+              </Link>
+          </nav>
         </div>
       </header>
 
