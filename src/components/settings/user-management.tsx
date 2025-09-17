@@ -47,6 +47,7 @@ import ActivatePlanDialog from './activate-plan-dialog';
 import ManageReferralDialog from './manage-referral-dialog';
 import SendNotificationDialog from './send-notification-dialog';
 import UserDetailsDialog from './user-details-dialog';
+import EditUserDialog from './edit-user-dialog';
 
 export default function UserManagement() {
   const [users, setUsers] = useState<User[]>([]);
@@ -56,6 +57,7 @@ export default function UserManagement() {
   const [isManageReferralDialogOpen, setIsManageReferralDialogOpen] = useState(false);
   const [isSendNotificationDialogOpen, setIsSendNotificationDialogOpen] = useState(false);
   const [isUserDetailsDialogOpen, setIsUserDetailsDialogOpen] = useState(false);
+  const [isEditUserDialogOpen, setIsEditUserDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const { toast } = useToast();
 
@@ -160,6 +162,11 @@ export default function UserManagement() {
     setIsSendNotificationDialogOpen(true);
   };
 
+  const handleEditUserClick = (user: User) => {
+    setSelectedUser(user);
+    setIsEditUserDialogOpen(true);
+  };
+
   const handleUserUpdate = (updatedUser: User) => {
     setUsers(currentUsers => currentUsers.map(u => u.id === updatedUser.id ? updatedUser : u));
     if (selectedUser?.id === updatedUser.id) {
@@ -213,12 +220,6 @@ export default function UserManagement() {
               <TableHead>Statut</TableHead>
               <TableHead className="hidden md:table-cell">Prénom</TableHead>
               <TableHead className="hidden md:table-cell">Nom</TableHead>
-              <TableHead className="hidden xl:table-cell">Date de création</TableHead>
-              <TableHead className="hidden xl:table-cell">Date de naissance</TableHead>
-              <TableHead className="hidden xl:table-cell">Genre</TableHead>
-              <TableHead className="hidden xl:table-cell">Téléphone</TableHead>
-              <TableHead className="hidden xl:table-cell">Jeu favori</TableHead>
-              <TableHead className="hidden xl:table-cell">Code Pronostic</TableHead>
               <TableHead>
                 <span className="sr-only">Actions</span>
               </TableHead>
@@ -245,12 +246,6 @@ export default function UserManagement() {
                     </TableCell>
                     <TableCell className="hidden md:table-cell">{user.firstName || 'N/A'}</TableCell>
                     <TableCell className="hidden md:table-cell">{user.lastName || 'N/A'}</TableCell>
-                    <TableCell className="hidden xl:table-cell">{formatDate(user.createdAt)}</TableCell>
-                    <TableCell className="hidden xl:table-cell">{formatDate(user.dob)}</TableCell>
-                    <TableCell className="hidden xl:table-cell">{user.gender || 'N/A'}</TableCell>
-                    <TableCell className="hidden xl:table-cell">{user.phone || 'N/A'}</TableCell>
-                    <TableCell className="hidden xl:table-cell">{user.favoriteGame || 'NA'}</TableCell>
-                    <TableCell className="hidden xl:table-cell">{user.pronosticCode || 'N/A'}</TableCell>
                     <TableCell>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -280,7 +275,7 @@ export default function UserManagement() {
                             <Send className="mr-2 h-4 w-4" />
                             Envoyer une notification
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => handleEditUserClick(user)}>
                             <Edit className="mr-2 h-4 w-4" />
                             Modifier
                         </DropdownMenuItem>
@@ -331,6 +326,14 @@ export default function UserManagement() {
         open={isSendNotificationDialogOpen}
         onOpenChange={setIsSendNotificationDialogOpen}
       />
+    )}
+    {selectedUser && (
+        <EditUserDialog
+            user={selectedUser}
+            open={isEditUserDialogOpen}
+            onOpenChange={setIsEditUserDialogOpen}
+            onUserUpdate={handleUserUpdate}
+        />
     )}
     </>
   );
