@@ -22,9 +22,6 @@ function getPageTitle(pathname: string): string {
   if (pathname.startsWith('/dashboard')) {
     return 'Tableau de bord';
   }
-  if (pathname.startsWith('/predict')) {
-    return 'Prédictions';
-  }
   return 'Centre de Statut';
 }
 

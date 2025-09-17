@@ -65,16 +65,6 @@ const AppSidebar = () => {
               <span>Tableau de bord</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
-           <SidebarMenuItem>
-            <SidebarMenuButton
-              href="/predict"
-              isActive={isActive('/predict')}
-              tooltip="Prédictions"
-            >
-              <BrainCircuit />
-              <span>Prédictions</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton 
               href="/settings"
