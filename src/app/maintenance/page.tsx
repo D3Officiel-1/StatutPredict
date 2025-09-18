@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { collection, getDocs, orderBy, query } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Card, CardContent } from '@/components/ui/card';
-import { CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { CheckCircle, ChevronLeft, ChevronRight, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -85,25 +85,27 @@ export default function MaintenancePage() {
     };
 
     const formatMonthYear = (date: Date) => {
-        const month = allMonths[date.getMonth()].slice(0,3);
+        const month = allMonths[date.getMonth()];
         const year = date.getFullYear();
         return `${month} ${year}`;
     };
     
     const getEndDate = (startDate: Date) => {
-        return new Date(startDate.getFullYear(), startDate.getMonth() + 2, 1);
+        const d = new Date(startDate);
+        d.setMonth(d.getMonth() + 2);
+        return d;
     }
     
-    const getDisplayedMonths = (startDate: Date) => {
+    const getDisplayedMonths = () => {
         const months = [];
         for (let i = 0; i < 3; i++) {
-            const date = new Date(startDate.getFullYear(), startDate.getMonth() + i, 1);
+            const date = new Date(currentDate.getFullYear(), currentDate.getMonth() + i, 1);
             months.push(`${allMonths[date.getMonth()]} ${date.getFullYear()}`);
         }
         return months;
     };
 
-    const displayedMonths = getDisplayedMonths(currentDate);
+    const displayedMonths = getDisplayedMonths();
 
   return (
     <div className="min-h-screen">
@@ -138,13 +140,14 @@ export default function MaintenancePage() {
       <main className="container mx-auto px-4 py-8 md:px-6 md:py-12">
         <div className="mx-auto max-w-4xl">
           <div className="mb-12 text-center">
-            <h1 className="text-4xl font-bold tracking-tight font-headline">Maintenance</h1>
+            <h1 className="text-4xl font-bold tracking-tight font-headline">Historique des maintenances</h1>
+            <p className="mt-2 text-muted-foreground">Suivi des incidents et des maintenances planifiées.</p>
             <div className="mt-4 flex items-center justify-center gap-4 text-muted-foreground">
                 <Button variant="ghost" size="icon" onClick={handlePrevMonth}>
                     <ChevronLeft className="h-5 w-5" />
                 </Button>
                 <span className="text-lg font-medium text-foreground">
-                    {formatMonthYear(currentDate)} au {formatMonthYear(getEndDate(currentDate))}
+                    {formatMonthYear(currentDate)} - {formatMonthYear(getEndDate(currentDate))}
                 </span>
                 <Button variant="ghost" size="icon" onClick={handleNextMonth}>
                     <ChevronRight className="h-5 w-5" />
@@ -157,56 +160,47 @@ export default function MaintenancePage() {
               const events = maintenances[month] || [];
               const [monthName, year] = month.split(' ');
               const monthIndex = monthNameToNumber[monthName];
-              const displayDate = new Date(parseInt(year), monthIndex, 1);
-
-              const isVisible = displayDate >= new Date(currentDate.getFullYear(), currentDate.getMonth(), 1) &&
-                                displayDate <= new Date(currentDate.getFullYear(), currentDate.getMonth() + 2, 1);
-
-              if (!isVisible) return null;
               
               return (
                 <div key={month}>
-                  <h2 className="text-xl font-semibold mb-4 font-headline">{month}</h2>
-                  <Card className="bg-card/50">
-                    <CardContent className="p-6">
-                      {isLoading ? (
+                  <h2 className="text-2xl font-semibold mb-4 font-headline">{month}</h2>
+                  <div className="relative pl-6 before:absolute before:left-[11px] before:top-0 before:h-full before:w-0.5 before:bg-border">
+                    {isLoading ? (
                         <div className="space-y-4">
                             <Skeleton className="h-24 w-full" />
                         </div>
-                      ) : events.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center text-center text-muted-foreground py-8">
-                          <CheckCircle className="h-8 w-8 mb-2" />
-                          <p>Aucune maintenance</p>
+                    ) : events.length === 0 ? (
+                        <div className="flex items-center gap-4 text-muted-foreground py-4">
+                           <div className="h-6 w-6 rounded-full bg-background border-2 border-primary flex items-center justify-center">
+                                <CheckCircle className="h-4 w-4 text-primary" />
+                           </div>
+                           <p>Aucune maintenance enregistrée pour ce mois.</p>
                         </div>
-                      ) : (
-                          <div className="space-y-6">
-                              {events.map(event => (
-                                  <div key={event.id}>
-                                      <div className="flex justify-between items-center mb-2">
+                    ) : (
+                        <div className="space-y-8">
+                            {events.map(event => (
+                                <div key={event.id} className="relative">
+                                    <div className="absolute left-[-11px] top-1 h-6 w-6 rounded-full bg-background border-2 border-orange-400 flex items-center justify-center">
+                                        <ShieldAlert className="h-4 w-4 text-orange-400" />
+                                    </div>
+                                    <div className="pl-8">
                                         <p className="text-sm text-muted-foreground">{event.date}</p>
-                                        <p className="text-sm text-muted-foreground">1 maintenance</p>
-                                      </div>
-                                      <div className="border rounded-lg p-4 bg-background">
-                                          <div className="flex justify-between items-start">
-                                              <h3 className="font-semibold text-lg">{event.title}</h3>
-                                              <Badge variant={event.status === 'Résolu' ? 'outline' : 'default'}>{event.status}</Badge>
-                                          </div>
-                                          <div className="mt-4 p-4 rounded-md bg-muted/50">
-                                              <div className={`flex items-center gap-2 text-sm ${event.status === 'Résolu' ? 'text-green-400' : 'text-amber-400'}`}>
-                                                  <CheckCircle className="h-4 w-4" />
-                                                  <span>{event.status} {event.resolvedAt}</span>
-                                              </div>
-                                              <p className="text-sm text-muted-foreground mt-1 ml-6">
-                                                  {event.description}
-                                              </p>
-                                          </div>
-                                      </div>
-                                  </div>
-                              ))}
-                          </div>
-                      )}
-                    </CardContent>
-                  </Card>
+                                        <h3 className="font-semibold text-lg mt-1">{event.title}</h3>
+                                        <div className="mt-2 p-4 rounded-md bg-muted/50 border">
+                                            <div className={`flex items-center gap-2 text-sm ${event.status === 'Résolu' ? 'text-green-400' : 'text-amber-400'}`}>
+                                                <CheckCircle className="h-4 w-4" />
+                                                <span>{event.status} {event.resolvedAt}</span>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground mt-2">
+                                                {event.description}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                  </div>
                 </div>
               )
             })}

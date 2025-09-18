@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, onSnapshot } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { Power, CheckCircle2, Megaphone, ChevronDown } from 'lucide-react';
+import { Power, CheckCircle2, Megaphone, ChevronDown, ShieldAlert } from 'lucide-react';
 import type { Application } from '@/types';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -17,25 +17,35 @@ import {
 } from "@/components/ui/accordion"
 import ResponseTimeChart from '@/components/status/response-time-chart';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '../ui/skeleton';
 
 export default function StatusPage() {
   const [apps, setApps] = useState<Application[]>([]);
+  const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, 'applications'), (snapshot) => {
+    const q = query(collection(db, 'applications'), orderBy('name'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
       const appsData: Application[] = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       } as Application));
       setApps(appsData);
       setLastUpdated(new Date());
+      setLoading(false);
+    }, (error) => {
+        console.error("Erreur de chargement des applications: ", error);
+        setLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
 
   const allSystemsOperational = apps.every(app => app.status);
+  const operationalApps = apps.filter(app => app.status).length;
+  const totalApps = apps.length;
+
   const groupedApps = apps.reduce((acc, app) => {
     const groupName = app.name.includes("XalaFlix") ? "XalaFlix" : "Services Généraux";
     if (!acc[groupName]) {
@@ -44,6 +54,32 @@ export default function StatusPage() {
     acc[groupName].push(app);
     return acc;
   }, {} as Record<string, Application[]>);
+
+  const StatusHeaderSkeleton = () => (
+    <div className="mb-8 text-center flex flex-col items-center">
+      <Skeleton className="h-12 w-12 rounded-full mb-4" />
+      <Skeleton className="h-10 w-3/4 mb-2" />
+      <Skeleton className="h-5 w-1/2" />
+    </div>
+  );
+
+  const AccordionSkeleton = () => (
+    <div className="space-y-6">
+        {Array.from({length: 2}).map((_, i) => (
+            <Card key={i} className="bg-card/50">
+                <CardHeader>
+                    <Skeleton className="h-8 w-1/3" />
+                </CardHeader>
+                <CardContent className="space-y-6">
+                   <div className="space-y-4">
+                        <Skeleton className="h-6 w-full" />
+                        <Skeleton className="h-20 w-full" />
+                   </div>
+                </CardContent>
+            </Card>
+        ))}
+    </div>
+  );
 
 
   return (
@@ -78,22 +114,29 @@ export default function StatusPage() {
 
       <main className="container mx-auto px-4 py-8 md:px-6 md:py-12">
         <div className="mx-auto max-w-5xl">
-          <div className="mb-8 text-center">
-            <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-4" />
-            <h1 className="text-4xl font-bold tracking-tight text-foreground">
-                { allSystemsOperational ? "Tous les services sont opérationnels" : "Certains services sont affectés"}
-            </h1>
-            <p className="mt-2 text-muted-foreground">
-              Dernière mise à jour le{' '}
-              {lastUpdated
-                ? lastUpdated.toLocaleString('fr-FR', {
-                    dateStyle: 'medium',
-                    timeStyle: 'medium',
-                  })
-                : 'chargement...'}
-            </p>
-          </div>
-          
+            {loading ? <StatusHeaderSkeleton /> : (
+                 <div className="mb-8 text-center">
+                    {allSystemsOperational ? (
+                        <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-4" />
+                    ) : (
+                        <ShieldAlert className="h-12 w-12 text-orange-500 mx-auto mb-4" />
+                    )}
+                    <h1 className="text-4xl font-bold tracking-tight text-foreground">
+                        { allSystemsOperational ? "Tous les services sont opérationnels" : "Certains services sont en maintenance"}
+                    </h1>
+                    <p className="mt-2 text-muted-foreground">
+                        {operationalApps} sur {totalApps} services sont actifs.
+                        Dernière mise à jour le{' '}
+                        {lastUpdated
+                            ? lastUpdated.toLocaleString('fr-FR', {
+                                dateStyle: 'medium',
+                                timeStyle: 'medium',
+                            })
+                            : 'chargement...'}
+                    </p>
+                </div>
+            )}
+         
           <Alert className="mb-8 bg-card border-card-border">
             <Megaphone className="h-4 w-4" />
             <AlertDescription>
@@ -101,58 +144,67 @@ export default function StatusPage() {
             </AlertDescription>
           </Alert>
 
-          <Accordion type="multiple" defaultValue={Object.keys(groupedApps)} className="w-full space-y-6">
-            {Object.entries(groupedApps).map(([groupName, groupApps]) => (
-                <AccordionItem value={groupName} key={groupName} className="border-none">
-                  <Card className="bg-card/50">
-                    <AccordionTrigger className="p-6 hover:no-underline">
-                        <div className="flex justify-between items-center w-full">
-                            <CardHeader className="p-0">
-                                <CardTitle as="h2" className="text-xl font-semibold">
-                                    {groupName}
-                                </CardTitle>
-                            </CardHeader>
-                            <div className="flex items-center gap-4">
-                                <Badge variant={groupApps.every(app => app.status) ? "outline" : "destructive"} className="flex gap-2 items-center">
-                                    <CheckCircle2 className="h-4 w-4 text-green-400" /> Opérationnel
-                                </Badge>
-                                <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
-                            </div>
-                        </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                        <CardContent className="space-y-6">
-                            {groupApps.map((app) => (
-                                <div key={app.id}>
-                                    <div className="flex justify-between items-center mb-2">
-                                        <div className="flex items-center gap-2">
-                                            <CheckCircle2 className={`h-5 w-5 ${app.status ? 'text-green-400' : 'text-orange-400'}`}/>
-                                            <p className="font-medium text-foreground">{app.name}</p>
-                                        </div>
-                                        <p className={`text-sm ${app.status ? 'text-green-400' : 'text-orange-400'} font-semibold`}>{app.status ? 'Opérationnel' : 'Maintenance'}</p>
-                                    </div>
-                                    <div className="flex gap-0.5 w-full h-2">
-                                        {Array.from({ length: 30 }).map((_, i) => (
-                                            <div key={i} className={`flex-1 ${app.status ? 'bg-green-500' : 'bg-orange-500'} rounded-sm`} />
-                                        ))}
-                                    </div>
-                                    <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                                        <span>Il y a 30 jours</span>
-                                        <span>Aujourd'hui</span>
-                                    </div>
+          {loading ? <AccordionSkeleton /> : (
+            <Accordion type="multiple" defaultValue={Object.keys(groupedApps)} className="w-full space-y-6">
+                {Object.entries(groupedApps).map(([groupName, groupApps]) => {
+                    const isGroupOperational = groupApps.every(app => app.status);
+                    return (
+                    <AccordionItem value={groupName} key={groupName} className="border-none">
+                    <Card className="bg-card/50">
+                        <AccordionTrigger className="p-6 hover:no-underline">
+                            <div className="flex justify-between items-center w-full">
+                                <CardHeader className="p-0">
+                                    <CardTitle as="h2" className="text-xl font-semibold">
+                                        {groupName}
+                                    </CardTitle>
+                                </CardHeader>
+                                <div className="flex items-center gap-4">
+                                    <Badge variant={isGroupOperational ? 'default' : 'destructive'} className={isGroupOperational ? `bg-green-500/20 text-green-500 border-green-500/30` : ''}>
+                                        <CheckCircle2 className="h-4 w-4 mr-2" /> {isGroupOperational ? 'Opérationnel' : 'Partiellement Opérationnel'}
+                                    </Badge>
+                                    <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
                                 </div>
-                            ))}
-
-                            <div className="pt-6">
-                                <h3 className="text-sm font-medium text-muted-foreground mb-2">Temps de réponse</h3>
-                                <ResponseTimeChart />
                             </div>
-                        </CardContent>
-                    </AccordionContent>
-                  </Card>
-                </AccordionItem>
-            ))}
-          </Accordion>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                            <CardContent className="space-y-6">
+                                {groupApps.map((app) => (
+                                    <div key={app.id}>
+                                        <div className="flex justify-between items-center mb-2">
+                                            <div className="flex items-center gap-2">
+                                                {app.status ? (
+                                                     <CheckCircle2 className="h-5 w-5 text-green-400" />
+                                                ) : (
+                                                     <ShieldAlert className="h-5 w-5 text-orange-400" />
+                                                )}
+                                               
+                                                <p className="font-medium text-foreground">{app.name}</p>
+                                            </div>
+                                            <p className={`text-sm ${app.status ? 'text-green-400' : 'text-orange-400'} font-semibold`}>{app.status ? 'Opérationnel' : 'Maintenance'}</p>
+                                        </div>
+                                        <div className="flex gap-0.5 w-full h-2">
+                                            {Array.from({ length: 30 }).map((_, i) => (
+                                                <div key={i} className={`flex-1 ${app.status ? 'bg-green-500' : 'bg-orange-500'} rounded-sm`} />
+                                            ))}
+                                        </div>
+                                        <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                                            <span>Il y a 30 jours</span>
+                                            <span>Aujourd'hui</span>
+                                        </div>
+                                    </div>
+                                ))}
+
+                                <div className="pt-6">
+                                    <h3 className="text-sm font-medium text-muted-foreground mb-2">Temps de réponse</h3>
+                                    <ResponseTimeChart />
+                                </div>
+                            </CardContent>
+                        </AccordionContent>
+                    </Card>
+                    </AccordionItem>
+                )})}
+            </Accordion>
+          )}
         </div>
       </main>
 
