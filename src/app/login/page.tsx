@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -45,20 +46,33 @@ export default function LoginPage() {
     fetchPassword();
   }, [toast]);
 
-  useEffect(() => {
-    const handleLogin = () => {
-      if (!correctPassword) return;
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!correctPassword) {
+      toast({
+        title: 'Erreur',
+        description: 'Configuration du mot de passe non chargée. Réessayez.',
+        variant: 'destructive',
+      });
+      return;
+    }
 
-      if (password.length > 0 && password === correctPassword) {
-        setIsVerifying(true);
-        router.push('/dashboard');
-      } else {
-        setIsVerifying(false);
-      }
-    };
-
-    handleLogin();
-  }, [password, correctPassword, router]);
+    if (password === correctPassword) {
+      setIsVerifying(true);
+      toast({
+        title: 'Connexion réussie !',
+        description: 'Redirection vers le tableau de bord...',
+      });
+      router.push('/dashboard');
+    } else {
+      toast({
+        title: 'Mot de passe incorrect',
+        description: 'Veuillez vérifier le mot de passe et réessayer.',
+        variant: 'destructive',
+      });
+      setPassword('');
+    }
+  };
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
@@ -76,7 +90,7 @@ export default function LoginPage() {
             </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <form onSubmit={handleLogin} className="space-y-6">
             <div className="relative">
               <Input 
                 id="password" 
@@ -86,10 +100,13 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isVerifying}
                 className="text-center"
-                placeholder=""
+                placeholder="Entrez votre mot de passe"
               />
             </div>
-          </div>
+            <Button type="submit" className="w-full" disabled={isVerifying || !correctPassword}>
+              {isVerifying ? <CustomLoader /> : 'Se connecter'}
+            </Button>
+          </form>
         </CardContent>
       </Card>
     </div>
