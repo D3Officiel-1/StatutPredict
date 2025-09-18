@@ -75,10 +75,21 @@ export interface PricingPlan {
   appId: string;
   name: string;
   price: number;
-  promoPrice?: number;
+  promoPrice?: number | null;
   currency: string;
   period: 'daily' | 'weekly' | 'monthly' | 'annual';
   features: string[];
   missingFeatures?: string[];
   popular?: boolean;
+}
+
+export interface MaintenanceEvent {
+  id: string;
+  title: string;
+  description: string;
+  date: any;
+  resolvedAt?: any;
+  status: string;
+  appId: string;
+  appName: string;
 }

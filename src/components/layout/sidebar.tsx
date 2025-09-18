@@ -18,6 +18,7 @@ import {
   Users,
   TicketPercent,
   Banknote,
+  Wrench,
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -124,6 +125,18 @@ const AppSidebar = () => {
               <Link href="/discounts">
                 <TicketPercent />
                 <span>Codes de réduction</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              isActive={isActive('/maintenance-programs')}
+              tooltip="Maintenance"
+            >
+              <Link href="/maintenance-programs">
+                <Wrench />
+                <span>Maintenance</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

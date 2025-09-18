@@ -35,6 +35,9 @@ function getPageTitle(pathname: string): string {
   if (pathname.startsWith('/pricing')) {
     return 'Tarifs';
   }
+  if (pathname.startsWith('/maintenance-programs')) {
+    return 'Programmes de maintenance';
+  }
   return 'Centre de Statut';
 }
 
