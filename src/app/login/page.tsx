@@ -47,7 +47,7 @@ export default function LoginPage() {
   }, [toast]);
 
   useEffect(() => {
-    if (correctPassword && password.length === correctPassword.length) {
+    if (correctPassword && password.length > 0 && password.length === correctPassword.length) {
       if (password === correctPassword) {
         setIsVerifying(true);
         toast({
@@ -92,7 +92,6 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isVerifying || !correctPassword}
                 className="text-center"
-                placeholder="Entrez votre mot de passe"
               />
               {isVerifying && (
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3">
