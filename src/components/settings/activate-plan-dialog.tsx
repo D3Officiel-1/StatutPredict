@@ -80,7 +80,7 @@ export default function ActivatePlanDialog({ user, open, onOpenChange }: Activat
     
     setIsSubmitting(true);
     try {
-      const planRef = doc(db, 'pricing', user.uid);
+      const planRef = doc(db, 'users', user.uid, 'pricing', 'jetpredict');
       const startDate = new Date();
       let endDate: Date;
 

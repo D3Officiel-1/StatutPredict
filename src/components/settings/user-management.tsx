@@ -89,13 +89,13 @@ export default function UserManagement() {
 
         const usersWithDetailsPromises = allUsersData.map(async (user) => {
             const referralCol = collection(db, `users/${user.id}/referral`);
-            const pricingDocRef = doc(db, 'pricing', user.id);
+            const pricingCol = collection(db, `users/${user.id}/pricing`);
             
             const referralSnapshot = await getDocs(referralCol);
-            const pricingDocSnap = await getDoc(pricingDocRef);
+            const pricingSnapshot = await getDocs(pricingCol);
 
             user.referralData = referralSnapshot.docs.map(d => ({...d.data(), id: d.id}));
-            user.pricingData = pricingDocSnap.exists() ? [pricingDocSnap.data()] : [];
+            user.pricingData = pricingSnapshot.docs.map(d => ({...d.data(), id: d.id}));
 
             // if (user.referralCode) {
             //     const referralsQuery = query(collection(db, 'users'), where('referralCode', '==', user.referralCode));
