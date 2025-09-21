@@ -34,10 +34,10 @@ const formSchema = z.object({
 });
 
 const userTiers = [
+    { id: 'hourly', label: 'Horaire' },
     { id: 'daily', label: 'Journalier' },
     { id: 'weekly', label: 'Hebdomadaire' },
     { id: 'monthly', label: 'Mensuel' },
-    { id: 'annual', label: 'Annuel' },
 ];
 
 const CLOUDINARY_CLOUD_NAME = 'dlxomrluy';
@@ -440,5 +440,3 @@ export default function NotificationForm() {
     </Card>
   );
 }
-
-    

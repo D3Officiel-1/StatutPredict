@@ -77,7 +77,7 @@ export interface PricingPlan {
   price: number;
   promoPrice?: number | null;
   currency: string;
-  period: 'daily' | 'weekly' | 'monthly' | 'annual';
+  period: 'hourly' | 'daily' | 'weekly' | 'monthly';
   features: string[];
   missingFeatures?: string[];
   popular?: boolean;

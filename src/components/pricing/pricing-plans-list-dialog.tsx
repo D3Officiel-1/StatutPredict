@@ -39,11 +39,11 @@ interface PricingPlansListDialogProps {
   onEditPlan: (plan: PricingPlan) => void;
 }
 
-const periodLabels = {
+const periodLabels: { [key: string]: string } = {
+    hourly: 'Horaire',
     daily: 'Journalier',
     weekly: 'Hebdomadaire',
     monthly: 'Mensuel',
-    annual: 'Annuel',
 };
 
 export default function PricingPlansListDialog({ open, onOpenChange, app, onAddPlan, onEditPlan }: PricingPlansListDialogProps) {

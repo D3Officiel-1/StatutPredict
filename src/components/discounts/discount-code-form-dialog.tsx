@@ -61,10 +61,10 @@ const formSchema = z.object({
 });
 
 const planOptions = [
+    { value: 'hourly', label: 'Horaire' },
     { value: 'daily', label: 'Journalier' },
     { value: 'weekly', label: 'Hebdomadaire' },
     { value: 'monthly', label: 'Mensuel' },
-    { value: 'annual', label: 'Annuel' },
 ];
 
 export default function DiscountCodeFormDialog({ open, onOpenChange, discountCode, onSuccess }: DiscountCodeFormDialogProps) {

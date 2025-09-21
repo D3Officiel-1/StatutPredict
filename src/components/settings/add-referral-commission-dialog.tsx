@@ -44,10 +44,10 @@ const commissionSchema = z.object({
 });
 
 const planDurations = [
+    { value: 'hourly', label: 'Horaire' },
     { value: 'daily', label: 'Journalier' },
     { value: 'weekly', label: 'Hebdomadaire' },
     { value: 'monthly', label: 'Mensuel' },
-    { value: 'annual', label: 'Annuel' },
 ];
 
 export default function AddReferralCommissionDialog({ parrain, filleul, open, onOpenChange, onCommissionAdded }: AddReferralCommissionDialogProps) {

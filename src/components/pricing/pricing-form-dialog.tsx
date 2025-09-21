@@ -47,17 +47,17 @@ const formSchema = z.object({
   price: z.coerce.number().min(0, 'Le prix ne peut pas être négatif.'),
   promoPrice: z.coerce.number().optional().nullable(),
   currency: z.string().min(2, 'La devise est requise.').default('FCFA'),
-  period: z.enum(['daily', 'weekly', 'monthly', 'annual']),
+  period: z.enum(['hourly', 'daily', 'weekly', 'monthly']),
   features: z.string().min(10, 'Listez au moins une fonctionnalité.'),
   missingFeatures: z.string().optional(),
   popular: z.boolean().default(false),
 });
 
 const periodOptions = [
+    { value: 'hourly', label: 'Horaire' },
     { value: 'daily', label: 'Journalier' },
     { value: 'weekly', label: 'Hebdomadaire' },
     { value: 'monthly', label: 'Mensuel' },
-    { value: 'annual', label: 'Annuel' },
 ];
 
 export default function PricingFormDialog({ open, onOpenChange, app, pricingPlan, onSuccess }: PricingFormDialogProps) {

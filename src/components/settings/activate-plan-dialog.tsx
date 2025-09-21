@@ -9,7 +9,7 @@ import { doc, setDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { User, PricingItem } from '@/types';
 import { motion, AnimatePresence } from 'framer-motion';
-import { addDays, addWeeks, addMonths, addYears, format } from 'date-fns';
+import { addHours, addDays, addWeeks, addMonths, format } from 'date-fns';
 import {
   Form,
   FormControl,
@@ -43,10 +43,10 @@ const formSchema = z.object({
 });
 
 const planDurations = [
+    { value: 'hourly', label: 'Horaire' },
     { value: 'daily', label: 'Journalier' },
     { value: 'weekly', label: 'Hebdomadaire' },
     { value: 'monthly', label: 'Mensuel' },
-    { value: 'annual', label: 'Annuel' },
 ];
 
 export default function ActivatePlanDialog({ user, open, onOpenChange }: ActivatePlanDialogProps) {
@@ -85,6 +85,9 @@ export default function ActivatePlanDialog({ user, open, onOpenChange }: Activat
       let endDate: Date;
 
       switch (values.duration) {
+          case 'hourly':
+              endDate = addHours(startDate, 1);
+              break;
           case 'daily':
               endDate = addDays(startDate, 1);
               break;
@@ -93,9 +96,6 @@ export default function ActivatePlanDialog({ user, open, onOpenChange }: Activat
               break;
           case 'monthly':
               endDate = addMonths(startDate, 1);
-              break;
-          case 'annual':
-              endDate = addYears(startDate, 1);
               break;
           default:
               endDate = addMonths(startDate, 1);
