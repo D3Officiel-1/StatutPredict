@@ -294,6 +294,7 @@ export default function UserManagement() {
               <TableHead>Statut</TableHead>
               <TableHead className="hidden md:table-cell">Prénom</TableHead>
               <TableHead className="hidden md:table-cell">Nom</TableHead>
+              <TableHead className="hidden lg:table-cell">Code Pronostic</TableHead>
               <TableHead className="hidden lg:table-cell">Jeu favori</TableHead>
               <TableHead className="hidden xl:table-cell">Date de naissance</TableHead>
               <TableHead className="hidden xl:table-cell">Genre</TableHead>
@@ -307,7 +308,7 @@ export default function UserManagement() {
             {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                     <TableRow key={i}>
-                        <TableCell colSpan={10}>
+                        <TableCell colSpan={11}>
                            <Skeleton className="h-8 w-full" />
                         </TableCell>
                     </TableRow>
@@ -324,6 +325,7 @@ export default function UserManagement() {
                     </TableCell>
                     <TableCell className="hidden md:table-cell">{user.firstName || 'N/A'}</TableCell>
                     <TableCell className="hidden md:table-cell">{user.lastName || 'N/A'}</TableCell>
+                    <TableCell className="hidden lg:table-cell">{user.pronosticCode || 'N/A'}</TableCell>
                     <TableCell className="hidden lg:table-cell">{user.favoriteGame || 'N/A'}</TableCell>
                     <TableCell className="hidden xl:table-cell">{formatDate(user.dob)}</TableCell>
                     <TableCell className="hidden xl:table-cell">{user.gender || 'N/A'}</TableCell>
