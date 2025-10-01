@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Script from 'next/script';
 import PwaInstallButton from '@/components/pwa-install-button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 export default function CanalPage() {
   return (
@@ -41,36 +42,40 @@ export default function CanalPage() {
       </header>
 
       <main className="container mx-auto px-4 py-8 md:px-6 md:py-12">
-        <div className="mx-auto max-w-2xl">
+        <div className="mx-auto max-w-md">
             <div className="mb-8 text-center">
                 <h1 className="text-4xl font-bold tracking-tight font-headline">Canal Telegram</h1>
                 <p className="mt-2 text-muted-foreground">Suivez nos dernières publications directement ici.</p>
             </div>
           
             <Card>
-                <CardContent className="p-4">
-                    <div id="tg-embed">
-                        <Script 
-                            async 
-                            src="https://telegram.org/js/telegram-widget.js?22"
-                            data-telegram-post="Predict_D3offiiel/15"
-                            data-width="100%"
-                        />
-                    </div>
-                    
-                    <noscript>
-                        <p className="text-center text-muted-foreground">
-                            Votre navigateur bloque les scripts. Accédez au canal : <a href="https://t.me/Predict_D3offiiel" className="text-primary underline">Predict</a>
-                        </p>
-                    </noscript>
-                </CardContent>
+              <CardContent className="p-6 text-center">
+                <Image
+                    src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg"
+                    alt="Telegram"
+                    width={50}
+                    height={50}
+                    className="mx-auto mb-3"
+                />
+                <h3 className="text-lg font-semibold mb-2 font-headline">Predict</h3>
+                <p className="text-muted-foreground mb-4">Reçois toutes les actus, infos et bons plans directement sur Telegram.</p>
+                <Button asChild style={{ backgroundColor: '#2AABEE', color: 'white' }}>
+                    <a href="https://t.me/Predict_D3offiiel" target="_blank" rel="noopener noreferrer">
+                        Rejoindre le canal
+                    </a>
+                </Button>
+              </CardContent>
             </Card>
 
-            <div className="mt-6 text-center">
-                <a href="https://t.me/Predict_D3offiiel" target="_blank" rel="noopener noreferrer"
-                    className="inline-block px-6 py-3 rounded-lg bg-blue-500 text-white font-semibold no-underline hover:bg-blue-600 transition-colors">
-                    Rejoindre le canal
-                </a>
+             <div className="mt-8">
+                 <div id="tg-embed">
+                    <Script
+                        async
+                        src="https://telegram.org/js/telegram-widget.js?22"
+                        data-telegram-post="Predict_D3offiiel/15"
+                        data-width="100%"
+                    />
+                </div>
             </div>
         </div>
       </main>
