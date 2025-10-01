@@ -144,7 +144,7 @@ export default function StatusPage() {
           <Alert className="mb-8 bg-card border-card-border">
             <Megaphone className="h-4 w-4" />
             <AlertDescription>
-              Nous surveillons en continu nos services pour garantir une expérience optimale. Merci pour votre confiance ! 💜
+              Bienvenue sur le centre névralgique de Statut Predict. Suivez en temps réel la pulsation de nos services, conçus pour une performance et une fiabilité sans compromis. Votre tranquillité d'esprit est notre priorité. 🚀
             </AlertDescription>
           </Alert>
 
