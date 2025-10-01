@@ -18,6 +18,7 @@ import {
 import ResponseTimeChart from '@/components/status/response-time-chart';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '../ui/skeleton';
+import PwaInstallButton from '../pwa-install-button';
 
 export default function StatusPage() {
   const [apps, setApps] = useState<Application[]>([]);
@@ -108,11 +109,7 @@ export default function StatusPage() {
                   Chaîne
               </Link>
           </nav>
-          <div className="flex-1 flex justify-end items-center gap-4">
-            <Image src="https://1win-partners.com/panel/assets/images/android-BwQlK3Xs.svg" width={24} height={24} alt="Android App" />
-            <Image src="https://1win-partners.com/panel/assets/images/ios-LCbvsU86.svg" width={24} height={24} alt="Apple App" />
-            <Image src="https://i.postimg.cc/g0zDTFgZ/windows.png" width={24} height={24} alt="Windows App" />
-          </div>
+          <PwaInstallButton />
         </div>
       </header>
 

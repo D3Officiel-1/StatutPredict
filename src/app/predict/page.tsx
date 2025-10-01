@@ -10,6 +10,7 @@ import { ExternalLink, Globe, Smartphone, Server } from 'lucide-react';
 import type { Application } from '@/types';
 import Image from 'next/image';
 import { Skeleton } from '@/components/ui/skeleton';
+import PwaInstallButton from '@/components/pwa-install-button';
 
 const AppIcon = ({ type }: { type: Application['type'] }) => {
   const className = "h-6 w-6 text-muted-foreground";
@@ -84,11 +85,7 @@ export default function PredictPage() {
                   Chaîne
               </Link>
           </nav>
-          <div className="flex-1 flex justify-end items-center gap-4">
-            <Image src="https://1win-partners.com/panel/assets/images/android-BwQlK3Xs.svg" width={24} height={24} alt="Android App" />
-            <Image src="https://1win-partners.com/panel/assets/images/ios-LCbvsU86.svg" width={24} height={24} alt="Apple App" />
-            <Image src="https://i.postimg.cc/g0zDTFgZ/windows.png" width={24} height={24} alt="Windows App" />
-          </div>
+          <PwaInstallButton />
         </div>
       </header>
 

@@ -10,6 +10,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import PwaInstallButton from '@/components/pwa-install-button';
 
 interface MaintenanceEvent {
   id: string;
@@ -133,11 +134,7 @@ export default function MaintenancePage() {
                   Chaîne
               </Link>
           </nav>
-          <div className="flex-1 flex justify-end items-center gap-4">
-            <Image src="https://1win-partners.com/panel/assets/images/android-BwQlK3Xs.svg" width={24} height={24} alt="Android App" />
-            <Image src="https://1win-partners.com/panel/assets/images/ios-LCbvsU86.svg" width={24} height={24} alt="Apple App" />
-            <Image src="https://i.postimg.cc/g0zDTFgZ/windows.png" width={24} height={24} alt="Windows App" />
-          </div>
+          <PwaInstallButton />
         </div>
       </header>
 
