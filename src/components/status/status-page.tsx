@@ -108,7 +108,7 @@ export default function StatusPage() {
               <Link href="/maintenance" className="text-foreground/60 transition-colors hover:text-foreground/80">
                   Maintenance
               </Link>
-              <Link href="https://whatsapp.com/channel/0029VbAyaNz3WHTSsxF39V2n" target="_blank" rel="noopener noreferrer" className="text-foreground/60 transition-colors hover:text-foreground/80">
+              <Link href="/chaine" className="text-foreground/60 transition-colors hover:text-foreground/80">
                   Chaîne
               </Link>
           </nav>
@@ -128,7 +128,7 @@ export default function StatusPage() {
                     <h1 className="text-4xl font-bold tracking-tight text-foreground">
                         { allSystemsOperational ? "Tous les services sont opérationnels" : "Certains services sont en maintenance"}
                     </h1>
-                    <p className="mt-2 text-muted-foreground">
+                    <p className="text-muted-foreground">
                         {operationalApps} sur {totalApps} services sont actifs.
                         Dernière mise à jour le{' '}
                         {lastUpdated
