@@ -72,6 +72,9 @@ export default function PredictPage() {
             </Link>
           </div>
           <nav className="hidden md:flex flex-1 justify-center items-center gap-6 text-sm font-medium">
+               <Link href="/" className="text-foreground/60 transition-colors hover:text-foreground/80">
+                  Canal
+              </Link>
               <Link href="/predict" className="text-foreground transition-colors hover:text-foreground/80">
                   Predict
               </Link>
