@@ -32,7 +32,7 @@ export default function ChainePage() {
     const channels = [
         {
             title: "Predict",
-            description: "Reçois toutes les actus, infos et bons plans directement sur WhatsApp.",
+            description: "Reçois toutes les actus ⚡, infos 💡 et bons plans 💸 directement sur WhatsApp.",
             link: "https://whatsapp.com/channel/0029VbBc22V4yltHAKWD0R2x"
         }
     ];
