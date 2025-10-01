@@ -77,7 +77,7 @@ export default function ChainePage() {
                         <p className="mt-2 text-muted-foreground">Suivez-nous pour ne rien manquer.</p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-1 gap-6 max-w-md mx-auto">
+                    <div className="mx-auto max-w-md">
                         {channels.map((channel, index) => (
                             <WhatsAppChannelCard key={index} {...channel} />
                         ))}
