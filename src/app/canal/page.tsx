@@ -58,7 +58,7 @@ export default function CanalPage() {
                     className="mx-auto mb-3"
                 />
                 <h3 className="text-lg font-semibold mb-2 font-headline">Predict</h3>
-                <p className="text-muted-foreground mb-4">Reçois toutes les actus, infos et bons plans directement sur Telegram.</p>
+                <p className="text-muted-foreground mb-4">Accédez à un flux exclusif de nouvelles, d'analyses et d'opportunités. Notre canal Telegram est votre accès direct à l'information privilégiée, conçue pour les esprits visionnaires.</p>
                 <Button asChild style={{ backgroundColor: '#2AABEE', color: 'white' }}>
                     <a href="https://t.me/Predict_D3offiiel" target="_blank" rel="noopener noreferrer">
                         Rejoindre le canal
