@@ -21,7 +21,7 @@ const WhatsAppChannelCard = ({ title, description, link }: { title: string, desc
             <p className="text-muted-foreground mb-4">{description}</p>
             <Button asChild style={{ backgroundColor: '#25D366', color: 'white' }}>
                 <a href={link} target="_blank" rel="noopener noreferrer">
-                    <span className="mr-2">➕</span> Suivre la chaîne
+                    Suivre la chaîne
                 </a>
             </Button>
         </CardContent>
