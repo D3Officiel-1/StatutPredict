@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -29,11 +30,6 @@ const WhatsAppChannelCard = ({ title, description, link }: { title: string, desc
 
 export default function ChainePage() {
     const channels = [
-        {
-            title: "Ma chaîne WhatsApp",
-            description: "Reçois toutes les actus, infos et bons plans directement sur WhatsApp.",
-            link: "https://whatsapp.com/channel/0029VbAyaNz3WHTSsxF39V2n"
-        },
         {
             title: "Predict",
             description: "Reçois toutes les actus, infos et bons plans directement sur WhatsApp.",
@@ -77,11 +73,11 @@ export default function ChainePage() {
             <main className="container mx-auto px-4 py-8 md:px-6 md:py-12">
                 <div className="mx-auto max-w-4xl">
                     <div className="mb-8 text-center">
-                        <h1 className="text-4xl font-bold tracking-tight font-headline">Nos chaînes WhatsApp</h1>
+                        <h1 className="text-4xl font-bold tracking-tight font-headline">Notre chaîne WhatsApp</h1>
                         <p className="mt-2 text-muted-foreground">Suivez-nous pour ne rien manquer.</p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-1 gap-6 max-w-md mx-auto">
                         {channels.map((channel, index) => (
                             <WhatsAppChannelCard key={index} {...channel} />
                         ))}
