@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, onSnapshot, doc, updateDoc } from 'firebase/firestore';
+import { collection, onSnapshot, doc, updateDoc, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import AppStatusCard from './app-status-card';
 import type { Application } from '@/types';
@@ -27,7 +27,16 @@ export default function AppList() {
   const handleStatusChange = async (appId: string, newStatus: boolean) => {
     const appRef = doc(db, 'applications', appId);
     try {
+      // Mettre à jour le statut actuel de l'application
       await updateDoc(appRef, { status: newStatus });
+      
+      // Enregistrer l'événement de changement de statut dans l'historique
+      await addDoc(collection(db, 'app_status_history'), {
+        appId: appId,
+        status: newStatus,
+        timestamp: serverTimestamp(),
+      });
+
     } catch (error) {
       console.error("Error updating status: ", error);
     }

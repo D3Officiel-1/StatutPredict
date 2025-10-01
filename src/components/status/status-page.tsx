@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, getDocs, where, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Power, CheckCircle2, Megaphone, ChevronDown, ShieldAlert } from 'lucide-react';
-import type { Application } from '@/types';
+import type { Application, AppStatusHistory } from '@/types';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,6 +19,37 @@ import ResponseTimeChart from '@/components/status/response-time-chart';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '../ui/skeleton';
 import PwaInstallButton from '../pwa-install-button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+
+const getStatusForDay = (day: Date, history: AppStatusHistory[], currentStatus: boolean): 'operational' | 'maintenance' | 'partial' | 'unknown' => {
+  const startOfDay = new Date(day);
+  startOfDay.setHours(0, 0, 0, 0);
+  const endOfDay = new Date(day);
+  endOfDay.setHours(23, 59, 59, 999);
+
+  const relevantHistory = history.filter(event => {
+    const eventDate = event.timestamp.toDate();
+    return eventDate >= startOfDay && eventDate <= endOfDay;
+  });
+
+  const historyBeforeDay = history.filter(event => event.timestamp.toDate() < startOfDay);
+  const lastStatusBeforeDay = historyBeforeDay.length > 0 ? historyBeforeDay[0].status : currentStatus;
+
+  if (relevantHistory.length === 0) {
+    return lastStatusBeforeDay ? 'operational' : 'maintenance';
+  }
+
+  const statuses = [lastStatusBeforeDay, ...relevantHistory.map(h => h.status)];
+  const hasMaintenance = statuses.includes(false);
+  const hasOperational = statuses.includes(true);
+
+  if (hasMaintenance && !hasOperational) return 'maintenance';
+  if (!hasMaintenance && hasOperational) return 'operational';
+  if (hasMaintenance && hasOperational) return 'partial';
+  
+  return 'unknown';
+};
+
 
 export default function StatusPage() {
   const [apps, setApps] = useState<Application[]>([]);
@@ -27,11 +58,26 @@ export default function StatusPage() {
 
   useEffect(() => {
     const q = query(collection(db, 'applications'), orderBy('name'));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const appsData: Application[] = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      } as Application));
+    const unsubscribe = onSnapshot(q, async (snapshot) => {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      
+      const appsDataPromises = snapshot.docs.map(async (doc) => {
+        const appData = { id: doc.id, ...doc.data() } as Application;
+        
+        const historyQuery = query(
+          collection(db, 'app_status_history'), 
+          where('appId', '==', appData.id), 
+          where('timestamp', '>=', thirtyDaysAgo),
+          orderBy('timestamp', 'desc')
+        );
+        const historySnapshot = await getDocs(historyQuery);
+        appData.statusHistory = historySnapshot.docs.map(d => ({...d.data(), timestamp: d.data().timestamp } as AppStatusHistory));
+
+        return appData;
+      });
+
+      const appsData = await Promise.all(appsDataPromises);
       setApps(appsData);
       setLastUpdated(new Date());
       setLoading(false);
@@ -81,6 +127,52 @@ export default function StatusPage() {
         ))}
     </div>
   );
+
+  const renderStatusBars = (app: Application) => {
+    const days = Array.from({ length: 30 }).map((_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - (29 - i));
+      return d;
+    });
+
+    return (
+      <TooltipProvider>
+        <div className="flex gap-0.5 w-full h-4">
+          {days.map((day, i) => {
+            const status = getStatusForDay(day, app.statusHistory || [], app.status);
+            let bgColor = 'bg-gray-300 dark:bg-gray-600';
+            let tooltipText = `Statut inconnu le ${day.toLocaleDateString()}`;
+
+            switch (status) {
+              case 'operational':
+                bgColor = 'bg-green-500';
+                tooltipText = `Opérationnel le ${day.toLocaleDateString()}`;
+                break;
+              case 'maintenance':
+                bgColor = 'bg-orange-500';
+                tooltipText = `En maintenance le ${day.toLocaleDateString()}`;
+                break;
+              case 'partial':
+                bgColor = 'bg-yellow-500';
+                tooltipText = `Maintenance partielle le ${day.toLocaleDateString()}`;
+                break;
+            }
+            
+            return (
+              <Tooltip key={i}>
+                <TooltipTrigger asChild>
+                  <div className={`flex-1 ${bgColor} rounded-sm`} />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{tooltipText}</p>
+                </TooltipContent>
+              </Tooltip>
+            );
+          })}
+        </div>
+      </TooltipProvider>
+    );
+  }
 
 
   return (
@@ -144,7 +236,7 @@ export default function StatusPage() {
           <Alert className="mb-8 bg-card border-card-border">
             <Megaphone className="h-4 w-4" />
             <AlertDescription>
-              Bienvenue sur le centre névralgique de Statut Predict. Suivez en temps réel la pulsation de nos services, conçus pour une performance et une fiabilité sans compromis. Votre tranquillité d'esprit est notre priorité. 🚀
+            Bienvenue sur le centre névralgique de Statut Predict. Suivez en temps réel la pulsation de nos services, conçus pour une performance et une fiabilité sans compromis. Votre tranquillité d'esprit est notre priorité. 🚀
             </AlertDescription>
           </Alert>
 
@@ -186,11 +278,9 @@ export default function StatusPage() {
                                             </div>
                                             <p className={`text-sm ${app.status ? 'text-green-400' : 'text-orange-400'} font-semibold`}>{app.status ? 'Opérationnel' : 'Maintenance'}</p>
                                         </div>
-                                        <div className="flex gap-0.5 w-full h-2">
-                                            {Array.from({ length: 30 }).map((_, i) => (
-                                                <div key={i} className={`flex-1 ${app.status ? 'bg-green-500' : 'bg-orange-500'} rounded-sm`} />
-                                            ))}
-                                        </div>
+                                        
+                                        {renderStatusBars(app)}
+
                                         <div className="flex justify-between text-xs text-muted-foreground mt-1">
                                             <span>Il y a 30 jours</span>
                                             <span>Aujourd'hui</span>

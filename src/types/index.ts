@@ -1,5 +1,12 @@
+import { Timestamp } from "firebase/firestore";
 
 export type AppType = 'web' | 'mobile' | 'api';
+
+export interface AppStatusHistory {
+  appId: string;
+  status: boolean;
+  timestamp: Timestamp;
+}
 
 export interface Application {
   id: string;
@@ -12,7 +19,8 @@ export interface Application {
     buttonTitle?: string;
     buttonUrl?: string;
     mediaUrl?: string;
-  }
+  };
+  statusHistory?: AppStatusHistory[];
 }
 
 export interface ReferralItem {
