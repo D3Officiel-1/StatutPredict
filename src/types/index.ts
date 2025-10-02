@@ -83,6 +83,7 @@ export interface DiscountCode {
   tous: boolean;
   max?: number;
   people?: string[];
+  imageUrl?: string;
 }
 
 export interface PricingPlan {

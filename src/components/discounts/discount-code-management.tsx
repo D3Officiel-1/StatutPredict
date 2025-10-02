@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, onSnapshot, orderBy, query, deleteDoc, doc, addDoc } from 'firebase/firestore';
+import { collection, onSnapshot, orderBy, query, deleteDoc, doc, addDoc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { DiscountCode } from '@/types';
 import {
@@ -218,17 +218,22 @@ export default function DiscountCodeManagement() {
         }
         
         const data = await response.json();
+        const imageUrl = data.secure_url;
 
         // 4. Save to media library
         await addDoc(collection(db, 'media_library'), {
-            url: data.secure_url,
+            url: imageUrl,
             type: 'image/png',
             createdAt: new Date(),
         });
+        
+        // 5. Update the discount code with the new image URL
+        const codeRef = doc(db, 'promo', code.id);
+        await updateDoc(codeRef, { imageUrl: imageUrl });
 
         toast({
-            title: 'Image enregistrée !',
-            description: 'Votre image de bon de réduction a été ajoutée à la bibliothèque.',
+            title: 'Image enregistrée et liée !',
+            description: 'Votre image a été ajoutée à la bibliothèque et liée au bon de réduction.',
         });
 
     } catch (error) {
