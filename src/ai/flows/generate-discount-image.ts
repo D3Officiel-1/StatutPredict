@@ -18,7 +18,7 @@ const GenerateDiscountImageInputSchema = z.object({
   title: z.string().describe('The title of the promotion.'),
   expiryDate: z.string().describe('The expiry date of the discount code.'),
   max: z.number().optional().describe('The maximum number of uses.'),
-  people: z.array(z.string()).optional().describe('The number of people who have used the code.'),
+  people: z.array(z.string()).optional().describe('The people who have used the code.'),
 });
 export type GenerateDiscountImageInput = z.infer<
   typeof GenerateDiscountImageInputSchema
@@ -41,6 +41,7 @@ export async function generateDiscountImage(
   return generateDiscountImageFlow(input);
 }
 
+
 const generateDiscountImageFlow = ai.defineFlow(
   {
     name: 'generateDiscountImageFlow',
@@ -49,57 +50,148 @@ const generateDiscountImageFlow = ai.defineFlow(
   },
   async (input) => {
     const { code, percentage, title, expiryDate, max, people } = input;
-    
-    const activationsText = max && max > 0 
+    const activationsText = max && max > 0
       ? `
-        <text x="1050" y="560" class="activations-label">Activations</text>
-        <text x="1050" y="615" class="activations-value">${people?.length || 0} / ${max}</text>
-        ` 
+        <text x="980" y="560" class="activations-label">Activations</text>
+        <text x="980" y="615" class="activations-value">${people?.length || 0} / ${max}</text>
+      `
       : '';
 
+    // Perforations (left + right) -> on génère les <circle> puis on les met dans le mask pour "découper"
+    const perforationRadius = 10;
+    const spacing = 28;
+    const startY = 80;
+    const endY = 550;
+    const count = Math.floor((endY - startY) / spacing) + 1;
+    const leftPerfs = Array.from({ length: count })
+      .map((_, i) => `<circle cx="34" cy="${startY + i * spacing}" r="${perforationRadius}" fill="black"/>`)
+      .join('');
+    const rightPerfs = Array.from({ length: count })
+      .map((_, i) => `<circle cx="1166" cy="${startY + i * spacing}" r="${perforationRadius}" fill="black"/>`)
+      .join('');
+
     const svg = `
-    <svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+    <svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
       <defs>
-        <style>
-          .title { font-family: sans-serif; font-size: 42px; fill: #e0e0e0; font-weight: 600; text-anchor: start; letter-spacing: 0.5px; }
-          .bonus-label { font-family: sans-serif; font-size: 28px; fill: #a0a0a0; text-anchor: end; text-transform: uppercase; letter-spacing: 2px; }
-          .code { font-family: sans-serif; font-size: 110px; fill: #ffffff; font-weight: 700; text-anchor: middle; letter-spacing: 8px; }
-          .percentage-label { font-family: sans-serif; font-size: 28px; fill: #a0a0a0; text-anchor: start; }
-          .percentage-value { font-family: sans-serif; font-size: 64px; fill: #ffffff; font-weight: 700; text-anchor: start; }
-          .activations-label { font-family: sans-serif; font-size: 28px; fill: #a0a0a0; text-anchor: end; }
-          .activations-value { font-family: sans-serif; font-size: 64px; fill: #ffffff; font-weight: 700; text-anchor: end; }
-          .expiry { font-family: sans-serif; font-size: 24px; fill: #a0a0a0; text-anchor: middle; }
-        </style>
-        <filter id="glow">
-          <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+        <!-- Gradients -->
+        <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#081124"/>
+          <stop offset="60%" stop-color="#071827"/>
+          <stop offset="100%" stop-color="#00040a"/>
+        </linearGradient>
+
+        <linearGradient id="codeGloss" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgba(255,255,255,0.45)"/>
+          <stop offset="45%" stop-color="rgba(255,255,255,0.08)"/>
+          <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+        </linearGradient>
+
+        <radialGradient id="holo" cx="30%" cy="40%" r="80%">
+          <stop offset="0%" stop-color="#bde0ff" stop-opacity="0.95"/>
+          <stop offset="50%" stop-color="#d1b7ff" stop-opacity="0.9"/>
+          <stop offset="100%" stop-color="#ffffff" stop-opacity="0.35"/>
+        </radialGradient>
+
+        <!-- Drop shadow for card -->
+        <filter id="cardShadow" x="-40%" y="-40%" width="180%" height="180%">
+          <feDropShadow dx="0" dy="24" stdDeviation="40" flood-color="#000" flood-opacity="0.5"/>
+        </filter>
+
+        <!-- Glow for code -->
+        <filter id="codeGlow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="8" result="blur"/>
           <feMerge>
-            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="blur"/>
             <feMergeNode in="SourceGraphic"/>
           </feMerge>
         </filter>
-      </defs>
-      
-      <g>
-        <text x="100" y="100" class="title">${title}</text>
-        <text x="1100" y="100" class="bonus-label">BONUS CODE</text>
-        
-        <rect x="150" y="220" width="900" height="190" rx="20" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" />
-        <text x="600" y="350" class="code" filter="url(#glow)">${code}</text>
 
-        <line x1="100" y1="500" x2="1100" y2="500" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
-        
+        <!-- Mask to create ticket perforation cutouts -->
+        <mask id="ticketMask">
+          <!-- Visible area (white) -->
+          <rect width="1200" height="630" rx="28" ry="28" fill="white"/>
+          <!-- Black circles = holes -->
+          ${leftPerfs}
+          ${rightPerfs}
+        </mask>
+
+        <style>
+          .title { font-family: sans-serif; font-size: 40px; fill: #e6f4ff; font-weight: 700; letter-spacing: 0.6px; }
+          .bonus-label { font-family: sans-serif; font-size: 20px; fill: #9ab7c9; text-anchor: end; text-transform: uppercase; letter-spacing: 2px; }
+          .code { font-family: 'Menlo', 'Courier New', monospace; font-size: 110px; fill: #ffffff; font-weight: 900; text-anchor: middle; letter-spacing: 10px; }
+          .percentage-label { font-family: sans-serif; font-size: 22px; fill: #9ab7c9; }
+          .percentage-value { font-family: sans-serif; font-size: 56px; fill: #ffffff; font-weight: 800; }
+          .activations-label { font-family: sans-serif; font-size: 22px; fill: #9ab7c9; text-anchor: end; }
+          .activations-value { font-family: sans-serif; font-size: 56px; fill: #ffffff; font-weight: 800; text-anchor: end; }
+          .expiry { font-family: sans-serif; font-size: 20px; fill: #9ab7c9; text-anchor: middle; }
+        </style>
+      </defs>
+
+      <!-- Card background + shadow -->
+      <g filter="url(#cardShadow)">
+        <rect x="0" y="0" width="1200" height="630" rx="28" fill="url(#bgGrad)"/>
+      </g>
+
+      <!-- All content clipped by ticket mask (creates perforation holes) -->
+      <g mask="url(#ticketMask)">
+
+        <!-- Subtle vignette overlay for depth -->
+        <rect x="0" y="0" width="1200" height="630" rx="28" fill="rgba(0,0,0,0.18)"/>
+
+        <!-- Header -->
+        <text x="86" y="96" class="title">${title}</text>
+        <text x="1114" y="90" class="bonus-label">BONUS CODE</text>
+
+        <!-- Big glossy code box -->
+        <g transform="translate(150,220)">
+          <!-- outer stroke -->
+          <rect x="0" y="0" width="900" height="190" rx="20" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
+          <!-- inner soft inset -->
+          <rect x="6" y="6" width="888" height="178" rx="16" fill="rgba(10,14,22,0.25)"/>
+          <!-- glossy strip on top -->
+          <rect x="6" y="6" width="888" height="90" rx="16" fill="url(#codeGloss)" opacity="0.9"/>
+          <!-- faint reflective border -->
+          <rect x="6" y="6" width="888" height="178" rx="16" fill="none" stroke="rgba(255,255,255,0.03)" />
+          <!-- subtle inner shadow (top) -->
+          <rect x="0" y="0" width="900" height="190" rx="20" fill="none" style="filter: url(#codeGlow); opacity:0.06" />
+          <!-- the code text centered -->
+          <text x="450" y="125" class="code" filter="url(#codeGlow)">${code}</text>
+        </g>
+
+        <!-- Divider line -->
+        <line x1="100" y1="500" x2="1100" y2="500" stroke="rgba(255,255,255,0.06)" stroke-width="1" />
+
+        <!-- Left column: reduction -->
         <text x="150" y="560" class="percentage-label">Réduction</text>
-        <text x="150" y="615" class="percentage-value">${percentage}%</text>
-        
+        <text x="150" y="620" class="percentage-value">${percentage}%</text>
+
+        <!-- Right column: activations (optionnel) -->
         ${activationsText}
 
-        <text x="600" y="600" class="expiry">Expire le ${expiryDate}</text>
-      </g>
+        <!-- Expiry center -->
+        <text x="600" y="608" class="expiry">Expire le ${expiryDate}</text>
+
+        <!-- Holographic watermark pill -->
+        <g transform="translate(1010,480)">
+          <rect x="0" y="0" width="150" height="80" rx="40" fill="url(#holo)" opacity="0.95" />
+          <circle cx="38" cy="40" r="28" fill="#ffffff" opacity="0.06"/>
+          <text x="74" y="48" font-family="sans-serif" font-size="28" font-weight="800" fill="#ffffff" opacity="0.95" text-anchor="middle">1W</text>
+        </g>
+
+        <!-- Tiny product logo / shine bottom-right -->
+        <g transform="translate(1000,500)">
+          <ellipse cx="48" cy="24" rx="44" ry="24" fill="rgba(255,255,255,0.03)"/>
+        </g>
+
+      </g> <!-- end mask group -->
+
+      <!-- Add subtle outer stroke to card to mimic printed ticket edge -->
+      <rect x="1.5" y="1.5" width="1197" height="627" rx="28" fill="none" stroke="rgba(255,255,255,0.02)"/>
+
     </svg>
     `;
-    
+
     const dataUri = `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`;
-    
     return { imageUrl: dataUri };
   }
 );
