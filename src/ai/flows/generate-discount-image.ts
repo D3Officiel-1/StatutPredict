@@ -72,7 +72,7 @@ const generateDiscountImageFlow = ai.defineFlow(
   },
   async (input) => {
     const { text } = await ai.generate({
-        prompt: prompt(input),
+        prompt: await prompt(input),
     });
 
     return { imageUrl: text };
