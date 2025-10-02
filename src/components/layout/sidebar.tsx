@@ -9,6 +9,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarFooter,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import {
   LayoutDashboard,
@@ -20,12 +21,15 @@ import {
   TicketPercent,
   Banknote,
   Wrench,
+  X,
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Button } from '../ui/button';
 
 const AppSidebar = () => {
   const pathname = usePathname();
+  const { setOpenMobile, isMobile } = useSidebar();
 
   const isActive = (path: string) => {
     if (path === '/dashboard') return pathname === path || pathname.startsWith('/dashboard');
@@ -34,13 +38,18 @@ const AppSidebar = () => {
 
   return (
     <div className="flex flex-col h-full bg-background/90 backdrop-blur-sm border-r border-border/50">
-      <SidebarHeader className="p-4 border-b border-border/50">
+      <SidebarHeader className="p-4 border-b border-border/50 flex justify-between items-center">
         <Link href="/dashboard" className="flex items-center gap-3">
           <Image src="https://i.postimg.cc/jS25XGKL/Capture-d-cran-2025-09-03-191656-4-removebg-preview.png" width={40} height={40} alt="Statut Predict Logo" />
           <span className="text-lg font-semibold font-headline text-sidebar-foreground">
             Statut Predict
           </span>
         </Link>
+        {isMobile && (
+          <Button variant="ghost" size="icon" onClick={() => setOpenMobile(false)}>
+            <X className="h-5 w-5" />
+          </Button>
+        )}
       </SidebarHeader>
 
       <SidebarContent className="flex-1 flex items-center justify-center p-2">
