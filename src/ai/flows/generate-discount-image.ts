@@ -86,10 +86,9 @@ const generateDiscountImageFlow = ai.defineFlow(
           <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
         </linearGradient>
 
-        <radialGradient id="holo" cx="30%" cy="40%" r="80%">
-          <stop offset="0%" stop-color="#bde0ff" stop-opacity="0.95"/>
-          <stop offset="50%" stop-color="#d1b7ff" stop-opacity="0.9"/>
-          <stop offset="100%" stop-color="#ffffff" stop-opacity="0.35"/>
+        <radialGradient id="holo" cx="50%" cy="50%" r="70%">
+            <stop offset="0%" stop-color="rgba(255, 255, 255, 0.3)" />
+            <stop offset="100%" stop-color="rgba(255, 255, 255, 0)" />
         </radialGradient>
 
         <!-- Drop shadow for card -->
@@ -170,12 +169,11 @@ const generateDiscountImageFlow = ai.defineFlow(
 
         <!-- Expiry center -->
         <text x="600" y="608" class="expiry">Expire le ${expiryDate}</text>
-
-        <!-- Holographic watermark pill -->
-        <g transform="translate(1010,480)">
-          <rect x="0" y="0" width="150" height="80" rx="40" fill="url(#holo)" opacity="0.95" />
-          <circle cx="38" cy="40" r="28" fill="#ffffff" opacity="0.06"/>
-          <text x="74" y="48" font-family="sans-serif" font-size="28" font-weight="800" fill="#ffffff" opacity="0.95" text-anchor="middle">1W</text>
+        
+        <!-- App Logo -->
+        <g transform="translate(1010, 490)">
+            <rect x="0" y="0" width="150" height="60" rx="30" fill="url(#holo)" opacity="0.2"/>
+            <image href="https://i.postimg.cc/jS25XGKL/Capture-d-cran-2025-09-03-191656-4-removebg-preview.png" x="45" y="0" height="60" width="60" />
         </g>
 
         <!-- Tiny product logo / shine bottom-right -->
@@ -195,3 +193,5 @@ const generateDiscountImageFlow = ai.defineFlow(
     return { imageUrl: dataUri };
   }
 );
+
+    
