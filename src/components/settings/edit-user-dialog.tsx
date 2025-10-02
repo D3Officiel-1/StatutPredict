@@ -100,174 +100,173 @@ export default function EditUserDialog({ user, open, onOpenChange, onUserUpdate 
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-end z-50"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={() => onOpenChange(false)}
         >
           <motion.div
-            className="bg-card p-6 rounded-xl shadow-xl w-full max-w-2xl"
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="bg-card w-full max-w-2xl h-full flex flex-col"
+            initial={{ x: "100%" }}
+            animate={{ x: "0%" }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", stiffness: 300, damping: 35 }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-center p-6 border-b">
               <div>
-                <h2 className="text-lg font-semibold">Modifier {user.username || user.email}</h2>
+                <h2 className="text-xl font-bold font-headline">Modifier {user.username || user.email}</h2>
                 <p className="text-sm text-muted-foreground">Mettez à jour les informations de l'utilisateur.</p>
               </div>
               <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
-                <X className="h-4 w-4" />
+                <X className="h-5 w-5" />
               </Button>
             </div>
 
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)}>
-                <ScrollArea className="max-h-[60vh] pr-4">
-                  <div className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <FormField
-                            control={form.control}
-                            name="username"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Pseudo</FormLabel>
-                                <FormControl><Input {...field} /></FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="email"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Email</FormLabel>
-                                <FormControl><Input type="email" {...field} /></FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <FormField
-                            control={form.control}
-                            name="firstName"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Prénom</FormLabel>
-                                <FormControl><Input {...field} /></FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="lastName"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Nom</FormLabel>
-                                <FormControl><Input {...field} /></FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
-                     <FormField
-                            control={form.control}
-                            name="photoURL"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>URL de la photo de profil</FormLabel>
-                                <FormControl><Input {...field} /></FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <FormField
-                            control={form.control}
-                            name="phone"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Téléphone</FormLabel>
-                                <FormControl><Input {...field} /></FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="gender"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Genre</FormLabel>
-                                <FormControl><Input {...field} /></FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <FormField
-                            control={form.control}
-                            name="favoriteGame"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Jeu favori</FormLabel>
-                                <FormControl><Input {...field} /></FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="pronosticCode"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Code Pronostic</FormLabel>
-                                <FormControl><Input {...field} /></FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
-                     <FormField
-                        control={form.control}
-                        name="referralCode"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Code de Parrainage</FormLabel>
-                            <FormControl><Input {...field} /></FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="telegramLinkToken"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Token de lien Telegram</FormLabel>
-                            <FormControl><Input {...field} /></FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+            <div className="flex-1 overflow-y-auto">
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full">
+                  <div className="p-6 space-y-8 flex-1">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <FormField
+                              control={form.control}
+                              name="username"
+                              render={({ field }) => (
+                                  <FormItem>
+                                  <FormLabel>Pseudo</FormLabel>
+                                  <FormControl><Input {...field} /></FormControl>
+                                  <FormMessage />
+                                  </FormItem>
+                              )}
+                          />
+                          <FormField
+                              control={form.control}
+                              name="email"
+                              render={({ field }) => (
+                                  <FormItem>
+                                  <FormLabel>Email</FormLabel>
+                                  <FormControl><Input type="email" {...field} /></FormControl>
+                                  <FormMessage />
+                                  </FormItem>
+                              )}
+                          />
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <FormField
+                              control={form.control}
+                              name="firstName"
+                              render={({ field }) => (
+                                  <FormItem>
+                                  <FormLabel>Prénom</FormLabel>
+                                  <FormControl><Input {...field} /></FormControl>
+                                  <FormMessage />
+                                  </FormItem>
+                              )}
+                          />
+                          <FormField
+                              control={form.control}
+                              name="lastName"
+                              render={({ field }) => (
+                                  <FormItem>
+                                  <FormLabel>Nom</FormLabel>
+                                  <FormControl><Input {...field} /></FormControl>
+                                  <FormMessage />
+                                  </FormItem>
+                              )}
+                          />
+                      </div>
+                       <FormField
+                              control={form.control}
+                              name="photoURL"
+                              render={({ field }) => (
+                                  <FormItem>
+                                  <FormLabel>URL de la photo de profil</FormLabel>
+                                  <FormControl><Input {...field} /></FormControl>
+                                  <FormMessage />
+                                  </FormItem>
+                              )}
+                          />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <FormField
+                              control={form.control}
+                              name="phone"
+                              render={({ field }) => (
+                                  <FormItem>
+                                  <FormLabel>Téléphone</FormLabel>
+                                  <FormControl><Input {...field} /></FormControl>
+                                  <FormMessage />
+                                  </FormItem>
+                              )}
+                          />
+                          <FormField
+                              control={form.control}
+                              name="gender"
+                              render={({ field }) => (
+                                  <FormItem>
+                                  <FormLabel>Genre</FormLabel>
+                                  <FormControl><Input {...field} /></FormControl>
+                                  <FormMessage />
+                                  </FormItem>
+                              )}
+                          />
+                      </div>
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <FormField
+                              control={form.control}
+                              name="favoriteGame"
+                              render={({ field }) => (
+                                  <FormItem>
+                                  <FormLabel>Jeu favori</FormLabel>
+                                  <FormControl><Input {...field} /></FormControl>
+                                  <FormMessage />
+                                  </FormItem>
+                              )}
+                          />
+                          <FormField
+                              control={form.control}
+                              name="pronosticCode"
+                              render={({ field }) => (
+                                  <FormItem>
+                                  <FormLabel>Code Pronostic</FormLabel>
+                                  <FormControl><Input {...field} /></FormControl>
+                                  <FormMessage />
+                                  </FormItem>
+                              )}
+                          />
+                      </div>
+                       <FormField
+                          control={form.control}
+                          name="referralCode"
+                          render={({ field }) => (
+                              <FormItem>
+                              <FormLabel>Code de Parrainage</FormLabel>
+                              <FormControl><Input {...field} /></FormControl>
+                              <FormMessage />
+                              </FormItem>
+                          )}
+                      />
+                      <FormField
+                          control={form.control}
+                          name="telegramLinkToken"
+                          render={({ field }) => (
+                              <FormItem>
+                              <FormLabel>Token de lien Telegram</FormLabel>
+                              <FormControl><Input {...field} /></FormControl>
+                              <FormMessage />
+                              </FormItem>
+                          )}
+                      />
                   </div>
-                </ScrollArea>
 
-                <div className="flex justify-end gap-2 mt-8">
-                  <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Annuler</Button>
-                  <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? <CustomLoader /> : <><Save className="mr-2 h-4 w-4" /> Enregistrer</>}
-                  </Button>
-                </div>
-              </form>
-            </Form>
+                  <div className="p-6 border-t bg-background/90 sticky bottom-0">
+                    <Button type="submit" disabled={isSubmitting} className="w-full text-lg py-6">
+                      {isSubmitting ? <CustomLoader /> : <><Save className="mr-2 h-4 w-4" /> Enregistrer</>}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            </div>
           </motion.div>
         </motion.div>
       )}

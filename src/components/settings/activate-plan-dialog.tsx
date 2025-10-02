@@ -133,96 +133,95 @@ export default function ActivatePlanDialog({ user, open, onOpenChange }: Activat
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-end z-50"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={() => onOpenChange(false)}
         >
           <motion.div
-            className="bg-card p-6 rounded-xl shadow-xl w-full max-w-md"
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="bg-card w-full max-w-md h-full flex flex-col"
+            initial={{ x: "100%" }}
+            animate={{ x: "0%" }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", stiffness: 300, damping: 35 }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-center p-6 border-b">
               <div>
-                <h2 className="text-lg font-semibold">Gérer le forfait de {user.username || user.email}</h2>
+                <h2 className="text-xl font-bold font-headline">Gérer le forfait de {user.username || user.email}</h2>
                 <p className="text-sm text-muted-foreground">Activez ou modifiez le forfait "JetPredict".</p>
               </div>
               <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
-                  <X className="h-4 w-4" />
+                  <X className="h-5 w-5" />
               </Button>
             </div>
+            
+            <div className="flex-1 overflow-y-auto p-6">
+                {currentPlan && (
+                    <Card className="mb-8">
+                        <CardHeader>
+                            <CardTitle className='text-base'>Forfait Actuel</CardTitle>
+                        </CardHeader>
+                        <CardContent className="text-sm space-y-2">
+                            <div className="flex justify-between">
+                                <span className="text-muted-foreground">Statut:</span>
+                                <Badge variant={currentPlan.actif_jetpredict ? 'default' : 'destructive'} className={currentPlan.actif_jetpredict ? 'bg-green-500/20 text-green-500 border-green-500/30' : ''}>
+                                    {currentPlan.actif_jetpredict ? 'Actif' : 'Inactif'}
+                                </Badge>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-muted-foreground">Plan:</span>
+                                <span className="font-medium capitalize">{currentPlan.idplan_jetpredict}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-muted-foreground">Début:</span>
+                                <span className="font-medium">{formatDate(currentPlan.startdate)}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-muted-foreground">Fin:</span>
+                                <span className="font-medium">{formatDate(currentPlan.findate)}</span>
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
 
-            {currentPlan && (
-                <Card className="mb-6">
-                    <CardHeader>
-                        <CardTitle className='text-base'>Forfait Actuel</CardTitle>
-                    </CardHeader>
-                    <CardContent className="text-sm space-y-2">
-                        <div className="flex justify-between">
-                            <span className="text-muted-foreground">Statut:</span>
-                            <Badge variant={currentPlan.actif_jetpredict ? 'default' : 'destructive'} className={currentPlan.actif_jetpredict ? 'bg-green-500/20 text-green-500 border-green-500/30' : ''}>
-                                {currentPlan.actif_jetpredict ? 'Actif' : 'Inactif'}
-                            </Badge>
-                        </div>
-                        <div className="flex justify-between">
-                            <span className="text-muted-foreground">Plan:</span>
-                            <span className="font-medium capitalize">{currentPlan.idplan_jetpredict}</span>
-                        </div>
-                        <div className="flex justify-between">
-                            <span className="text-muted-foreground">Début:</span>
-                            <span className="font-medium">{formatDate(currentPlan.startdate)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                            <span className="text-muted-foreground">Fin:</span>
-                            <span className="font-medium">{formatDate(currentPlan.findate)}</span>
-                        </div>
-                    </CardContent>
-                </Card>
-            )}
-
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="duration"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Durée du forfait</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                              <SelectTrigger>
-                                  <SelectValue placeholder="Sélectionnez une durée" />
-                              </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                              {planDurations.map(d => (
-                                  <SelectItem key={d.value} value={d.value}>{d.label}</SelectItem>
-                              ))}
-                          </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <div className="flex justify-end gap-2">
-                   <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Annuler</Button>
-                  <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? <CustomLoader /> : 'Activer le forfait'}
-                  </Button>
-                </div>
-              </form>
-            </Form>
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                    <FormField
+                      control={form.control}
+                      name="duration"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Durée du forfait</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                  <SelectTrigger>
+                                      <SelectValue placeholder="Sélectionnez une durée" />
+                                  </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                  {planDurations.map(d => (
+                                      <SelectItem key={d.value} value={d.value}>{d.label}</SelectItem>
+                                  ))}
+                              </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <div className="pt-4">
+                      <Button type="submit" disabled={isSubmitting} className="w-full text-lg py-6">
+                        {isSubmitting ? <CustomLoader /> : 'Activer le forfait'}
+                      </Button>
+                    </div>
+                  </form>
+                </Form>
+              </div>
           </motion.div>
         </motion.div>
       )}
     </AnimatePresence>
   );
 }
-
-    
