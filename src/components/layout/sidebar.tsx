@@ -48,12 +48,11 @@ const AppSidebar = () => {
       <SidebarHeader className="p-4 border-b border-border/50 flex justify-between items-center">
         <Link href="/dashboard" className="flex items-center gap-3 overflow-hidden" onClick={handleLinkClick}>
           <Image src="https://i.postimg.cc/jS25XGKL/Capture-d-cran-2025-09-03-191656-4-removebg-preview.png" width={40} height={40} alt="Statut Predict Logo" className="shrink-0" />
-          <span className={cn(
-              "text-lg font-semibold font-headline text-sidebar-foreground transition-opacity duration-300",
-              state === 'collapsed' && !isMobile && "opacity-0"
-            )}>
-            Statut Predict
-          </span>
+          <div className={cn("transition-all duration-300", state === 'collapsed' && !isMobile ? "w-0 opacity-0" : "w-auto opacity-100")}>
+            <span className="text-lg font-semibold font-headline text-sidebar-foreground whitespace-nowrap">
+              Statut Predict
+            </span>
+          </div>
         </Link>
         {isMobile && (
           <Button variant="ghost" size="icon" onClick={() => setOpenMobile(false)}>
@@ -73,7 +72,10 @@ const AppSidebar = () => {
             >
               <Link href="/dashboard" onClick={handleLinkClick}>
                 <LayoutDashboard className="h-5 w-5" />
-                <span>Tableau de bord</span>
+                <span className={cn(
+                  "transition-all duration-200", 
+                  state === 'collapsed' && !isMobile ? "w-0 opacity-0" : "w-full opacity-100"
+                )}>Tableau de bord</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -86,7 +88,10 @@ const AppSidebar = () => {
             >
               <Link href="/status" onClick={handleLinkClick}>
                 <HeartPulse className="h-5 w-5" />
-                <span>Statut</span>
+                <span className={cn(
+                  "transition-all duration-200", 
+                  state === 'collapsed' && !isMobile ? "w-0 opacity-0" : "w-full opacity-100"
+                )}>Statut</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -99,7 +104,10 @@ const AppSidebar = () => {
             >
               <Link href="/notifications" onClick={handleLinkClick}>
                 <Send className="h-5 w-5" />
-                <span>Notifications</span>
+                <span className={cn(
+                  "transition-all duration-200", 
+                  state === 'collapsed' && !isMobile ? "w-0 opacity-0" : "w-full opacity-100"
+                )}>Notifications</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -112,7 +120,10 @@ const AppSidebar = () => {
             >
               <Link href="/pricing" onClick={handleLinkClick}>
                 <Banknote className="h-5 w-5" />
-                <span>Tarifs</span>
+                <span className={cn(
+                  "transition-all duration-200", 
+                  state === 'collapsed' && !isMobile ? "w-0 opacity-0" : "w-full opacity-100"
+                )}>Tarifs</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -125,7 +136,10 @@ const AppSidebar = () => {
             >
               <Link href="/discounts" onClick={handleLinkClick}>
                 <TicketPercent className="h-5 w-5" />
-                <span>Codes de réduction</span>
+                <span className={cn(
+                  "transition-all duration-200", 
+                  state === 'collapsed' && !isMobile ? "w-0 opacity-0" : "w-full opacity-100"
+                )}>Codes de réduction</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -138,7 +152,10 @@ const AppSidebar = () => {
             >
               <Link href="/maintenance-programs" onClick={handleLinkClick}>
                 <Wrench className="h-5 w-5" />
-                <span>Maintenance</span>
+                <span className={cn(
+                  "transition-all duration-200", 
+                  state === 'collapsed' && !isMobile ? "w-0 opacity-0" : "w-full opacity-100"
+                )}>Maintenance</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -151,7 +168,10 @@ const AppSidebar = () => {
             >
               <Link href="/users" onClick={handleLinkClick}>
                 <Users className="h-5 w-5" />
-                <span>Utilisateurs</span>
+                <span className={cn(
+                  "transition-all duration-200", 
+                  state === 'collapsed' && !isMobile ? "w-0 opacity-0" : "w-full opacity-100"
+                )}>Utilisateurs</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -164,7 +184,10 @@ const AppSidebar = () => {
             >
               <Link href="/settings" onClick={handleLinkClick}>
                 <Settings className="h-5 w-5" />
-                <span>Paramètres</span>
+                <span className={cn(
+                  "transition-all duration-200", 
+                  state === 'collapsed' && !isMobile ? "w-0 opacity-0" : "w-full opacity-100"
+                )}>Paramètres</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -177,7 +200,10 @@ const AppSidebar = () => {
             >
               <Link href="/" target="_blank" onClick={handleLinkClick}>
                 <ShieldCheck className="h-5 w-5" />
-                <span>Page Publique</span>
+                <span className={cn(
+                  "transition-all duration-200", 
+                  state === 'collapsed' && !isMobile ? "w-0 opacity-0" : "w-full opacity-100"
+                )}>Page Publique</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -188,7 +214,7 @@ const AppSidebar = () => {
         "p-4 border-t border-border/50 text-center transition-opacity duration-300",
         state === 'collapsed' && !isMobile && "opacity-0"
       )}>
-        <p className="text-xs text-muted-foreground">© 2025 Statut Predict — #D3 Officiel</p>
+        <p className="text-xs text-muted-foreground whitespace-nowrap">© 2025 Statut Predict — #D3 Officiel</p>
       </SidebarFooter>
     </div>
   );
