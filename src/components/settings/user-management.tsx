@@ -13,14 +13,6 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -60,6 +52,7 @@ import UserDetailsDialog from './user-details-dialog';
 import EditUserDialog from './edit-user-dialog';
 import CustomLoader from '../ui/custom-loader';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { cn } from '@/lib/utils';
 
 export default function UserManagement() {
   const [users, setUsers] = useState<User[]>([]);
@@ -98,13 +91,13 @@ export default function UserManagement() {
             user.referralData = referralSnapshot.docs.map(d => ({...d.data(), id: d.id}));
             user.pricingData = pricingSnapshot.docs.map(d => ({...d.data(), id: d.id}));
 
-            // if (user.referralCode) {
-            //     const referralsQuery = query(collection(db, 'users'), where('referralCode', '==', user.referralCode));
-            //     const referralsSnapshot = await getDocs(referralsQuery);
-            //     user.referrals = referralsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as User));
-            // } else {
-            //     user.referrals = [];
-            // }
+            if (user.referralCode) {
+                const referralsQuery = query(collection(db, 'users'), where('referralCode', '==', user.referralCode));
+                const referralsSnapshot = await getDocs(referralsQuery);
+                user.referrals = referralsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as User));
+            } else {
+                user.referrals = [];
+            }
             
             return user;
         });
@@ -116,23 +109,6 @@ export default function UserManagement() {
 
     return () => unsubscribe();
   }, []);
-
-  const formatDate = (timestamp: any) => {
-    if (timestamp && timestamp.toDate) {
-      return format(timestamp.toDate(), 'dd/MM/yyyy HH:mm');
-    }
-    if (timestamp instanceof Date) {
-        return format(timestamp, 'dd/MM/yyyy HH:mm');
-    }
-    if (typeof timestamp === 'string') {
-        try {
-            return format(new Date(timestamp), 'dd/MM/yyyy');
-        } catch (e) {
-            return String(timestamp); 
-        }
-    }
-    return 'N/A';
-  };
 
   const copyToClipboard = (text: string) => {
     if(!text) {
@@ -287,92 +263,85 @@ export default function UserManagement() {
         </Dialog>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Avatar</TableHead>
-              <TableHead>Username</TableHead>
-              <TableHead className="hidden lg:table-cell">Email</TableHead>
-              <TableHead>Statut</TableHead>
-              <TableHead className="hidden md:table-cell">Prénom</TableHead>
-              <TableHead className="hidden md:table-cell">Nom</TableHead>
-              <TableHead>
-                <span className="sr-only">Actions</span>
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {loading ? (
-                Array.from({ length: 5 }).map((_, i) => (
-                    <TableRow key={i}>
-                        <TableCell colSpan={7}>
-                           <Skeleton className="h-10 w-full" />
-                        </TableCell>
-                    </TableRow>
+                Array.from({ length: 8 }).map((_, i) => (
+                    <Card key={i} className="space-y-4 p-4">
+                        <div className="flex items-center gap-4">
+                            <Skeleton className="h-12 w-12 rounded-full" />
+                            <div className="space-y-2">
+                                <Skeleton className="h-4 w-32" />
+                                <Skeleton className="h-3 w-24" />
+                            </div>
+                        </div>
+                        <Skeleton className="h-8 w-full" />
+                    </Card>
                 ))
             ) : (
                 users.map((user) => (
-                <TableRow key={user.id}>
-                    <TableCell>
-                      <Avatar>
-                        <AvatarImage src={user.photoURL} alt={user.username} />
-                        <AvatarFallback>{user.username?.charAt(0).toUpperCase()}</AvatarFallback>
-                      </Avatar>
-                    </TableCell>
-                    <TableCell className="font-medium">{user.username || 'N/A'}</TableCell>
-                    <TableCell className="hidden lg:table-cell">{user.email}</TableCell>
-                    <TableCell>
-                      <Badge variant={user.isOnline ? 'default' : 'outline'} className={user.isOnline ? 'bg-green-500/20 text-green-500 border-green-500/30' : ''}>
-                        {user.isOnline ? 'En ligne' : 'Hors ligne'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">{user.firstName || 'N/A'}</TableCell>
-                    <TableCell className="hidden md:table-cell">{user.lastName || 'N/A'}</TableCell>
-                    <TableCell>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                        <Button aria-haspopup="true" size="icon" variant="ghost">
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Toggle menu</span>
-                        </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                        <DropdownMenuItem onSelect={() => handleDetailsClick(user)}>
-                            <Info className="mr-2 h-4 w-4" />
-                            Détails
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => user.uid && copyToClipboard(user.uid)}>
-                            <Copy className="mr-2 h-4 w-4" />
-                            Copier l'UID
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => handleActivatePlanClick(user)}>
-                            <Award className="mr-2 h-4 w-4" />
-                            Activer le forfait
-                        </DropdownMenuItem>
-                         <DropdownMenuItem onSelect={() => handleManageReferralClick(user)}>
-                            <Gift className="mr-2 h-4 w-4" />
-                            Gérer le parrainage
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => handleSendNotificationClick(user)}>
-                            <Send className="mr-2 h-4 w-4" />
-                            Envoyer une notification
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => handleEditUserClick(user)}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            Modifier
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => openDeleteDialog(user)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
-                            <Trash className="mr-2 h-4 w-4" />
-                            Supprimer
-                        </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                    </TableCell>
-                </TableRow>
+                    <Card key={user.id} className="flex flex-col justify-between p-4 transition-all hover:shadow-lg hover:scale-[1.02]">
+                        <div className="flex items-start justify-between">
+                            <div className="flex items-center gap-4">
+                                <div className="relative">
+                                    <Avatar className="h-12 w-12 border-2 border-transparent">
+                                        <AvatarImage src={user.photoURL} alt={user.username} />
+                                        <AvatarFallback>{user.username?.charAt(0).toUpperCase() || user.email.charAt(0).toUpperCase()}</AvatarFallback>
+                                    </Avatar>
+                                     <span className={cn(
+                                        "absolute bottom-0 right-0 block h-3 w-3 rounded-full border-2 border-background",
+                                        user.isOnline ? "bg-green-500" : "bg-gray-400"
+                                    )} />
+                                </div>
+                                <div>
+                                    <p className="font-bold text-base truncate">{user.username || 'N/A'}</p>
+                                    <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                                </div>
+                            </div>
+                             <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                <Button aria-haspopup="true" size="icon" variant="ghost" className="h-8 w-8">
+                                    <MoreHorizontal className="h-4 w-4" />
+                                    <span className="sr-only">Toggle menu</span>
+                                </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onSelect={() => handleDetailsClick(user)}>
+                                        <Info className="mr-2 h-4 w-4" />
+                                        Détails
+                                    </DropdownMenuItem>
+                                     <DropdownMenuItem onSelect={() => handleEditUserClick(user)}>
+                                        <Edit className="mr-2 h-4 w-4" />
+                                        Modifier
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onSelect={() => user.uid && copyToClipboard(user.uid)}>
+                                        <Copy className="mr-2 h-4 w-4" />
+                                        Copier l'UID
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onSelect={() => openDeleteDialog(user)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
+                                        <Trash className="mr-2 h-4 w-4" />
+                                        Supprimer
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
+                        <div className="mt-4 flex flex-col gap-2">
+                             <Button size="sm" variant="outline" onClick={() => handleActivatePlanClick(user)}>
+                                <Award className="mr-2 h-4 w-4" />
+                                Forfait
+                            </Button>
+                             <Button size="sm" variant="outline" onClick={() => handleManageReferralClick(user)}>
+                                <Gift className="mr-2 h-4 w-4" />
+                                Parrainage
+                            </Button>
+                             <Button size="sm" variant="outline" onClick={() => handleSendNotificationClick(user)}>
+                                <Send className="mr-2 h-4 w-4" />
+                                Notifier
+                            </Button>
+                        </div>
+                    </Card>
                 ))
             )}
-          </TableBody>
-        </Table>
+        </div>
       </CardContent>
     </Card>
      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
@@ -436,3 +405,5 @@ export default function UserManagement() {
     </>
   );
 }
+
+    
