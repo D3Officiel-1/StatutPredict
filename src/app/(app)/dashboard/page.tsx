@@ -3,7 +3,7 @@
 
 import { useState, useEffect }
 from 'react';
-import { collection, writeBatch, getDocs, serverTimestamp, addDoc, onSnapshot, query } from 'firebase/firestore';
+import { collection, writeBatch, getDocs, serverTimestamp, addDoc, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -33,6 +33,9 @@ export default function DashboardPage() {
   const [salesData, setSalesData] = useState<any[]>([]);
   const [revenueByApp, setRevenueByApp] = useState<any[]>([]);
   const [totalRevenue, setTotalRevenue] = useState(0);
+  const [totalSubscriptions, setTotalSubscriptions] = useState(0);
+  const [totalSignups, setTotalSignups] = useState(0);
+  const [activeUsers, setActiveUsers] = useState(0);
   const [isClient, setIsClient] = useState(false);
   const [isAddAppDialogOpen, setIsAddAppDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -56,7 +59,8 @@ export default function DashboardPage() {
     ];
     setSalesData(sales);
 
-    const unsubscribe = onSnapshot(collection(db, 'applications'), async (snapshot) => {
+    const appsQuery = query(collection(db, 'applications'));
+    const unsubscribeApps = onSnapshot(appsQuery, async (snapshot) => {
         const appsDataPromises = snapshot.docs.map(async (doc) => {
             const app = { id: doc.id, ...doc.data() } as Application;
             const plansQuery = query(collection(db, `applications/${app.id}/plans`));
@@ -69,7 +73,6 @@ export default function DashboardPage() {
 
         let totalRevenueCalculated = 0;
         const appRevenueData = appsWithPlans.map(app => {
-            // Simulate revenue based on plans
             const appRevenue = app.plans?.reduce((total, plan) => {
                 const simulatedSubscribers = Math.floor(Math.random() * 100) + 10;
                 return total + (plan.promoPrice ?? plan.price) * simulatedSubscribers;
@@ -87,7 +90,34 @@ export default function DashboardPage() {
         setTotalRevenue(totalRevenueCalculated);
     });
 
-    return () => unsubscribe();
+    const usersQuery = query(collection(db, 'users'));
+    const unsubscribeUsers = onSnapshot(usersQuery, (snapshot) => {
+      setTotalSignups(snapshot.size);
+
+      const activeUsersCount = snapshot.docs.filter(doc => doc.data().isOnline === true).length;
+      setActiveUsers(activeUsersCount);
+      
+      let subscriptionsCount = 0;
+      const userPromises = snapshot.docs.map(async (userDoc) => {
+        const pricingCol = collection(db, 'users', userDoc.id, 'pricing');
+        const pricingSnapshot = await getDocs(pricingCol);
+        if (!pricingSnapshot.empty) {
+            const jetpredictPlan = pricingSnapshot.docs.find(doc => doc.id === 'jetpredict');
+            if (jetpredictPlan && jetpredictPlan.data().actif_jetpredict) {
+                subscriptionsCount++;
+            }
+        }
+      });
+
+      Promise.all(userPromises).then(() => {
+        setTotalSubscriptions(subscriptionsCount);
+      });
+    });
+
+    return () => {
+        unsubscribeApps();
+        unsubscribeUsers();
+    };
   }, []);
   
   const handleGlobalMaintenance = async () => {
@@ -100,14 +130,10 @@ export default function DashboardPage() {
 
       appsSnapshot.forEach((doc) => {
         batch.update(doc.ref, { status: true }); // true for maintenance
-        
-        // We don't use batch for addDoc as it's not supported in the same way.
-        // We will add history documents separately.
       });
 
       await batch.commit();
 
-      // Now, add history records for each app
       const historyPromises = appsSnapshot.docs.map(doc => {
         return addDoc(historyCollection, {
           appId: doc.id,
@@ -135,19 +161,16 @@ export default function DashboardPage() {
   };
 
   const revenueGoal = Math.max(totalRevenue * 1.25, 50000); // Set a dynamic goal
-  const revenueProgress = (totalRevenue / revenueGoal) * 100;
+  const revenueProgress = totalRevenue > 0 ? (totalRevenue / revenueGoal) * 100 : 0;
   
-  const totalSubscriptions = 2350;
-  const subscriptionsGoal = 3000;
-  const subscriptionsProgress = (totalSubscriptions / subscriptionsGoal) * 100;
+  const subscriptionsGoal = Math.max(totalSubscriptions * 1.25, 100);
+  const subscriptionsProgress = totalSubscriptions > 0 ? (totalSubscriptions / subscriptionsGoal) * 100 : 0;
 
-  const totalSignups = 12234;
-  const signupsGoal = 15000;
-  const signupsProgress = (totalSignups / signupsGoal) * 100;
+  const signupsGoal = Math.max(totalSignups * 1.25, 500);
+  const signupsProgress = totalSignups > 0 ? (totalSignups / signupsGoal) * 100 : 0;
 
-  const activeUsers = 573;
-  const activeUsersGoal = 1000;
-  const activeUsersProgress = (activeUsers / activeUsersGoal) * 100;
+  const activeUsersGoal = Math.max(activeUsers * 1.25, 100);
+  const activeUsersProgress = activeUsers > 0 ? (activeUsers / activeUsersGoal) * 100 : 0;
 
   const recentActivities = [
     { type: 'user', description: 'Nouvel utilisateur : john.doe@example.com', time: 'il y a 5 minutes' },
@@ -232,7 +255,7 @@ export default function DashboardPage() {
           <CardContent>
             <div className="text-2xl font-bold">{totalRevenue.toLocaleString('fr-FR')} FCFA</div>
             <p className="text-xs text-muted-foreground">
-              +20.1% depuis le mois dernier
+              Basé sur des abonnés simulés
             </p>
             <Progress value={revenueProgress} className="mt-4 h-2" />
           </CardContent>
@@ -247,7 +270,7 @@ export default function DashboardPage() {
           <CardContent>
             <div className="text-2xl font-bold">+{totalSubscriptions}</div>
             <p className="text-xs text-muted-foreground">
-              +180.1% depuis le mois dernier
+              Nombre d'abonnements "JetPredict" actifs
             </p>
             <Progress value={subscriptionsProgress} className="mt-4 h-2" />
           </CardContent>
@@ -260,7 +283,7 @@ export default function DashboardPage() {
           <CardContent>
             <div className="text-2xl font-bold">+{totalSignups.toLocaleString('fr-FR')}</div>
             <p className="text-xs text-muted-foreground">
-              +19% depuis le mois dernier
+              Total des utilisateurs enregistrés
             </p>
             <Progress value={signupsProgress} className="mt-4 h-2" />
           </CardContent>
@@ -275,7 +298,7 @@ export default function DashboardPage() {
           <CardContent>
             <div className="text-2xl font-bold">+{activeUsers}</div>
             <p className="text-xs text-muted-foreground">
-              +201 depuis la dernière heure
+              Utilisateurs actuellement en ligne
             </p>
              <Progress value={activeUsersProgress} className="mt-4 h-2" />
           </CardContent>
@@ -287,7 +310,7 @@ export default function DashboardPage() {
           <CardHeader>
             <CardTitle as="h3">Vue d'ensemble des revenus</CardTitle>
             <CardDescription>
-              Aperçu des revenus mensuels pour l'année en cours.
+              Aperçu des revenus mensuels pour l'année en cours (données simulées).
             </CardDescription>
           </CardHeader>
           <CardContent className="pl-2">
@@ -328,7 +351,7 @@ export default function DashboardPage() {
         <Card className="lg:col-span-2">
             <CardHeader>
                 <CardTitle as="h3">Répartition des revenus</CardTitle>
-                <CardDescription>Part des revenus par application.</CardDescription>
+                <CardDescription>Part des revenus par application (simulée).</CardDescription>
             </CardHeader>
             <CardContent>
                  <ResponsiveContainer width="100%" height={350}>
@@ -388,5 +411,7 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
 
     
