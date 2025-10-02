@@ -1,106 +1,93 @@
 'use client';
 
 import { TrendingUp } from "lucide-react"
-import { Bar, BarChart, CartesianGrid, LabelList, Line, LineChart, XAxis, YAxis } from "recharts"
+import { Line, LineChart, CartesianGrid, XAxis, YAxis } from "recharts"
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
+import { useEffect, useState } from "react";
 
-const chartData = [
-  { time: "4:00am", responseTime: parseFloat((Math.random() * 0.4 + 0.1).toFixed(2)) },
-  { time: "5:00am", responseTime: parseFloat((Math.random() * 0.4 + 0.1).toFixed(2)) },
-  { time: "6:00am", responseTime: parseFloat((Math.random() * 0.4 + 0.1).toFixed(2)) },
-  { time: "7:00am", responseTime: parseFloat((Math.random() * 0.4 + 0.1).toFixed(2)) },
-  { time: "8:00am", responseTime: parseFloat((Math.random() * 0.4 + 0.1).toFixed(2)) },
-  { time: "9:00am", responseTime: parseFloat((Math.random() * 0.4 + 0.1).toFixed(2)) },
-  { time: "10:00am", responseTime: parseFloat((Math.random() * 0.4 + 0.1).toFixed(2)) },
-  { time: "11:00am", responseTime: parseFloat((Math.random() * 0.4 + 0.1).toFixed(2)) },
-  { time: "12:00pm", responseTime: parseFloat((Math.random() * 0.4 + 0.1).toFixed(2)) },
-  { time: "1:00pm", responseTime: parseFloat((Math.random() * 0.4 + 0.1).toFixed(2)) },
-  { time: "2:00pm", responseTime: parseFloat((Math.random() * 0.4 + 0.1).toFixed(2)) },
-  { time: "3:00pm", responseTime: parseFloat((Math.random() * 0.4 + 0.1).toFixed(2)) },
-  { time: "4:00pm", responseTime: parseFloat((Math.random() * 0.4 + 0.1).toFixed(2)) },
-  { time: "5:00pm", responseTime: parseFloat((Math.random() * 0.4 + 0.1).toFixed(2)) },
-  { time: "6:00pm", responseTime: parseFloat((Math.random() * 0.4 + 0.1).toFixed(2)) },
-  { time: "7:00pm", responseTime: parseFloat((Math.random() * 0.4 + 0.1).toFixed(2)) },
-  { time: "8:00pm", responseTime: parseFloat((Math.random() * 0.4 + 0.1).toFixed(2)) },
-  { time: "9:00pm", responseTime: parseFloat((Math.random() * 0.4 + 0.1).toFixed(2)) },
-  { time: "10:00pm", responseTime: parseFloat((Math.random() * 0.4 + 0.1).toFixed(2)) },
-  { time: "11:00pm", responseTime: parseFloat((Math.random() * 0.4 + 0.1).toFixed(2)) },
-  { time: "12:00am", responseTime: parseFloat((Math.random() * 0.4 + 0.1).toFixed(2)) },
-];
+const generateChartData = () => {
+    const data = [];
+    for (let i = 0; i < 24; i++) {
+        let responseTime;
+        // Create some spikes to look like a heartbeat
+        if (i % 6 === 0) {
+            responseTime = parseFloat((Math.random() * 0.2 + 0.3).toFixed(2)); // Spike
+        } else if (i % 6 === 1) {
+            responseTime = parseFloat((Math.random() * 0.1 + 0.05).toFixed(2)); // Dip
+        }
+        else {
+            responseTime = parseFloat((Math.random() * 0.1 + 0.1).toFixed(2)); // Baseline
+        }
+        data.push({ time: `${i}:00`, responseTime });
+    }
+    return data;
+};
+
 
 const chartConfig = {
   responseTime: {
     label: "Temps de réponse (s)",
-    color: "hsl(var(--primary))",
+    color: "hsl(var(--chart-2))",
   },
 }
 
 export default function ResponseTimeChart() {
+    const [chartData, setChartData] = useState(generateChartData());
+
+    useEffect(() => {
+        // This avoids hydration mismatch by generating data on client
+        setChartData(generateChartData());
+    }, [])
+
   return (
-    <ChartContainer config={chartConfig} className="h-[200px] w-full">
+    <ChartContainer config={chartConfig} className="h-[150px] w-full">
       <LineChart
         accessibilityLayer
         data={chartData}
         margin={{
-          left: 12,
-          right: 12,
+          top: 5,
+          right: 10,
+          left: 10,
+          bottom: 5,
         }}
       >
-        <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted-foreground/20"/>
+        <CartesianGrid 
+            strokeDasharray="3 3" 
+            stroke="hsl(var(--chart-2) / 0.2)"
+        />
         <XAxis
-          dataKey="time"
-          tickLine={false}
-          axisLine={false}
-          tickMargin={8}
-          tickFormatter={(value, index) => {
-            const date = new Date(`2024-01-01T${value.replace(/am|pm/i, '')}:00`);
-            const hour = date.getHours();
-            if (hour % 4 === 0) {
-              return value;
-            }
-            return "";
-          }}
-          style={{ fontSize: '12px', fill: 'hsl(var(--muted-foreground))' }}
+            dataKey="time"
+            tickLine={false}
+            axisLine={false}
+            tickMargin={8}
+            tickFormatter={() => ""}
         />
         <YAxis
           domain={[0, 0.6]}
           tickLine={false}
           axisLine={false}
           tickMargin={8}
-          tickFormatter={(value) => `${value.toFixed(2)} s`}
-          style={{ fontSize: '12px', fill: 'hsl(var(--muted-foreground))' }}
+          tickFormatter={() => ""}
         />
         <ChartTooltip
-          cursor={false}
+          cursor={{stroke: 'hsl(var(--chart-2))', strokeWidth: 1, strokeDasharray: '3 3'}}
           content={
             <ChartTooltipContent
-              hideLabel
-              formatter={(value, name) => (
-                <div className="flex flex-col items-start gap-1">
-                  <span className="font-semibold text-foreground">{`${value} s`}</span>
-                  <span className="text-muted-foreground">{name}</span>
-                </div>
-              )}
+              hideIndicator
+              labelFormatter={(value, payload) => payload?.[0]?.payload.time || value}
+              formatter={(value) => [`${value} s`, "Réponse"]}
             />
           }
         />
         <Line
           dataKey="responseTime"
           type="monotone"
-          stroke="hsl(var(--primary))"
+          stroke="hsl(var(--chart-2))"
           strokeWidth={2}
           dot={false}
         />
