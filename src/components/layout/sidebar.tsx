@@ -36,10 +36,16 @@ const AppSidebar = () => {
     return pathname.startsWith(path) && path !== '/';
   };
 
+  const handleLinkClick = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
+
   return (
     <div className="flex flex-col h-full bg-background/90 backdrop-blur-sm border-r border-border/50">
       <SidebarHeader className="p-4 border-b border-border/50 flex justify-between items-center">
-        <Link href="/dashboard" className="flex items-center gap-3">
+        <Link href="/dashboard" className="flex items-center gap-3" onClick={handleLinkClick}>
           <Image src="https://i.postimg.cc/jS25XGKL/Capture-d-cran-2025-09-03-191656-4-removebg-preview.png" width={40} height={40} alt="Statut Predict Logo" />
           <span className="text-lg font-semibold font-headline text-sidebar-foreground">
             Statut Predict
@@ -61,7 +67,7 @@ const AppSidebar = () => {
               tooltip="Tableau de bord"
               className="justify-center text-lg"
             >
-              <Link href="/dashboard">
+              <Link href="/dashboard" onClick={handleLinkClick}>
                 <LayoutDashboard className="h-5 w-5" />
                 <span>Tableau de bord</span>
               </Link>
@@ -74,7 +80,7 @@ const AppSidebar = () => {
               tooltip="Statut des applications"
               className="justify-center text-lg"
             >
-              <Link href="/status">
+              <Link href="/status" onClick={handleLinkClick}>
                 <HeartPulse className="h-5 w-5" />
                 <span>Statut</span>
               </Link>
@@ -87,7 +93,7 @@ const AppSidebar = () => {
               tooltip="Notifications"
               className="justify-center text-lg"
             >
-              <Link href="/notifications">
+              <Link href="/notifications" onClick={handleLinkClick}>
                 <Send className="h-5 w-5" />
                 <span>Notifications</span>
               </Link>
@@ -100,7 +106,7 @@ const AppSidebar = () => {
               tooltip="Tarifs"
               className="justify-center text-lg"
             >
-              <Link href="/pricing">
+              <Link href="/pricing" onClick={handleLinkClick}>
                 <Banknote className="h-5 w-5" />
                 <span>Tarifs</span>
               </Link>
@@ -113,7 +119,7 @@ const AppSidebar = () => {
               tooltip="Codes de réduction"
               className="justify-center text-lg"
             >
-              <Link href="/discounts">
+              <Link href="/discounts" onClick={handleLinkClick}>
                 <TicketPercent className="h-5 w-5" />
                 <span>Codes de réduction</span>
               </Link>
@@ -126,7 +132,7 @@ const AppSidebar = () => {
               tooltip="Maintenance"
               className="justify-center text-lg"
             >
-              <Link href="/maintenance-programs">
+              <Link href="/maintenance-programs" onClick={handleLinkClick}>
                 <Wrench className="h-5 w-5" />
                 <span>Maintenance</span>
               </Link>
@@ -139,7 +145,7 @@ const AppSidebar = () => {
               tooltip="Utilisateurs"
               className="justify-center text-lg"
             >
-              <Link href="/users">
+              <Link href="/users" onClick={handleLinkClick}>
                 <Users className="h-5 w-5" />
                 <span>Utilisateurs</span>
               </Link>
@@ -152,7 +158,7 @@ const AppSidebar = () => {
               tooltip="Paramètres"
               className="justify-center text-lg"
             >
-              <Link href="/settings">
+              <Link href="/settings" onClick={handleLinkClick}>
                 <Settings className="h-5 w-5" />
                 <span>Paramètres</span>
               </Link>
@@ -165,7 +171,7 @@ const AppSidebar = () => {
               tooltip="Page de Statut Publique"
               className="justify-center text-lg"
             >
-              <Link href="/" target="_blank">
+              <Link href="/" target="_blank" onClick={handleLinkClick}>
                 <ShieldCheck className="h-5 w-5" />
                 <span>Page Publique</span>
               </Link>
