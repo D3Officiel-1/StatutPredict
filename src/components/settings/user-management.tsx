@@ -255,9 +255,9 @@ export default function UserManagement() {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             {loading ? (
-                Array.from({ length: 8 }).map((_, i) => (
+                Array.from({ length: 6 }).map((_, i) => (
                     <Card key={i} className="space-y-4 p-4">
                         <div className="flex items-center gap-4">
                             <Skeleton className="h-12 w-12 rounded-full" />
@@ -408,7 +408,3 @@ export default function UserManagement() {
     </>
   );
 }
-
-    
-
-
