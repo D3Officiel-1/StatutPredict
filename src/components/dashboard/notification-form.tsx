@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -236,203 +237,207 @@ export default function NotificationForm() {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <CardHeader>
-            <CardTitle as="h4" className="font-headline text-base">
-              Envoyer une notification
+            <CardTitle as="h2" className="text-2xl font-bold tracking-tight font-headline">
+              Créateur de Notifications
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <FormField
-              control={form.control}
-              name="currentEvents"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Événements actuels</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Décrivez un événement, ex: 'Mise à jour majeure du serveur prévue ce soir...'" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <CardContent className="space-y-8">
+            <div className="p-6 border rounded-lg bg-background/50">
+                <FormField
+                control={form.control}
+                name="currentEvents"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel className="text-base font-semibold">Événements actuels</FormLabel>
+                    <FormControl>
+                        <Textarea placeholder="Décrivez un événement, ex: 'Mise à jour majeure du serveur prévue ce soir...'" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
 
-            <Button
-              type="button"
-              onClick={handleGenerateSuggestions}
-              disabled={isGenerating || !currentEventsValue || currentEventsValue.length < 10}
-              className="w-full"
-            >
-              {isGenerating ? <CustomLoader /> : <Sparkles />}
-              <span>Générer des suggestions</span>
-            </Button>
-            
-            {suggestions.length > 0 && (
-              <div className="space-y-2">
-                <p className="text-sm font-medium">Suggestions IA :</p>
-                <ScrollArea className="h-32 rounded-md border p-2">
-                  <div className="space-y-2">
-                    {suggestions.map((s, i) => (
-                      <div
-                        key={i}
-                        className="text-sm p-2 rounded-md cursor-pointer bg-accent/50 hover:bg-accent"
-                        onClick={() => useSuggestion(s)}
-                      >
-                        {s}
-                      </div>
-                    ))}
-                  </div>
-                </ScrollArea>
-              </div>
-            )}
+                <Button
+                type="button"
+                onClick={handleGenerateSuggestions}
+                disabled={isGenerating || !currentEventsValue || currentEventsValue.length < 10}
+                className="w-full mt-4"
+                >
+                {isGenerating ? <CustomLoader /> : <><Sparkles className="mr-2" />Générer des suggestions</>}
+                </Button>
+                
+                {suggestions.length > 0 && (
+                <div className="space-y-2 mt-4">
+                    <p className="text-sm font-medium">Suggestions IA :</p>
+                    <ScrollArea className="h-32 rounded-md border p-2 bg-background">
+                    <div className="space-y-2">
+                        {suggestions.map((s, i) => (
+                        <div
+                            key={i}
+                            className="text-sm p-2 rounded-md cursor-pointer bg-accent/50 hover:bg-accent"
+                            onClick={() => useSuggestion(s)}
+                        >
+                            {s}
+                        </div>
+                        ))}
+                    </div>
+                    </ScrollArea>
+                </div>
+                )}
+            </div>
 
-            <FormField
-              control={form.control}
-              name="notificationMessage"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Message de notification</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Votre message pour les utilisateurs..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="p-6 border rounded-lg bg-background/50 space-y-6">
+                <FormField
+                control={form.control}
+                name="notificationMessage"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel className="text-base font-semibold">Message de notification</FormLabel>
+                    <FormControl>
+                        <Textarea placeholder="Votre message pour les utilisateurs..." {...field} rows={4} />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
 
-            <Tabs defaultValue="upload" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="upload">
-                        <Upload className="mr-2 h-4 w-4"/>
-                        Téléverser un média
-                    </TabsTrigger>
-                    <TabsTrigger value="library">
-                        <GalleryHorizontal className="mr-2 h-4 w-4"/>
-                        Bibliothèque
-                    </TabsTrigger>
-                </TabsList>
-                <TabsContent value="upload">
-                    <div className="space-y-4 rounded-md border p-4 mt-4">
-                        <h4 className="text-sm font-medium">Média (image, vidéo, audio)</h4>
-                        <FormField
-                            control={form.control}
-                            name="mediaUrl"
-                            render={() => (
-                                <FormItem>
-                                    <FormControl>
-                                        <Input type="file" accept="image/*,video/*,audio/*" onChange={handleFileUpload} disabled={isUploading} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        {isUploading && <CustomLoader />}
-                        {uploadedMediaUrl && !isUploading && (
-                             <div className="mt-2 relative w-full h-48">
-                                {uploadedMediaUrl.includes('video') ? (
-                                    <video src={uploadedMediaUrl} controls className="w-full h-full object-contain rounded-md" />
-                                ) : uploadedMediaUrl.includes('audio') ? (
-                                    <audio src={uploadedMediaUrl} controls className="w-full" />
-                                ) : (
-                                    <Image src={uploadedMediaUrl} alt="Média téléversé" layout="fill" className="rounded-md object-contain" />
+                <Tabs defaultValue="upload" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="upload">
+                            <Upload className="mr-2 h-4 w-4"/>
+                            Téléverser un média
+                        </TabsTrigger>
+                        <TabsTrigger value="library">
+                            <GalleryHorizontal className="mr-2 h-4 w-4"/>
+                            Bibliothèque
+                        </TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="upload">
+                        <div className="space-y-4 rounded-md border p-4 mt-4 bg-background">
+                            <h4 className="text-sm font-medium">Média (image, vidéo, audio)</h4>
+                            <FormField
+                                control={form.control}
+                                name="mediaUrl"
+                                render={() => (
+                                    <FormItem>
+                                        <FormControl>
+                                            <Input type="file" accept="image/*,video/*,audio/*" onChange={handleFileUpload} disabled={isUploading} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
                                 )}
-                            </div>
-                        )}
-                    </div>
-                </TabsContent>
-                <TabsContent value="library">
-                    <div className="mt-4">
-                        <MediaLibrary mediaItems={mediaLibrary} onSelect={handleMediaSelect} />
-                    </div>
-                </TabsContent>
-            </Tabs>
-            
-            <FormField
-              control={form.control}
-              name="targetApps"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Applications cibles</FormLabel>
-                    <Select onValueChange={(value) => {
-                      if (value === 'all') {
-                        field.onChange(applications.map(app => app.id));
-                      } else {
-                        field.onChange(value ? value.split(',') : []);
-                      }
-                    }}>
-                        <FormControl>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Sélectionnez une ou plusieurs apps" />
-                            </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                            {applications.length > 0 && (
-                                <SelectItem value="all">Toutes les applications</SelectItem>
+                            />
+                            {isUploading && <CustomLoader />}
+                            {uploadedMediaUrl && !isUploading && (
+                                <div className="mt-2 relative w-full h-48 bg-muted rounded-md overflow-hidden">
+                                    {uploadedMediaUrl.includes('video') ? (
+                                        <video src={uploadedMediaUrl} controls className="w-full h-full object-contain" />
+                                    ) : uploadedMediaUrl.includes('audio') ? (
+                                        <div className="flex items-center justify-center h-full"><audio src={uploadedMediaUrl} controls className="w-full" /></div>
+                                    ) : (
+                                        <Image src={uploadedMediaUrl} alt="Média téléversé" layout="fill" className="object-contain" />
+                                    )}
+                                </div>
                             )}
-                            {applications.map(app => (
-                                <SelectItem key={app.id} value={app.id}>{app.name}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                        </div>
+                    </TabsContent>
+                    <TabsContent value="library">
+                        <div className="mt-4">
+                            <MediaLibrary mediaItems={mediaLibrary} onSelect={handleMediaSelect} />
+                        </div>
+                    </TabsContent>
+                </Tabs>
+            </div>
 
-            <FormField
-              control={form.control}
-              name="targetUsers"
-              render={() => (
-                <FormItem>
-                  <div className="mb-4">
-                    <FormLabel className="text-base">Utilisateurs ciblés</FormLabel>
-                    <p className="text-sm text-muted-foreground">
-                      Envoyez la notification uniquement pour certains forfaits.
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    {userTiers.map((item) => (
-                      <FormField
-                        key={item.id}
-                        control={form.control}
-                        name="targetUsers"
-                        render={({ field }) => {
-                          return (
-                            <FormItem
-                              key={item.id}
-                              className="flex flex-row items-center space-x-3 space-y-0"
-                            >
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value?.includes(item.id)}
-                                  onCheckedChange={(checked) => {
-                                    return checked
-                                      ? field.onChange([...(field.value || []), item.id])
-                                      : field.onChange(
-                                          field.value?.filter(
-                                            (value) => value !== item.id
-                                          )
-                                        )
-                                  }}
-                                />
-                              </FormControl>
-                              <FormLabel className="font-normal">
-                                {item.label}
-                              </FormLabel>
-                            </FormItem>
-                          )
-                        }}
-                      />
-                    ))}
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 border rounded-lg bg-background/50">
+                <FormField
+                control={form.control}
+                name="targetApps"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel className="text-base font-semibold">Applications cibles</FormLabel>
+                        <Select onValueChange={(value) => {
+                        if (value === 'all') {
+                            field.onChange(applications.map(app => app.id));
+                        } else {
+                            field.onChange(value ? value.split(',') : []);
+                        }
+                        }}>
+                            <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Sélectionnez une ou plusieurs apps" />
+                                </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                {applications.length > 0 && (
+                                    <SelectItem value="all">Toutes les applications</SelectItem>
+                                )}
+                                {applications.map(app => (
+                                    <SelectItem key={app.id} value={app.id}>{app.name}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+
+                <FormField
+                control={form.control}
+                name="targetUsers"
+                render={() => (
+                    <FormItem>
+                    <div className="mb-2">
+                        <FormLabel className="text-base font-semibold">Utilisateurs ciblés</FormLabel>
+                        <p className="text-xs text-muted-foreground">
+                        Ciblez certains forfaits.
+                        </p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                        {userTiers.map((item) => (
+                        <FormField
+                            key={item.id}
+                            control={form.control}
+                            name="targetUsers"
+                            render={({ field }) => {
+                            return (
+                                <FormItem
+                                key={item.id}
+                                className="flex flex-row items-center space-x-3 space-y-0"
+                                >
+                                <FormControl>
+                                    <Checkbox
+                                    checked={field.value?.includes(item.id)}
+                                    onCheckedChange={(checked) => {
+                                        return checked
+                                        ? field.onChange([...(field.value || []), item.id])
+                                        : field.onChange(
+                                            field.value?.filter(
+                                                (value) => value !== item.id
+                                            )
+                                            )
+                                    }}
+                                    />
+                                </FormControl>
+                                <FormLabel className="font-normal text-sm">
+                                    {item.label}
+                                </FormLabel>
+                                </FormItem>
+                            )
+                            }}
+                        />
+                        ))}
+                    </div>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+            </div>
 
           </CardContent>
           <CardFooter>
-            <Button type="submit" className="w-full" disabled={isSubmitting || isUploading}>
-              {isSubmitting ? <CustomLoader /> : <Send />}
-              Envoyer la notification
+            <Button type="submit" className="w-full text-lg py-6" disabled={isSubmitting || isUploading}>
+              {isSubmitting ? <CustomLoader /> : <><Send className="mr-2" />Envoyer la notification</>}
             </Button>
           </CardFooter>
         </form>
