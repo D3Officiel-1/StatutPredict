@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Menu, X } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
@@ -37,10 +37,6 @@ export default function PublicMobileNav() {
                     <Image src="https://i.postimg.cc/jS25XGKL/Capture-d-cran-2025-09-03-191656-4-removebg-preview.png" width={32} height={32} alt="Statut Predict Logo" />
                     <span className="text-lg font-bold text-foreground">Statut Predict</span>
                 </Link>
-                <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
-                    <X className="h-5 w-5" />
-                    <span className="sr-only">Fermer le menu</span>
-                </Button>
             </div>
           <nav className="flex flex-col flex-1 items-center justify-center gap-6 p-6">
             {navLinks.map((link) => {
