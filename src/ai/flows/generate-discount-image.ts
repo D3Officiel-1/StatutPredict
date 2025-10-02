@@ -171,9 +171,9 @@ const generateDiscountImageFlow = ai.defineFlow(
         <text x="600" y="608" class="expiry">Expire le ${expiryDate}</text>
         
         <!-- App Logo -->
-        <g transform="translate(1010, 490)">
-            <rect x="0" y="0" width="150" height="60" rx="30" fill="url(#holo)" opacity="0.2"/>
-            <image href="https://i.postimg.cc/jS25XGKL/Capture-d-cran-2025-09-03-191656-4-removebg-preview.png" x="45" y="0" height="60" width="60" />
+        <g transform="translate(1045, 520)">
+            <rect x="0" y="0" width="70" height="70" rx="12" fill="rgba(255,255,255,0.05)"/>
+            <text x="35" y="52" font-family="sans-serif" font-size="48" font-weight="900" fill="rgba(255,255,255,0.7)" text-anchor="middle">D3</text>
         </g>
 
         <!-- Tiny product logo / shine bottom-right -->
