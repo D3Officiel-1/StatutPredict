@@ -49,7 +49,7 @@ export default function CanalPage() {
       <main className="container mx-auto px-4 py-8 md:px-6 md:py-12">
         <div className="mx-auto max-w-md">
             <div className="mb-8 text-center">
-                <h1 className="text-4xl font-bold tracking-tight font-headline">Canal Telegram</h1>
+                <h1 className="text-3xl md:text-4xl font-bold tracking-tight font-headline">Canal Telegram</h1>
                 <p className="mt-2 text-muted-foreground">Accédez à un flux exclusif de nouvelles, d'analyses et d'opportunités. Notre canal Telegram est votre accès direct à l'information privilégiée, conçue pour les esprits visionnaires.</p>
             </div>
           

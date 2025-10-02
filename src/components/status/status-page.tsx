@@ -236,10 +236,10 @@ export default function StatusPage() {
                     ) : (
                         <ShieldAlert className="h-12 w-12 text-orange-500 mx-auto mb-4" />
                     )}
-                    <h1 className="text-4xl font-bold tracking-tight text-foreground">
+                    <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
                         { allSystemsOperational ? "Tous les services sont opérationnels" : "Certains services sont en maintenance"}
                     </h1>
-                    <p className="text-muted-foreground">
+                    <p className="text-muted-foreground mt-2">
                         {operationalApps} sur {totalApps} services sont actifs.
                         Dernière mise à jour le{' '}
                         {lastUpdated
@@ -266,14 +266,14 @@ export default function StatusPage() {
                     return (
                     <AccordionItem value={groupName} key={groupName} className="border-none">
                     <Card className="bg-card/50">
-                        <AccordionTrigger className="p-6 hover:no-underline">
+                        <AccordionTrigger className="p-4 md:p-6 hover:no-underline">
                             <div className="flex justify-between items-center w-full">
                                 <CardHeader className="p-0">
-                                    <CardTitle as="h2" className="text-xl font-semibold">
+                                    <CardTitle as="h2" className="text-lg md:text-xl font-semibold">
                                         {groupName}
                                     </CardTitle>
                                 </CardHeader>
-                                <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-2 md:gap-4">
                                     <Badge variant={isGroupOperational ? 'default' : 'destructive'} className={isGroupOperational ? `bg-green-500/20 text-green-500 border-green-500/30` : ''}>
                                         <CheckCircle2 className="h-4 w-4 mr-2" /> {isGroupOperational ? 'Opérationnel' : 'Partiellement Opérationnel'}
                                     </Badge>

@@ -100,7 +100,7 @@ export default function PredictPage() {
       <main className="container mx-auto px-4 py-8 md:px-6 md:py-12">
         <div className="space-y-8">
           <div>
-            <h1 className="text-4xl font-bold tracking-tight font-headline text-center">Prédictions</h1>
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight font-headline text-center">Prédictions</h1>
             <p className="text-muted-foreground mt-2 text-center">
               Accédez à chacune de vos applications pour visualiser les prédictions et analyses.
             </p>

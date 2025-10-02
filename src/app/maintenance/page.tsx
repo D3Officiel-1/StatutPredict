@@ -149,13 +149,13 @@ export default function MaintenancePage() {
       <main className="container mx-auto px-4 py-8 md:px-6 md:py-12">
         <div className="mx-auto max-w-4xl">
           <div className="mb-12 text-center">
-            <h1 className="text-4xl font-bold tracking-tight font-headline">Historique des maintenances</h1>
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight font-headline">Historique des maintenances</h1>
             <p className="mt-2 text-muted-foreground">Suivi des incidents et des maintenances planifiées.</p>
             <div className="mt-4 flex items-center justify-center gap-4 text-muted-foreground">
                 <Button variant="ghost" size="icon" onClick={handlePrevMonth}>
                     <ChevronLeft className="h-5 w-5" />
                 </Button>
-                <span className="text-lg font-medium text-foreground">
+                <span className="text-lg font-medium text-foreground text-center">
                     {formatMonthYear(currentDate)} - {formatMonthYear(getEndDate(currentDate))}
                 </span>
                 <Button variant="ghost" size="icon" onClick={handleNextMonth}>
@@ -172,7 +172,7 @@ export default function MaintenancePage() {
               
               return (
                 <div key={month}>
-                  <h2 className="text-2xl font-semibold mb-4 font-headline">{month}</h2>
+                  <h2 className="text-xl md:text-2xl font-semibold mb-4 font-headline">{month}</h2>
                   <div className="relative pl-6 before:absolute before:left-[11px] before:top-0 before:h-full before:w-0.5 before:bg-border">
                     {isLoading ? (
                         <div className="space-y-4">

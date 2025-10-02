@@ -77,7 +77,7 @@ export default function ChainePage() {
             <main className="flex-grow container mx-auto px-4 py-8 md:px-6 md:py-12 flex items-center">
                 <div className="mx-auto w-full max-w-4xl">
                     <div className="mb-8 text-center">
-                        <h1 className="text-4xl font-bold tracking-tight font-headline">Notre chaîne WhatsApp</h1>
+                        <h1 className="text-3xl md:text-4xl font-bold tracking-tight font-headline">Notre chaîne WhatsApp</h1>
                         <p className="mt-2 text-muted-foreground">Suivez-nous pour ne rien manquer.</p>
                     </div>
 
