@@ -25,6 +25,12 @@ import CustomLoader from '../ui/custom-loader';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { cn } from '@/lib/utils';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const statusConfig = {
     'Résolu': { icon: CheckCircle, color: 'text-green-400', bgColor: 'bg-green-500/10' },
