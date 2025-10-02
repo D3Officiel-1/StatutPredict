@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -25,7 +26,7 @@ const GenerateDiscountImageOutputSchema = z.object({
   imageUrl: z
     .string()
     .describe(
-      'The data URI of the generated image.'
+      'A text description of the generated image.'
     ),
 });
 export type GenerateDiscountImageOutput = z.infer<
@@ -42,23 +43,24 @@ const prompt = ai.definePrompt({
   name: 'discountImagePrompt',
   input: {schema: GenerateDiscountImageInputSchema},
   prompt: `
-  Generate a visually appealing, premium, and modern promotional image for a discount code.
+  Generate a detailed text description for a visually appealing, premium, and modern promotional image for a discount code.
+  The description should be so vivid that an image generation AI could create the image from it.
   The image should be clean, eye-catching, and suitable for a high-end gaming or tech application.
 
-  Key elements to include in the image:
+  Key elements to include in the image description:
   - The discount percentage, very prominent: {{{percentage}}}% OFF
   - The discount code, clearly readable: {{{code}}}
   - The title of the promotion: {{{title}}}
   - The expiration date: "Expires on {{{expiryDate}}}"
 
-  Style guidelines:
-  - Use a dark theme, with colors like deep blue, purple, or dark gray as a background.
-  - Use glowing effects for the text, especially for the percentage and the code.
-  - The font should be modern and sharp.
-  - The layout should be balanced and professional.
+  Style guidelines for the description:
+  - Describe a dark theme, with colors like deep blue, purple, or dark gray as a background.
+  - Describe glowing effects for the text, especially for the percentage and the code.
+  - Describe a modern and sharp font.
+  - Describe a balanced and professional layout.
   - The overall feeling should be exclusive and exciting.
-  - Do not include any logos or brand names.
-  - Aspect ratio should be 16:9.
+  - Do not include any logos or brand names in the description.
+  - The aspect ratio should be 16:9.
   `,
 });
 
@@ -69,15 +71,10 @@ const generateDiscountImageFlow = ai.defineFlow(
     outputSchema: GenerateDiscountImageOutputSchema,
   },
   async (input) => {
-    const { media } = await ai.generate({
-        model: 'googleai/imagen-4.0-fast-generate-001',
+    const { text } = await ai.generate({
         prompt: prompt(input),
     });
 
-    if (!media.url) {
-        throw new Error('Image generation failed.');
-    }
-    
-    return { imageUrl: media.url };
+    return { imageUrl: text };
   }
 );
