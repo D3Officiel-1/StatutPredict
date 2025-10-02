@@ -2,8 +2,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, onSnapshot, orderBy, query, getDocs, doc, getDoc, where, addDoc, deleteDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { collection, onSnapshot, orderBy, query, getDocs, doc, where, deleteDoc } from 'firebase/firestore';
+import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
+import { db, app as firebaseApp } from '@/lib/firebase';
 import type { User } from '@/types';
 import {
   Card,
@@ -13,37 +14,24 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-  } from "@/components/ui/dialog"
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, UserPlus, Trash, Edit, Copy, Award, Gift, Send, Info } from 'lucide-react';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
+import { MoreHorizontal, Trash, Edit, Copy, Award, Gift, Send, Info, Mail, KeyRound } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import ActivatePlanDialog from './activate-plan-dialog';
 import ManageReferralDialog from './manage-referral-dialog';
@@ -53,11 +41,11 @@ import EditUserDialog from './edit-user-dialog';
 import CustomLoader from '../ui/custom-loader';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { cn } from '@/lib/utils';
+import { Checkbox } from '../ui/checkbox';
 
 export default function UserManagement() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   const [isActivatePlanDialogOpen, setIsActivatePlanDialogOpen] = useState(false);
   const [isManageReferralDialogOpen, setIsManageReferralDialogOpen] = useState(false);
   const [isSendNotificationDialogOpen, setIsSendNotificationDialogOpen] = useState(false);
@@ -67,7 +55,7 @@ export default function UserManagement() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [inviteEmail, setInviteEmail] = useState('');
+  const [selectedUserIds, setSelectedUserIds] = useState<Set<string>>(new Set());
   const { toast } = useToast();
 
   useEffect(() => {
@@ -110,6 +98,64 @@ export default function UserManagement() {
     return () => unsubscribe();
   }, []);
 
+  const handleUserSelection = (userId: string) => {
+    setSelectedUserIds(prev => {
+      const newSelection = new Set(prev);
+      if (newSelection.has(userId)) {
+        newSelection.delete(userId);
+      } else {
+        newSelection.add(userId);
+      }
+      return newSelection;
+    });
+  };
+
+  const handleSendPasswordReset = async () => {
+    if (selectedUserIds.size === 0) {
+        toast({
+            title: 'Aucun utilisateur sélectionné',
+            description: 'Veuillez sélectionner au moins un utilisateur.',
+            variant: 'destructive',
+        });
+        return;
+    }
+
+    setIsSubmitting(true);
+    const auth = getAuth(firebaseApp);
+    const selectedUsers = users.filter(user => selectedUserIds.has(user.id));
+    
+    const promises = selectedUsers.map(user => 
+        sendPasswordResetEmail(auth, user.email)
+            .then(() => ({ email: user.email, success: true }))
+            .catch((error) => ({ email: user.email, success: false, error: error.message }))
+    );
+
+    const results = await Promise.all(promises);
+    
+    const successfulEmails = results.filter(r => r.success).length;
+    const failedEmails = results.filter(r => !r.success).length;
+
+    if (successfulEmails > 0) {
+        toast({
+            title: 'E-mails de réinitialisation envoyés',
+            description: `${successfulEmails} e-mail(s) de réinitialisation de mot de passe ont été envoyés.`,
+        });
+    }
+
+    if (failedEmails > 0) {
+        toast({
+            title: 'Échec de l\'envoi',
+            description: `Impossible d'envoyer des e-mails à ${failedEmails} utilisateur(s). Vérifiez la console pour plus de détails.`,
+            variant: 'destructive',
+        });
+        results.filter(r => !r.success).forEach(r => console.error(`Failed to send to ${r.email}:`, r.error));
+    }
+
+    setSelectedUserIds(new Set());
+    setIsSubmitting(false);
+  };
+
+
   const copyToClipboard = (text: string) => {
     if(!text) {
         toast({
@@ -132,38 +178,6 @@ export default function UserManagement() {
       });
       console.error('Could not copy text: ', err);
     });
-  };
-
-  const handleInviteUser = async () => {
-    if (!inviteEmail) {
-        toast({ title: "L'email est requis", variant: 'destructive'});
-        return;
-    }
-    setIsSubmitting(true);
-    try {
-        const referralCode = 'user' + Date.now().toString().slice(-6);
-        const password = 'Predict0000';
-
-        await addDoc(collection(db, "users"), {
-            email: inviteEmail,
-            username: inviteEmail.split('@')[0],
-            createdAt: new Date(),
-            isOnline: false,
-            referralCode,
-            password, // Storing password directly might not be secure depending on your app's architecture
-        });
-        toast({
-            title: "Utilisateur invité",
-            description: `${inviteEmail} a été ajouté avec succès.`,
-        });
-        setInviteEmail('');
-        setIsInviteDialogOpen(false);
-    } catch (error) {
-        console.error("Error inviting user:", error);
-        toast({ title: 'Erreur', description: "Impossible d'inviter l'utilisateur", variant: 'destructive'});
-    } finally {
-        setIsSubmitting(false);
-    }
   };
 
   const handleDeleteUser = async () => {
@@ -230,37 +244,15 @@ export default function UserManagement() {
         <div>
           <CardTitle>Utilisateurs</CardTitle>
           <CardDescription>
-            Invitez et gérez les utilisateurs.
+            Gérez les utilisateurs, leurs forfaits et leurs parrainages.
           </CardDescription>
         </div>
-        <Dialog open={isInviteDialogOpen} onOpenChange={setIsInviteDialogOpen}>
-            <DialogTrigger asChild>
-                <Button>
-                    <UserPlus className="mr-2 h-4 w-4" />
-                    Inviter un utilisateur
-                </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md bg-card/90 border-border/50 rounded-xl">
-                <DialogHeader>
-                    <DialogTitle className="font-headline text-xl">Inviter un nouvel utilisateur</DialogTitle>
-                    <DialogDescription>
-                        Entrez l'email pour créer un nouveau profil utilisateur.
-                    </DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="email" className="text-muted-foreground">Email</Label>
-                        <Input id="email" type="email" placeholder="utilisateur@example.com" className="col-span-3" value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} />
-                    </div>
-                </div>
-                <DialogFooter>
-                    <Button type="button" variant="outline" onClick={() => setIsInviteDialogOpen(false)}>Annuler</Button>
-                    <Button onClick={handleInviteUser} disabled={isSubmitting}>
-                        {isSubmitting ? <CustomLoader /> : "Envoyer l'invitation"}
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+        <div className="flex gap-2">
+            <Button onClick={handleSendPasswordReset} disabled={selectedUserIds.size === 0 || isSubmitting}>
+                {isSubmitting ? <CustomLoader /> : <KeyRound className="mr-2 h-4 w-4" />}
+                Réinitialiser MDP
+            </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -279,7 +271,10 @@ export default function UserManagement() {
                 ))
             ) : (
                 users.map((user) => (
-                    <Card key={user.id} className="flex flex-col justify-between p-4 transition-all hover:shadow-lg hover:scale-[1.02]">
+                    <Card key={user.id} className={cn(
+                        "flex flex-col justify-between p-4 transition-all hover:shadow-lg hover:scale-[1.02] border-2",
+                        selectedUserIds.has(user.id) ? 'border-primary' : 'border-transparent'
+                    )}>
                         <div className="flex items-start justify-between">
                             <div className="flex items-center gap-4">
                                 <div className="relative">
@@ -337,6 +332,14 @@ export default function UserManagement() {
                                 <Send className="mr-2 h-4 w-4" />
                                 Notifier
                             </Button>
+                        </div>
+                        <div className="absolute top-2 left-2">
+                            <Checkbox
+                                checked={selectedUserIds.has(user.id)}
+                                onCheckedChange={() => handleUserSelection(user.id)}
+                                id={`select-${user.id}`}
+                                aria-label={`Select ${user.username}`}
+                            />
                         </div>
                     </Card>
                 ))
@@ -407,3 +410,4 @@ export default function UserManagement() {
 }
 
     
+
