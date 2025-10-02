@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { collection, writeBatch, getDocs } from 'firebase/firestore';
+import { collection, writeBatch, getDocs, serverTimestamp, addDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -37,12 +37,28 @@ export default function DashboardPage() {
       const appsCollection = collection(db, 'applications');
       const appsSnapshot = await getDocs(appsCollection);
       const batch = writeBatch(db);
+      const historyCollection = collection(db, 'app_status_history');
 
       appsSnapshot.forEach((doc) => {
         batch.update(doc.ref, { status: true }); // true for maintenance
+        
+        // We don't use batch for addDoc as it's not supported in the same way.
+        // We will add history documents separately.
       });
 
       await batch.commit();
+
+      // Now, add history records for each app
+      const historyPromises = appsSnapshot.docs.map(doc => {
+        return addDoc(historyCollection, {
+          appId: doc.id,
+          status: true, // true for maintenance
+          timestamp: serverTimestamp(),
+        });
+      });
+
+      await Promise.all(historyPromises);
+
       toast({
         title: 'Maintenance globale activée',
         description: 'Toutes les applications sont maintenant en mode maintenance.',
