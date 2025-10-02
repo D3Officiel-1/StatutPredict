@@ -57,59 +57,33 @@ const generateDiscountImageFlow = ai.defineFlow(
         ` 
       : '';
 
-
     const svg = `
     <svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="background" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:#1c253c;stop-opacity:1" />
-          <stop offset="100%" style="stop-color:#0f172a;stop-opacity:1" />
-        </linearGradient>
-        <linearGradient id="code-panel-bg" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" style="stop-color:rgba(255,255,255,0.15)" />
-          <stop offset="100%" style="stop-color:rgba(255,255,255,0.05)" />
-        </linearGradient>
-        
-        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+        <style>
+          .title { font-family: sans-serif; font-size: 42px; fill: #e0e0e0; font-weight: 600; text-anchor: start; letter-spacing: 0.5px; }
+          .bonus-label { font-family: sans-serif; font-size: 28px; fill: #a0a0a0; text-anchor: end; text-transform: uppercase; letter-spacing: 2px; }
+          .code { font-family: sans-serif; font-size: 110px; fill: #ffffff; font-weight: 700; text-anchor: middle; letter-spacing: 8px; }
+          .percentage-label { font-family: sans-serif; font-size: 28px; fill: #a0a0a0; text-anchor: start; }
+          .percentage-value { font-family: sans-serif; font-size: 64px; fill: #ffffff; font-weight: 700; text-anchor: start; }
+          .activations-label { font-family: sans-serif; font-size: 28px; fill: #a0a0a0; text-anchor: end; }
+          .activations-value { font-family: sans-serif; font-size: 64px; fill: #ffffff; font-weight: 700; text-anchor: end; }
+          .expiry { font-family: sans-serif; font-size: 24px; fill: #a0a0a0; text-anchor: middle; }
+        </style>
+        <filter id="glow">
           <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
           <feMerge>
             <feMergeNode in="coloredBlur"/>
             <feMergeNode in="SourceGraphic"/>
           </feMerge>
         </filter>
-
-        <style>
-          .title { font-family: 'Inter', 'Arial', sans-serif; font-size: 42px; fill: #e0e0e0; font-weight: 600; text-anchor: start; letter-spacing: 0.5px; }
-          .bonus-label { font-family: 'Inter', 'Arial', sans-serif; font-size: 28px; fill: #a0a0a0; text-anchor: end; text-transform: uppercase; letter-spacing: 2px; }
-          
-          .code { font-family: 'Inter', 'Arial', sans-serif; font-size: 110px; fill: #ffffff; font-weight: 700; text-anchor: middle; letter-spacing: 8px; }
-          
-          .percentage-label { font-family: 'Inter', 'Arial', sans-serif; font-size: 28px; fill: #a0a0a0; text-anchor: start; }
-          .percentage-value { font-family: 'Inter', 'Arial', sans-serif; font-size: 64px; fill: #ffffff; font-weight: 700; text-anchor: start; }
-          
-          .activations-label { font-family: 'Inter', 'Arial', sans-serif; font-size: 28px; fill: #a0a0a0; text-anchor: end; }
-          .activations-value { font-family: 'Inter', 'Arial', sans-serif; font-size: 64px; fill: #ffffff; font-weight: 700; text-anchor: end; }
-
-          .expiry { font-family: 'Inter', 'Arial', sans-serif; font-size: 24px; fill: #a0a0a0; text-anchor: middle; position: absolute; bottom: 20px;}
-        </style>
-        
-        <path id="ticket-path" d="M50,10 h1100 a10,10 0 0 1 10,10 v600 a10,10 0 0 1 -10,10 H50 a10,10 0 0 1 -10,-10 v-600 a10,10 0 0 1 10,-10 z
-           M 1150 50 C 1140 50, 1140 70, 1150 70 L 1150 570 C 1140 570, 1140 590, 1150 590
-           M 50 50 C 60 50, 60 70, 50 70 L 50 570 C 60 570, 60 590, 50 590"
-        />
-
-        <clipPath id="ticket-clip">
-            <use xlink:href="#ticket-path"/>
-        </clipPath>
       </defs>
       
-      <rect width="1200" height="630" fill="url(#background)" clip-path="url(#ticket-clip)" />
-      
-      <g clip-path="url(#ticket-clip)">
+      <g>
         <text x="100" y="100" class="title">${title}</text>
         <text x="1100" y="100" class="bonus-label">BONUS CODE</text>
         
-        <rect x="150" y="220" width="900" height="190" rx="20" fill="url(#code-panel-bg)" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" />
+        <rect x="150" y="220" width="900" height="190" rx="20" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" />
         <text x="600" y="350" class="code" filter="url(#glow)">${code}</text>
 
         <line x1="100" y1="500" x2="1100" y2="500" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
