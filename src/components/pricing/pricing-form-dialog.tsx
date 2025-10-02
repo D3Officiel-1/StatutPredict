@@ -143,142 +143,145 @@ export default function PricingFormDialog({ open, onOpenChange, app, pricingPlan
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-end z-50"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={() => onOpenChange(false)}
         >
           <motion.div
-            className="bg-card p-6 rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="bg-card w-full max-w-2xl h-full flex flex-col"
+            initial={{ x: "100%" }}
+            animate={{ x: "0%" }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", stiffness: 300, damping: 35 }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-center p-6 border-b">
               <div>
-                <h2 className="text-lg font-semibold">{isEditing ? 'Modifier le forfait' : 'Ajouter un forfait'} pour {app.name}</h2>
+                <h2 className="text-xl font-bold font-headline">{isEditing ? 'Modifier le forfait' : 'Ajouter un forfait'} pour {app.name}</h2>
                 <p className="text-sm text-muted-foreground">Remplissez les informations ci-dessous.</p>
               </div>
               <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
-                <X className="h-4 w-4" />
+                <X className="h-5 w-5" />
               </Button>
             </div>
 
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nom du forfait</FormLabel>
-                      <FormControl><Input placeholder="Premium" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="price"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Prix</FormLabel>
-                        <FormControl><Input type="number" placeholder="5000" {...field} /></FormControl>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                  />
-                   <FormField
-                    control={form.control}
-                    name="promoPrice"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Prix promotionnel (optionnel)</FormLabel>
-                        <FormControl><Input type="number" placeholder="4000" {...field} value={field.value ?? ''} onChange={field.onChange} /></FormControl>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                  />
-                </div>
-                 <FormField
-                    control={form.control}
-                    name="period"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Période de facturation</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Sélectionnez une période" />
-                                </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                                {periodOptions.map(opt => (
-                                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                                ))}
-                            </SelectContent>
-                            </Select>
+            <div className="flex-1 overflow-y-auto">
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full">
+                  <div className="p-6 space-y-8 flex-1">
+                      <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Nom du forfait</FormLabel>
+                            <FormControl><Input placeholder="Premium" {...field} /></FormControl>
                             <FormMessage />
-                        </FormItem>
-                    )}
-                    />
-                 <FormField
-                    control={form.control}
-                    name="features"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Fonctionnalités incluses</FormLabel>
-                        <FormControl><Textarea placeholder="Fonctionnalité 1\nFonctionnalité 2\nFonctionnalité 3" rows={5} {...field} /></FormControl>
-                        <FormDescription>Entrez chaque fonctionnalité sur une nouvelle ligne.</FormDescription>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="missingFeatures"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Fonctionnalités manquantes (optionnel)</FormLabel>
-                        <FormControl><Textarea placeholder="Fonctionnalité A\nFonctionnalité B" rows={3} {...field} value={field.value ?? ''} /></FormControl>
-                        <FormDescription>Listez les fonctionnalités non incluses dans ce plan.</FormDescription>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                 <FormField
-                    control={form.control}
-                    name="popular"
-                    render={({ field }) => (
-                        <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
-                        <FormControl>
-                            <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                            />
-                        </FormControl>
-                        <div className="space-y-1 leading-none">
-                            <FormLabel>Marquer comme populaire</FormLabel>
-                            <FormDescription>
-                                Met en évidence ce forfait sur la page de tarification.
-                            </FormDescription>
-                        </div>
-                        </FormItem>
-                    )}
-                />
-
-                <div className="flex justify-end gap-2 mt-8">
-                  <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Annuler</Button>
-                  <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? <CustomLoader /> : <><Save className="mr-2 h-4 w-4" /> Enregistrer</>}
-                  </Button>
-                </div>
-              </form>
-            </Form>
+                          </FormItem>
+                        )}
+                      />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField
+                          control={form.control}
+                          name="price"
+                          render={({ field }) => (
+                              <FormItem>
+                              <FormLabel>Prix</FormLabel>
+                              <FormControl><Input type="number" placeholder="5000" {...field} /></FormControl>
+                              <FormMessage />
+                              </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="promoPrice"
+                          render={({ field }) => (
+                              <FormItem>
+                              <FormLabel>Prix promotionnel (optionnel)</FormLabel>
+                              <FormControl><Input type="number" placeholder="4000" {...field} value={field.value ?? ''} onChange={field.onChange} /></FormControl>
+                              <FormMessage />
+                              </FormItem>
+                          )}
+                        />
+                      </div>
+                      <FormField
+                          control={form.control}
+                          name="period"
+                          render={({ field }) => (
+                              <FormItem>
+                                  <FormLabel>Période de facturation</FormLabel>
+                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
+                                      <SelectTrigger>
+                                          <SelectValue placeholder="Sélectionnez une période" />
+                                      </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                      {periodOptions.map(opt => (
+                                          <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                                      ))}
+                                  </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                              </FormItem>
+                          )}
+                          />
+                      <FormField
+                          control={form.control}
+                          name="features"
+                          render={({ field }) => (
+                              <FormItem>
+                              <FormLabel>Fonctionnalités incluses</FormLabel>
+                              <FormControl><Textarea placeholder="Fonctionnalité 1\nFonctionnalité 2\nFonctionnalité 3" rows={5} {...field} /></FormControl>
+                              <FormDescription>Entrez chaque fonctionnalité sur une nouvelle ligne.</FormDescription>
+                              <FormMessage />
+                              </FormItem>
+                          )}
+                      />
+                      <FormField
+                          control={form.control}
+                          name="missingFeatures"
+                          render={({ field }) => (
+                              <FormItem>
+                              <FormLabel>Fonctionnalités manquantes (optionnel)</FormLabel>
+                              <FormControl><Textarea placeholder="Fonctionnalité A\nFonctionnalité B" rows={3} {...field} value={field.value ?? ''} /></FormControl>
+                              <FormDescription>Listez les fonctionnalités non incluses dans ce plan.</FormDescription>
+                              <FormMessage />
+                              </FormItem>
+                          )}
+                      />
+                      <FormField
+                          control={form.control}
+                          name="popular"
+                          render={({ field }) => (
+                              <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
+                              <FormControl>
+                                  <Checkbox
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                  />
+                              </FormControl>
+                              <div className="space-y-1 leading-none">
+                                  <FormLabel>Marquer comme populaire</FormLabel>
+                                  <FormDescription>
+                                      Met en évidence ce forfait sur la page de tarification.
+                                  </FormDescription>
+                              </div>
+                              </FormItem>
+                          )}
+                      />
+                    </div>
+                  
+                  <div className="p-6 border-t bg-background/90 sticky bottom-0">
+                    <Button type="submit" disabled={isSubmitting} className="w-full text-lg py-6">
+                      {isSubmitting ? <CustomLoader /> : <><Save className="mr-2 h-4 w-4" /> Enregistrer</>}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            </div>
           </motion.div>
         </motion.div>
       )}
