@@ -41,10 +41,18 @@ const formSchema = z.object({
   buttonTitle: z.string().optional(),
   buttonUrl: z.string().url('Veuillez entrer une URL valide.').optional().or(z.literal('')),
   mediaUrl: z.string().url().optional().or(z.literal('')),
+  targetUsers: z.array(z.string()).optional(),
 });
 
 const CLOUDINARY_CLOUD_NAME = 'dlxomrluy';
 const CLOUDINARY_UPLOAD_PRESET = 'predict_uploads';
+
+const userTiers = [
+    { id: 'hourly', label: 'Horaire' },
+    { id: 'daily', label: 'Journalier' },
+    { id: 'weekly', label: 'Hebdomadaire' },
+    { id: 'monthly', label: 'Mensuel' },
+];
 
 export default function MaintenanceConfigDialog({ app, children, open, onOpenChange }: MaintenanceConfigDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -61,6 +69,7 @@ export default function MaintenanceConfigDialog({ app, children, open, onOpenCha
       buttonTitle: app.maintenanceConfig?.buttonTitle || '',
       buttonUrl: app.maintenanceConfig?.buttonUrl || '',
       mediaUrl: app.maintenanceConfig?.mediaUrl || '',
+      targetUsers: app.maintenanceConfig?.targetUsers || [],
     },
   });
 
@@ -85,6 +94,7 @@ export default function MaintenanceConfigDialog({ app, children, open, onOpenCha
       buttonTitle: app.maintenanceConfig?.buttonTitle || '',
       buttonUrl: app.maintenanceConfig?.buttonUrl || '',
       mediaUrl: mediaUrl,
+      targetUsers: app.maintenanceConfig?.targetUsers || [],
     });
     setUploadedMediaUrl(mediaUrl);
   }, [app, form, open]);
@@ -179,6 +189,7 @@ export default function MaintenanceConfigDialog({ app, children, open, onOpenCha
           buttonTitle: values.buttonTitle,
           buttonUrl: values.buttonUrl,
           mediaUrl: uploadedMediaUrl,
+          targetUsers: values.targetUsers || [],
         }
       });
       toast({
@@ -299,6 +310,58 @@ export default function MaintenanceConfigDialog({ app, children, open, onOpenCha
                     </TabsContent>
                   </Tabs>
 
+                  <div className="space-y-4 rounded-md border p-4">
+                        <FormField
+                            control={form.control}
+                            name="targetUsers"
+                            render={() => (
+                                <FormItem>
+                                <div className="mb-4">
+                                    <FormLabel className="text-base">Forfaits ciblés (Optionnel)</FormLabel>
+                                    <p className="text-sm text-muted-foreground">
+                                    Cochez les forfaits qui seront affectés par cette maintenance.
+                                    </p>
+                                </div>
+                                <div className="space-y-2">
+                                    {userTiers.map((item) => (
+                                    <FormField
+                                        key={item.id}
+                                        control={form.control}
+                                        name="targetUsers"
+                                        render={({ field }) => {
+                                        return (
+                                            <FormItem
+                                            key={item.id}
+                                            className="flex flex-row items-center space-x-3 space-y-0"
+                                            >
+                                            <FormControl>
+                                                <Checkbox
+                                                checked={field.value?.includes(item.id)}
+                                                onCheckedChange={(checked) => {
+                                                    return checked
+                                                    ? field.onChange([...(field.value || []), item.id])
+                                                    : field.onChange(
+                                                        field.value?.filter(
+                                                            (value) => value !== item.id
+                                                        )
+                                                        )
+                                                }}
+                                                />
+                                            </FormControl>
+                                            <FormLabel className="font-normal">
+                                                {item.label}
+                                            </FormLabel>
+                                            </FormItem>
+                                        )
+                                        }}
+                                    />
+                                    ))}
+                                </div>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                  </div>
 
                   <div className="space-y-4 rounded-md border p-4">
                       <h4 className="text-sm font-medium">Bouton d'action (Optionnel)</h4>
@@ -344,5 +407,3 @@ export default function MaintenanceConfigDialog({ app, children, open, onOpenCha
     </>
   );
 }
-
-    

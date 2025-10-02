@@ -21,6 +21,7 @@ export interface Application {
     buttonTitle?: string;
     buttonUrl?: string;
     mediaUrl?: string;
+    targetUsers?: string[];
   };
   statusHistory?: AppStatusHistory[];
 }
