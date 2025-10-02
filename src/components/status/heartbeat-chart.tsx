@@ -48,7 +48,7 @@ export default function HeartbeatChart({ status }: HeartbeatChartProps) {
       <div className="absolute inset-0 grid-pattern-faded"></div>
       
       {/* SVG Container */}
-      <div className="w-full h-full">
+      <div className="w-full h-full animate-infinite-scroll">
         <svg
             className="w-[200%] h-full"
             preserveAspectRatio="none"

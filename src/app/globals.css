@@ -111,7 +111,7 @@ input[type=number] {
 
 @layer utilities {
   .animate-infinite-scroll {
-    animation: infinite-scroll 5s linear infinite;
+    animation: infinite-scroll 20s linear infinite;
   }
   @keyframes infinite-scroll {
     from {
