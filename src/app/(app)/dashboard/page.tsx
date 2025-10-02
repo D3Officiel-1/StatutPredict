@@ -17,13 +17,14 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import Link from 'next/link';
 import AddAppDialog from '@/components/settings/add-app-dialog';
 import { useToast } from '@/hooks/use-toast';
 import CustomLoader from '@/components/ui/custom-loader';
 import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
-import { Progress, CircleProgress } from '@/components/ui/progress';
+import { Progress } from '@/components/ui/progress';
 
 export default function DashboardPage() {
   const [salesData, setSalesData] = useState<any[]>([]);
