@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, onSnapshot, orderBy, query, deleteDoc, doc } from 'firebase/firestore';
+import { collection, onSnapshot, orderBy, query, deleteDoc, doc, addDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { DiscountCode } from '@/types';
 import {
@@ -38,13 +38,17 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, PlusCircle, Trash, Edit, Copy, Info } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Trash, Edit, Copy, Info, ImageIcon } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import DiscountCodeFormDialog from './discount-code-form-dialog';
 import CustomLoader from '../ui/custom-loader';
 import DiscountCodeDetailsDialog from './discount-code-details-dialog';
+import { generateDiscountImage } from '@/ai/flows/generate-discount-image';
+
+const CLOUDINARY_CLOUD_NAME = 'dlxomrluy';
+const CLOUDINARY_UPLOAD_PRESET = 'predict_uploads';
 
 export default function DiscountCodeManagement() {
   const [discountCodes, setDiscountCodes] = useState<DiscountCode[]>([]);
@@ -55,6 +59,7 @@ export default function DiscountCodeManagement() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [codeToDelete, setCodeToDelete] = useState<DiscountCode | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isGeneratingImage, setIsGeneratingImage] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -150,6 +155,65 @@ export default function DiscountCodeManagement() {
     return <Badge variant="outline">Inconnu</Badge>;
   };
 
+  const handleGenerateImage = async (code: DiscountCode) => {
+    setIsGeneratingImage(code.id);
+    toast({
+        title: "Génération d'image en cours...",
+        description: `Création de l'image pour le code "${code.titre}".`,
+    });
+    try {
+        const result = await generateDiscountImage({
+            code: code.code,
+            percentage: code.pourcentage,
+            title: code.titre,
+            expiryDate: formatDate(code.findate),
+        });
+
+        if (result.imageUrl) {
+            toast({
+                title: "Image générée !",
+                description: "Téléversement vers Cloudinary en cours...",
+            });
+
+            // Upload to Cloudinary
+            const formData = new FormData();
+            formData.append('file', result.imageUrl);
+            formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+            
+            const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/upload`, {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                
+                await addDoc(collection(db, 'media_library'), {
+                  url: data.secure_url,
+                  type: 'image/png',
+                  createdAt: new Date(),
+                });
+                
+                toast({
+                  title: 'Image enregistrée !',
+                  description: 'Votre image de bon de réduction a été ajoutée à la bibliothèque.',
+                });
+            } else {
+                throw new Error('Cloudinary upload failed');
+            }
+        }
+    } catch (error) {
+        console.error("Error generating or uploading image:", error);
+        toast({
+            title: "Erreur de génération d'image",
+            description: "Impossible de créer ou de téléverser l'image.",
+            variant: "destructive",
+        });
+    } finally {
+        setIsGeneratingImage(null);
+    }
+  };
+
   return (
     <>
       <Card>
@@ -214,8 +278,8 @@ export default function DiscountCodeManagement() {
                     <TableCell>
                       <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                          <Button aria-haspopup="true" size="icon" variant="ghost">
-                              <MoreHorizontal className="h-4 w-4" />
+                          <Button aria-haspopup="true" size="icon" variant="ghost" disabled={isGeneratingImage === code.id}>
+                              {isGeneratingImage === code.id ? <CustomLoader /> : <MoreHorizontal className="h-4 w-4" />}
                               <span className="sr-only">Toggle menu</span>
                           </Button>
                           </DropdownMenuTrigger>
@@ -227,6 +291,10 @@ export default function DiscountCodeManagement() {
                               <DropdownMenuItem onSelect={() => copyToClipboard(code.code)}>
                                   <Copy className="mr-2 h-4 w-4" />
                                   Copier le code
+                              </DropdownMenuItem>
+                               <DropdownMenuItem onSelect={() => handleGenerateImage(code)}>
+                                  <ImageIcon className="mr-2 h-4 w-4" />
+                                  Générer une image
                               </DropdownMenuItem>
                               <DropdownMenuItem onSelect={() => handleEditCode(code)}>
                                   <Edit className="mr-2 h-4 w-4" />
