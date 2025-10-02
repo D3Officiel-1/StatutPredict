@@ -5,8 +5,8 @@ import { useState } from 'react';
 import { collection, writeBatch, getDocs, serverTimestamp, addDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ShieldAlert, Plus, ExternalLink } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { ShieldAlert, Plus, ExternalLink, Users, DollarSign, Activity, BarChart as BarChartIcon } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,7 +22,22 @@ import Link from 'next/link';
 import AddAppDialog from '@/components/settings/add-app-dialog';
 import { useToast } from '@/hooks/use-toast';
 import CustomLoader from '@/components/ui/custom-loader';
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
 
+const salesData = [
+  { name: "Jan", total: Math.floor(Math.random() * 2000) + 500 },
+  { name: "Fév", total: Math.floor(Math.random() * 2000) + 500 },
+  { name: "Mar", total: Math.floor(Math.random() * 2000) + 500 },
+  { name: "Avr", total: Math.floor(Math.random() * 2000) + 500 },
+  { name: "Mai", total: Math.floor(Math.random() * 2000) + 500 },
+  { name: "Jui", total: Math.floor(Math.random() * 2000) + 500 },
+  { name: "Jul", total: Math.floor(Math.random() * 2000) + 500 },
+  { name: "Aoû", total: Math.floor(Math.random() * 2000) + 500 },
+  { name: "Sep", total: Math.floor(Math.random() * 2000) + 500 },
+  { name: "Oct", total: Math.floor(Math.random() * 2000) + 500 },
+  { name: "Nov", total: Math.floor(Math.random() * 2000) + 500 },
+  { name: "Déc", total: Math.floor(Math.random() * 2000) + 500 },
+];
 
 export default function DashboardPage() {
   const activeAppsCount = 4;
@@ -77,7 +92,7 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <Card className="border-0 shadow-none">
+      <Card className="border-0 shadow-none bg-transparent">
         <CardHeader className="p-0">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -131,6 +146,94 @@ export default function DashboardPage() {
           </div>
         </CardHeader>
       </Card>
+      
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle as="h3" className="text-sm font-medium">
+              Revenu Total
+            </CardTitle>
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">45,231.89 FCFA</div>
+            <p className="text-xs text-muted-foreground">
+              +20.1% depuis le mois dernier
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle as="h3" className="text-sm font-medium">
+              Abonnements
+            </CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">+2350</div>
+            <p className="text-xs text-muted-foreground">
+              +180.1% depuis le mois dernier
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle as="h3" className="text-sm font-medium">Inscriptions</CardTitle>
+            <BarChartIcon className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">+12,234</div>
+            <p className="text-xs text-muted-foreground">
+              +19% depuis le mois dernier
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle as="h3" className="text-sm font-medium">
+              Utilisateurs Actifs
+            </CardTitle>
+            <Activity className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">+573</div>
+            <p className="text-xs text-muted-foreground">
+              +201 depuis la dernière heure
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle as="h3">Vue d'ensemble</CardTitle>
+          <CardDescription>
+            Un aperçu de l'activité de votre plateforme.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pl-2">
+            <ResponsiveContainer width="100%" height={350}>
+                <BarChart data={salesData}>
+                    <XAxis
+                        dataKey="name"
+                        stroke="#888888"
+                        fontSize={12}
+                        tickLine={false}
+                        axisLine={false}
+                    />
+                    <YAxis
+                        stroke="#888888"
+                        fontSize={12}
+                        tickLine={false}
+                        axisLine={false}
+                        tickFormatter={(value) => `${value}`}
+                    />
+                    <Bar dataKey="total" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                </BarChart>
+            </ResponsiveContainer>
+        </CardContent>
+      </Card>
+
     </div>
   );
 }
