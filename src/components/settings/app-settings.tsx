@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -10,6 +11,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter
 } from '@/components/ui/card';
 import {
   Table,
@@ -37,11 +39,27 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, PlusCircle, Trash, Edit } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Trash, Edit, Globe, Smartphone, Server } from 'lucide-react';
 import AddAppDialog from './add-app-dialog';
 import EditAppDialog from './edit-app-dialog';
 import { useToast } from '@/hooks/use-toast';
 import CustomLoader from '../ui/custom-loader';
+import { Skeleton } from '../ui/skeleton';
+
+const AppIcon = ({ type }: { type: Application['type'] }) => {
+  const className = "h-5 w-5 text-muted-foreground";
+  switch (type) {
+    case 'web':
+      return <Globe className={className} />;
+    case 'mobile':
+      return <Smartphone className={className} />;
+    case 'api':
+      return <Server className={className} />;
+    default:
+      return null;
+  }
+};
+
 
 export default function AppSettings() {
   const [apps, setApps] = useState<Application[]>([]);
@@ -100,10 +118,26 @@ export default function AppSettings() {
     }
   };
 
+  const AppListSkeleton = () => (
+    <div className="space-y-4">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <Card key={i} className="p-4">
+          <div className="flex items-center justify-between">
+            <div className="space-y-2">
+              <Skeleton className="h-5 w-32" />
+              <Skeleton className="h-4 w-40" />
+            </div>
+            <Skeleton className="h-8 w-8 rounded-full" />
+          </div>
+        </Card>
+      ))}
+    </div>
+  );
+
   return (
     <>
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <CardTitle>Vos applications</CardTitle>
             <CardDescription>
@@ -111,43 +145,27 @@ export default function AppSettings() {
             </CardDescription>
           </div>
           <AddAppDialog open={isAddAppDialogOpen} onOpenChange={setIsAddAppDialogOpen}>
-            <Button>
+            <Button className="w-full md:w-auto">
               <PlusCircle className="mr-2 h-4 w-4" />
               Ajouter une app
             </Button>
           </AddAppDialog>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nom</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>URL / Endpoint</TableHead>
-                <TableHead>
-                  <span className="sr-only">Actions</span>
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading ? (
-                Array.from({ length: 3 }).map((_, i) => (
-                  <TableRow key={i}>
-                    <TableCell><div className="h-5 w-24 bg-muted animate-pulse rounded" /></TableCell>
-                    <TableCell><div className="h-5 w-16 bg-muted animate-pulse rounded" /></TableCell>
-                    <TableCell><div className="h-5 w-32 bg-muted animate-pulse rounded" /></TableCell>
-                    <TableCell><div className="h-8 w-8 bg-muted animate-pulse rounded" /></TableCell>
-                  </TableRow>
-                ))
-              ) : apps.map((app) => (
-                <TableRow key={app.id}>
-                  <TableCell className="font-medium">{app.name}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="capitalize">{app.type}</Badge>
-                  </TableCell>
-                  <TableCell>{app.url}</TableCell>
-                  <TableCell>
-                    <DropdownMenu>
+          {/* Mobile View - Cards */}
+          <div className="grid gap-4 md:hidden">
+            {loading ? <AppListSkeleton /> : apps.map((app) => (
+              <Card key={app.id} className="w-full">
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <CardTitle className="text-lg">{app.name}</CardTitle>
+                      <CardDescription className="flex items-center gap-2 pt-1">
+                        <AppIcon type={app.type} />
+                        <span className="capitalize">{app.type}</span>
+                      </CardDescription>
+                    </div>
+                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button aria-haspopup="true" size="icon" variant="ghost">
                           <MoreHorizontal className="h-4 w-4" />
@@ -168,11 +186,73 @@ export default function AppSettings() {
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
-                  </TableCell>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground truncate">{app.url}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Desktop View - Table */}
+          <div className="hidden md:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nom</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>URL / Endpoint</TableHead>
+                  <TableHead>
+                    <span className="sr-only">Actions</span>
+                  </TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {loading ? (
+                  Array.from({ length: 3 }).map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell><Skeleton className="h-5 w-24" /></TableCell>
+                      <TableCell><Skeleton className="h-5 w-16" /></TableCell>
+                      <TableCell><Skeleton className="h-5 w-32" /></TableCell>
+                      <TableCell><Skeleton className="h-8 w-8" /></TableCell>
+                    </TableRow>
+                  ))
+                ) : apps.map((app) => (
+                  <TableRow key={app.id}>
+                    <TableCell className="font-medium">{app.name}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="capitalize">{app.type}</Badge>
+                    </TableCell>
+                    <TableCell>{app.url}</TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button aria-haspopup="true" size="icon" variant="ghost">
+                            <MoreHorizontal className="h-4 w-4" />
+                            <span className="sr-only">Toggle menu</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onSelect={() => handleEditClick(app)}>
+                            <Edit className="mr-2 h-4 w-4" />
+                            Modifier
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="text-destructive focus:text-destructive focus:bg-destructive/10"
+                            onSelect={() => openDeleteDialog(app)}
+                          >
+                            <Trash className="mr-2 h-4 w-4" />
+                            Supprimer
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
       
@@ -203,3 +283,5 @@ export default function AppSettings() {
     </>
   );
 }
+
+    
