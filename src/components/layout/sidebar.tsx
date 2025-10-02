@@ -26,10 +26,11 @@ import {
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '../ui/button';
+import { cn } from '@/lib/utils';
 
 const AppSidebar = () => {
   const pathname = usePathname();
-  const { setOpenMobile, isMobile } = useSidebar();
+  const { setOpenMobile, isMobile, state } = useSidebar();
 
   const isActive = (path: string) => {
     if (path === '/dashboard') return pathname === path || pathname.startsWith('/dashboard');
@@ -45,9 +46,12 @@ const AppSidebar = () => {
   return (
     <div className="flex flex-col h-full bg-background/90 backdrop-blur-sm border-r border-border/50">
       <SidebarHeader className="p-4 border-b border-border/50 flex justify-between items-center">
-        <Link href="/dashboard" className="flex items-center gap-3" onClick={handleLinkClick}>
-          <Image src="https://i.postimg.cc/jS25XGKL/Capture-d-cran-2025-09-03-191656-4-removebg-preview.png" width={40} height={40} alt="Statut Predict Logo" />
-          <span className="text-lg font-semibold font-headline text-sidebar-foreground">
+        <Link href="/dashboard" className="flex items-center gap-3 overflow-hidden" onClick={handleLinkClick}>
+          <Image src="https://i.postimg.cc/jS25XGKL/Capture-d-cran-2025-09-03-191656-4-removebg-preview.png" width={40} height={40} alt="Statut Predict Logo" className="shrink-0" />
+          <span className={cn(
+              "text-lg font-semibold font-headline text-sidebar-foreground transition-opacity duration-300",
+              state === 'collapsed' && !isMobile && "opacity-0"
+            )}>
             Statut Predict
           </span>
         </Link>
@@ -59,7 +63,7 @@ const AppSidebar = () => {
       </SidebarHeader>
 
       <SidebarContent className="flex-1 flex items-center justify-center p-2">
-        <SidebarMenu className="w-full text-center">
+        <SidebarMenu className="w-full">
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
@@ -180,7 +184,10 @@ const AppSidebar = () => {
         </SidebarMenu>
       </SidebarContent>
 
-      <SidebarFooter className="p-4 border-t border-border/50 text-center">
+      <SidebarFooter className={cn(
+        "p-4 border-t border-border/50 text-center transition-opacity duration-300",
+        state === 'collapsed' && !isMobile && "opacity-0"
+      )}>
         <p className="text-xs text-muted-foreground">© 2025 Statut Predict — #D3 Officiel</p>
       </SidebarFooter>
     </div>
