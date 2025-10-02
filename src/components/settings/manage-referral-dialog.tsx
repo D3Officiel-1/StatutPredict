@@ -226,17 +226,17 @@ export default function ManageReferralDialog({ user, open, onOpenChange, onUserU
                         <CardContent className="flex-grow overflow-hidden">
                             <ScrollArea className="h-full">
                                 <div className="space-y-4">
-                                {user.referralData && user.referralData.length > 0 ? (
-                                    user.referralData.map((referral, index) => (
+                                {user.referralCommissions && user.referralCommissions.length > 0 ? (
+                                    user.referralCommissions.map((commission, index) => (
                                         <div key={index} className="p-3 bg-muted/50 rounded-md text-sm">
                                             <div className="flex justify-between items-center">
                                                 <div>
-                                                    <p><span className="font-semibold">De:</span> {referral.fromUser}</p>
-                                                    <p><span className="font-semibold">Montant:</span> {referral.amount} FCFA</p>
+                                                    <p><span className="font-semibold">De:</span> {commission.fromUser}</p>
+                                                    <p><span className="font-semibold">Montant:</span> {commission.amount} FCFA</p>
                                                 </div>
                                                 <div>
-                                                    <p><span className="font-semibold">Plan:</span> {referral.plan}</p>
-                                                    <p className="text-xs text-muted-foreground">{formatDate(referral.date)}</p>
+                                                    <p><span className="font-semibold">Plan:</span> {commission.plan}</p>
+                                                    <p className="text-xs text-muted-foreground">{formatDate(commission.date)}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -253,7 +253,7 @@ export default function ManageReferralDialog({ user, open, onOpenChange, onUserU
                 </div>
             </div>
 
-            <div className="flex justify-end gap-2 mt-6 pt-4 border-t">
+            <div className="flex justify-end gap-2 mt-6 pt-4 border-t border-border/50">
                 <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Fermer</Button>
             </div>
           </motion.div>
@@ -275,5 +275,3 @@ export default function ManageReferralDialog({ user, open, onOpenChange, onUserU
     </>
   );
 }
-
-    
