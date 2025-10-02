@@ -6,10 +6,10 @@ import { collection, onSnapshot, query, orderBy, getDocs, where, Timestamp } fro
 import { db } from '@/lib/firebase';
 import { Power, CheckCircle2, Megaphone, ChevronDown, ShieldAlert } from 'lucide-react';
 import type { Application, AppStatusHistory, HeartbeatStatus } from '@/types';
-import Link from 'next/link';
-import Image from 'next/image';
+import LogoLink from '../layout/logo-link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import Link from 'next/link';
 import {
   Accordion,
   AccordionContent,
@@ -195,12 +195,7 @@ export default function StatusPage() {
       <header className="bg-background/95 sticky top-0 z-10 border-b backdrop-blur-sm">
         <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
           <div className="flex-1">
-            <Link href="/login" className="flex items-center gap-2 md:gap-3">
-              <Image src="https://i.postimg.cc/jS25XGKL/Capture-d-cran-2025-09-03-191656-4-removebg-preview.png" width={32} height={32} alt="Statut Predict Logo" className="md:h-10 md:w-10" />
-              <span className="text-base md:text-lg font-bold font-headline text-foreground">
-                Statut Predict
-              </span>
-            </Link>
+            <LogoLink />
           </div>
           <nav className="hidden md:flex flex-1 justify-center items-center gap-6 text-sm font-medium">
                <Link href="/canal" className="text-foreground/60 transition-colors hover:text-foreground/80">
@@ -236,10 +231,10 @@ export default function StatusPage() {
                     ) : (
                         <ShieldAlert className="h-12 w-12 text-orange-500 mx-auto mb-4" />
                     )}
-                    <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
+                    <h1 className="text-2xl md:text-4xl font-bold tracking-tight text-foreground">
                         { allSystemsOperational ? "Tous les services sont opérationnels" : "Certains services sont en maintenance"}
                     </h1>
-                    <p className="text-muted-foreground mt-2">
+                    <p className="text-muted-foreground mt-2 md:text-base">
                         {operationalApps} sur {totalApps} services sont actifs.
                         Dernière mise à jour le{' '}
                         {lastUpdated

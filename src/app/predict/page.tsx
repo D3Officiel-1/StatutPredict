@@ -13,6 +13,7 @@ import Image from 'next/image';
 import { Skeleton } from '@/components/ui/skeleton';
 import PwaInstallButton from '@/components/pwa-install-button';
 import PublicMobileNav from '@/components/layout/public-mobile-nav';
+import LogoLink from '@/components/layout/logo-link';
 
 const AppIcon = ({ type }: { type: Application['type'] }) => {
   const className = "h-6 w-6 text-muted-foreground";
@@ -66,12 +67,7 @@ export default function PredictPage() {
        <header className="bg-background/95 sticky top-0 z-10 border-b backdrop-blur-sm">
         <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
           <div className="flex-1">
-            <Link href="/login" className="flex items-center gap-2 md:gap-3">
-              <Image src="https://i.postimg.cc/jS25XGKL/Capture-d-cran-2025-09-03-191656-4-removebg-preview.png" width={32} height={32} alt="Statut Predict Logo" className="md:h-10 md:w-10" />
-              <span className="text-base md:text-lg font-bold font-headline text-foreground">
-                Statut Predict
-              </span>
-            </Link>
+            <LogoLink />
           </div>
           <nav className="hidden md:flex flex-1 justify-center items-center gap-6 text-sm font-medium">
                <Link href="/canal" className="text-foreground/60 transition-colors hover:text-foreground/80">
@@ -100,8 +96,8 @@ export default function PredictPage() {
       <main className="container mx-auto px-4 py-8 md:px-6 md:py-12">
         <div className="space-y-8">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold tracking-tight font-headline text-center">Prédictions</h1>
-            <p className="text-muted-foreground mt-2 text-center">
+            <h1 className="text-2xl md:text-4xl font-bold tracking-tight font-headline text-center">Prédictions</h1>
+            <p className="text-muted-foreground mt-2 text-center md:text-base">
               Accédez à chacune de vos applications pour visualiser les prédictions et analyses.
             </p>
           </div>

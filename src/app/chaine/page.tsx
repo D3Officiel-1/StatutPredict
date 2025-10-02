@@ -7,6 +7,7 @@ import PwaInstallButton from '@/components/pwa-install-button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import PublicMobileNav from '@/components/layout/public-mobile-nav';
+import LogoLink from '@/components/layout/logo-link';
 
 const WhatsAppChannelCard = ({ title, description, link }: { title: string, description: string, link: string }) => (
     <Card>
@@ -43,12 +44,7 @@ export default function ChainePage() {
             <header className="bg-background/95 sticky top-0 z-10 border-b backdrop-blur-sm">
                 <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
                     <div className="flex-1">
-                        <Link href="/login" className="flex items-center gap-2 md:gap-3">
-                            <Image src="https://i.postimg.cc/jS25XGKL/Capture-d-cran-2025-09-03-191656-4-removebg-preview.png" width={32} height={32} alt="Statut Predict Logo" className="md:h-10 md:w-10" />
-                            <span className="text-base md:text-lg font-bold font-headline text-foreground">
-                                Statut Predict
-                            </span>
-                        </Link>
+                        <LogoLink />
                     </div>
                     <nav className="hidden md:flex flex-1 justify-center items-center gap-6 text-sm font-medium">
                         <Link href="/canal" className="text-foreground/60 transition-colors hover:text-foreground/80">
@@ -77,8 +73,8 @@ export default function ChainePage() {
             <main className="flex-grow container mx-auto px-4 py-8 md:px-6 md:py-12 flex items-center">
                 <div className="mx-auto w-full max-w-4xl">
                     <div className="mb-8 text-center">
-                        <h1 className="text-3xl md:text-4xl font-bold tracking-tight font-headline">Notre chaîne WhatsApp</h1>
-                        <p className="mt-2 text-muted-foreground">Suivez-nous pour ne rien manquer.</p>
+                        <h1 className="text-2xl md:text-4xl font-bold tracking-tight font-headline">Notre chaîne WhatsApp</h1>
+                        <p className="mt-2 text-muted-foreground md:text-base">Suivez-nous pour ne rien manquer.</p>
                     </div>
 
                     <div className="mx-auto max-w-md">

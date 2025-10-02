@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import Cookies from 'js-cookie';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -54,6 +55,8 @@ export default function LoginPage() {
           title: 'Connexion réussie !',
           description: 'Redirection vers le tableau de bord...',
         });
+        // Set a cookie for 7 days
+        Cookies.set('auth_token', 'true', { expires: 7, path: '/' });
         router.push('/dashboard');
       } else {
         toast({
