@@ -3,7 +3,7 @@
 
 import { useState, useEffect }
 from 'react';
-import { collection, writeBatch, getDocs, serverTimestamp, addDoc, onSnapshot, query, where } from 'firebase/firestore';
+import { collection, writeBatch, getDocs, serverTimestamp, addDoc, onSnapshot, query, where, collectionGroup } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -25,7 +25,7 @@ import { useToast } from '@/hooks/use-toast';
 import CustomLoader from '@/components/ui/custom-loader';
 import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell, Legend } from 'recharts';
 import { Progress } from '@/components/ui/progress';
-import type { Application, PricingPlan } from '@/types';
+import type { Application, PricingPlan, User, PricingItem } from '@/types';
 
 const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
 
@@ -60,63 +60,88 @@ export default function DashboardPage() {
     setSalesData(sales);
 
     const appsQuery = query(collection(db, 'applications'));
-    const unsubscribeApps = onSnapshot(appsQuery, async (snapshot) => {
-        const appsDataPromises = snapshot.docs.map(async (doc) => {
-            const app = { id: doc.id, ...doc.data() } as Application;
-            const plansQuery = query(collection(db, `applications/${app.id}/plans`));
-            const plansSnapshot = await getDocs(plansQuery);
-            app.plans = plansSnapshot.docs.map(planDoc => ({ id: planDoc.id, ...planDoc.data() } as PricingPlan));
-            return app;
-        });
-
-        const appsWithPlans = await Promise.all(appsDataPromises);
-
-        let totalRevenueCalculated = 0;
-        const appRevenueData = appsWithPlans.map(app => {
-            const appRevenue = app.plans?.reduce((total, plan) => {
-                const simulatedSubscribers = Math.floor(Math.random() * 100) + 10;
-                return total + (plan.promoPrice ?? plan.price) * simulatedSubscribers;
-            }, 0) || 0;
-            
-            totalRevenueCalculated += appRevenue;
-
-            return {
-                name: app.name,
-                value: appRevenue,
-            };
-        });
-        
-        setRevenueByApp(appRevenueData);
-        setTotalRevenue(totalRevenueCalculated);
-    });
-
     const usersQuery = query(collection(db, 'users'));
-    const unsubscribeUsers = onSnapshot(usersQuery, (snapshot) => {
-      setTotalSignups(snapshot.size);
 
-      const activeUsersCount = snapshot.docs.filter(doc => doc.data().isOnline === true).length;
-      setActiveUsers(activeUsersCount);
-      
-      let subscriptionsCount = 0;
-      const userPromises = snapshot.docs.map(async (userDoc) => {
-        const pricingCol = collection(db, 'users', userDoc.id, 'pricing');
-        const pricingSnapshot = await getDocs(pricingCol);
-        if (!pricingSnapshot.empty) {
-            const jetpredictPlan = pricingSnapshot.docs.find(doc => doc.id === 'jetpredict');
-            if (jetpredictPlan && jetpredictPlan.data().actif_jetpredict) {
-                subscriptionsCount++;
-            }
-        }
-      });
+    // Combined listener for apps and users
+    const unsubscribe = onSnapshot(usersQuery, (usersSnapshot) => {
+        getDocs(appsQuery).then(async (appsSnapshot) => {
+            const appsData = appsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Application));
+            
+            // 1. Fetch all plans for all apps
+            const allPlans: PricingPlan[] = [];
+            const plansPromises = appsData.map(app => getDocs(collection(db, `applications/${app.id}/plans`)));
+            const plansSnapshots = await Promise.all(plansPromises);
+            plansSnapshots.forEach((planSnap, index) => {
+                planSnap.docs.forEach(doc => {
+                    allPlans.push({ id: doc.id, appId: appsData[index].id, ...doc.data() } as PricingPlan);
+                });
+            });
 
-      Promise.all(userPromises).then(() => {
-        setTotalSubscriptions(subscriptionsCount);
-      });
+            // Map for quick lookup: planId -> plan object
+            const plansMap = new Map(allPlans.map(p => [p.id, p]));
+            
+            // Map for app revenue: appId -> revenue
+            const appRevenueMap = new Map<string, number>(appsData.map(app => [app.id, 0]));
+            let activeSubscriptionsCount = 0;
+
+            // 2. Fetch all users and their subscriptions
+            const usersDataPromises = usersSnapshot.docs.map(async (userDoc) => {
+                const user = { id: userDoc.id, ...userDoc.data() } as User;
+                const pricingCol = collection(db, 'users', userDoc.id, 'pricing');
+                const pricingSnapshot = await getDocs(pricingCol);
+                user.pricingData = pricingSnapshot.docs.map(d => ({ id: d.id, ...d.data() } as PricingItem));
+                return user;
+            });
+            const usersWithPricing = await Promise.all(usersDataPromises);
+
+            // 3. Calculate revenue
+            usersWithPricing.forEach(user => {
+                user.pricingData?.forEach(subscription => {
+                    // Handle new structure
+                    if (subscription.appId && subscription.planId && subscription.status === 'active') {
+                        activeSubscriptionsCount++;
+                        const plan = allPlans.find(p => p.appId === subscription.appId && p.id === subscription.planId);
+                        if (plan) {
+                            const currentRevenue = appRevenueMap.get(plan.appId) || 0;
+                            appRevenueMap.set(plan.appId, currentRevenue + (plan.promoPrice ?? plan.price));
+                        }
+                    }
+                    // Handle legacy structure for 'jetpredict'
+                    else if (subscription.actif_jetpredict) {
+                        activeSubscriptionsCount++;
+                        // Find the app "JetPredict" and one of its plans to associate the revenue
+                        const jetpredictApp = appsData.find(app => app.name.toLowerCase().includes('jetpredict'));
+                        if (jetpredictApp) {
+                            const plan = allPlans.find(p => p.appId === jetpredictApp.id && p.period === subscription.idplan_jetpredict);
+                             if (plan) {
+                                const currentRevenue = appRevenueMap.get(jetpredictApp.id) || 0;
+                                appRevenueMap.set(jetpredictApp.id, currentRevenue + (plan.promoPrice ?? plan.price));
+                            }
+                        }
+                    }
+                });
+            });
+
+            const revenueByAppData = appsData.map(app => ({
+                name: app.name,
+                value: appRevenueMap.get(app.id) || 0
+            }));
+
+            const totalRevenueCalculated = Array.from(appRevenueMap.values()).reduce((sum, current) => sum + current, 0);
+
+            setRevenueByApp(revenueByAppData);
+            setTotalRevenue(totalRevenueCalculated);
+            setTotalSubscriptions(activeSubscriptionsCount);
+        });
+
+        // Other user-based stats
+        setTotalSignups(usersSnapshot.size);
+        const activeUsersCount = usersSnapshot.docs.filter(doc => doc.data().isOnline === true).length;
+        setActiveUsers(activeUsersCount);
     });
 
     return () => {
-        unsubscribeApps();
-        unsubscribeUsers();
+        unsubscribe();
     };
   }, []);
   
@@ -255,7 +280,7 @@ export default function DashboardPage() {
           <CardContent>
             <div className="text-2xl font-bold">{totalRevenue.toLocaleString('fr-FR')} FCFA</div>
             <p className="text-xs text-muted-foreground">
-              Basé sur des abonnés simulés
+              Basé sur les abonnements actifs
             </p>
             <Progress value={revenueProgress} className="mt-4 h-2" />
           </CardContent>
@@ -270,7 +295,7 @@ export default function DashboardPage() {
           <CardContent>
             <div className="text-2xl font-bold">+{totalSubscriptions}</div>
             <p className="text-xs text-muted-foreground">
-              Nombre d'abonnements "JetPredict" actifs
+              Nombre d'abonnements actifs
             </p>
             <Progress value={subscriptionsProgress} className="mt-4 h-2" />
           </CardContent>
@@ -351,7 +376,7 @@ export default function DashboardPage() {
         <Card className="lg:col-span-2">
             <CardHeader>
                 <CardTitle as="h3">Répartition des revenus</CardTitle>
-                <CardDescription>Part des revenus par application (simulée).</CardDescription>
+                <CardDescription>Part des revenus par application (réelle).</CardDescription>
             </CardHeader>
             <CardContent>
                  <ResponsiveContainer width="100%" height={350}>

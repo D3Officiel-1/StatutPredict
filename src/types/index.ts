@@ -38,10 +38,15 @@ export interface ReferralItem {
 }
 
 export interface PricingItem {
-  actif_jetpredict: boolean;
-  findate: any;
-  idplan_jetpredict: string;
-  startdate: any;
+  id: string; // Document ID from 'pricing' subcollection
+  appId: string;
+  planId: string;
+  status: 'active' | 'cancelled' | 'expired';
+  startDate: Timestamp;
+  endDate: Timestamp;
+  // Legacy fields, can be removed if fully migrated
+  actif_jetpredict?: boolean;
+  idplan_jetpredict?: string;
 }
 
 export interface User {
