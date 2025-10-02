@@ -6,7 +6,7 @@ import AppHeader from '@/components/layout/header';
 export default function AppLayout({ children }: { children: ReactNode }) {
   return (
     <SidebarProvider>
-      <Sidebar variant="inset" side="left" collapsible="icon">
+      <Sidebar variant="sidebar" side="left" collapsible="icon">
         <AppSidebar />
       </Sidebar>
       <SidebarInset className="min-h-screen bg-background">

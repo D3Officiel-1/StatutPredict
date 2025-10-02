@@ -33,8 +33,8 @@ const AppSidebar = () => {
   };
 
   return (
-    <>
-      <SidebarHeader>
+    <div className="flex flex-col h-full bg-background/90 backdrop-blur-sm border-r border-border/50">
+      <SidebarHeader className="p-4 border-b border-border/50">
         <Link href="/dashboard" className="flex items-center gap-3">
           <Image src="https://i.postimg.cc/jS25XGKL/Capture-d-cran-2025-09-03-191656-4-removebg-preview.png" width={40} height={40} alt="Statut Predict Logo" />
           <span className="text-lg font-semibold font-headline text-sidebar-foreground">
@@ -43,16 +43,17 @@ const AppSidebar = () => {
         </Link>
       </SidebarHeader>
 
-      <SidebarContent className="p-2">
-        <SidebarMenu>
+      <SidebarContent className="flex-1 flex items-center justify-center p-2">
+        <SidebarMenu className="w-full text-center">
            <SidebarMenuItem>
             <SidebarMenuButton
               asChild
               isActive={false}
               tooltip="Page de Statut Publique"
+              className="justify-center text-lg"
             >
               <Link href="/" target="_blank">
-                <ShieldCheck />
+                <ShieldCheck className="h-5 w-5" />
                 <span>Page Publique</span>
               </Link>
             </SidebarMenuButton>
@@ -62,9 +63,10 @@ const AppSidebar = () => {
               asChild
               isActive={isActive('/dashboard')}
               tooltip="Tableau de bord"
+              className="justify-center text-lg"
             >
               <Link href="/dashboard">
-                <LayoutDashboard />
+                <LayoutDashboard className="h-5 w-5" />
                 <span>Tableau de bord</span>
               </Link>
             </SidebarMenuButton>
@@ -74,9 +76,10 @@ const AppSidebar = () => {
               asChild
               isActive={isActive('/status')}
               tooltip="Statut des applications"
+              className="justify-center text-lg"
             >
               <Link href="/status">
-                <HeartPulse />
+                <HeartPulse className="h-5 w-5" />
                 <span>Statut</span>
               </Link>
             </SidebarMenuButton>
@@ -86,9 +89,10 @@ const AppSidebar = () => {
               asChild
               isActive={isActive('/notifications')}
               tooltip="Notifications"
+              className="justify-center text-lg"
             >
               <Link href="/notifications">
-                <Send />
+                <Send className="h-5 w-5" />
                 <span>Notifications</span>
               </Link>
             </SidebarMenuButton>
@@ -98,9 +102,10 @@ const AppSidebar = () => {
               asChild
               isActive={isActive('/pricing')}
               tooltip="Tarifs"
+              className="justify-center text-lg"
             >
               <Link href="/pricing">
-                <Banknote />
+                <Banknote className="h-5 w-5" />
                 <span>Tarifs</span>
               </Link>
             </SidebarMenuButton>
@@ -110,9 +115,10 @@ const AppSidebar = () => {
               asChild
               isActive={isActive('/users')}
               tooltip="Utilisateurs"
+              className="justify-center text-lg"
             >
               <Link href="/users">
-                <Users />
+                <Users className="h-5 w-5" />
                 <span>Utilisateurs</span>
               </Link>
             </SidebarMenuButton>
@@ -122,9 +128,10 @@ const AppSidebar = () => {
               asChild
               isActive={isActive('/discounts')}
               tooltip="Codes de réduction"
+              className="justify-center text-lg"
             >
               <Link href="/discounts">
-                <TicketPercent />
+                <TicketPercent className="h-5 w-5" />
                 <span>Codes de réduction</span>
               </Link>
             </SidebarMenuButton>
@@ -134,9 +141,10 @@ const AppSidebar = () => {
               asChild
               isActive={isActive('/maintenance-programs')}
               tooltip="Maintenance"
+              className="justify-center text-lg"
             >
               <Link href="/maintenance-programs">
-                <Wrench />
+                <Wrench className="h-5 w-5" />
                 <span>Maintenance</span>
               </Link>
             </SidebarMenuButton>
@@ -146,9 +154,10 @@ const AppSidebar = () => {
               asChild
               isActive={isActive('/settings')}
               tooltip="Paramètres"
+              className="justify-center text-lg"
             >
               <Link href="/settings">
-                <Settings />
+                <Settings className="h-5 w-5" />
                 <span>Paramètres</span>
               </Link>
             </SidebarMenuButton>
@@ -156,9 +165,10 @@ const AppSidebar = () => {
         </SidebarMenu>
       </SidebarContent>
 
-      <SidebarFooter>
+      <SidebarFooter className="p-4 border-t border-border/50 text-center">
+        <p className="text-xs text-muted-foreground">© 2025 Statut Predict — #D3 Officiel</p>
       </SidebarFooter>
-    </>
+    </div>
   );
 };
 
