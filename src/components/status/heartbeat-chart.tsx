@@ -47,33 +47,33 @@ export default function HeartbeatChart({ status }: HeartbeatChartProps) {
       <div className="absolute inset-0 grid-pattern-faded"></div>
       
       {/* SVG Container */}
-      <svg
-        className="absolute inset-0 w-full h-full"
-        preserveAspectRatio="none"
-        viewBox="0 0 300 100"
-      >
-        {/* Glowing effect */}
-        <path
-          d={currentPath}
-          className={cn('filter-glow animate-pulse-slow', getLineColor())}
-          strokeWidth="3"
-          strokeLinecap="round"
-          fill="none"
-        />
-        {/* Main line */}
-         <path
-          d={currentPath}
-          className={cn('animate-draw', getLineColor())}
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          fill="none"
-        />
-      </svg>
+      <div className="w-full h-full animate-infinite-scroll" style={{ animationDuration: '5s' }}>
+        <svg
+            className="w-[200%] h-full"
+            preserveAspectRatio="none"
+            viewBox="0 0 600 100"
+        >
+            <path
+                d={`${currentPath} L300,50 ${currentPath.replace('M0,50', 'L300,50')}`}
+                className={cn('filter-glow animate-pulse-slow', getLineColor())}
+                strokeWidth="3"
+                strokeLinecap="round"
+                fill="none"
+            />
+            <path
+                d={`${currentPath} L300,50 ${currentPath.replace('M0,50', 'L300,50')}`}
+                className={cn(getLineColor())}
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+            />
+        </svg>
+      </div>
       
       {/* Fading overlay for scrolling effect */}
-      <div className="absolute top-0 right-0 h-full w-10 bg-gradient-to-l from-card/80 to-transparent"></div>
-      <div className="absolute top-0 left-0 h-full w-10 bg-gradient-to-r from-card/80 to-transparent"></div>
+      <div className="absolute top-0 right-0 h-full w-10 bg-gradient-to-l from-black/80 to-transparent z-10"></div>
+      <div className="absolute top-0 left-0 h-full w-10 bg-gradient-to-r from-black/80 to-transparent z-10"></div>
     </div>
   );
 }
