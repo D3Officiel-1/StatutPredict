@@ -169,6 +169,8 @@ export default function DiscountCodeManagement() {
             percentage: code.pourcentage,
             title: code.titre,
             expiryDate: formatDate(code.findate),
+            max: code.max,
+            people: code.people,
         });
 
         if (!result.imageUrl) {

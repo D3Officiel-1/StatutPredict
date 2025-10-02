@@ -17,6 +17,8 @@ const GenerateDiscountImageInputSchema = z.object({
   percentage: z.string().describe('The discount percentage.'),
   title: z.string().describe('The title of the promotion.'),
   expiryDate: z.string().describe('The expiry date of the discount code.'),
+  max: z.number().optional().describe('The maximum number of uses.'),
+  people: z.array(z.string()).optional().describe('The number of people who have used the code.'),
 });
 export type GenerateDiscountImageInput = z.infer<
   typeof GenerateDiscountImageInputSchema
@@ -46,48 +48,77 @@ const generateDiscountImageFlow = ai.defineFlow(
     outputSchema: GenerateDiscountImageOutputSchema,
   },
   async (input) => {
-    const { code, percentage, title, expiryDate } = input;
+    const { code, percentage, title, expiryDate, max, people } = input;
+    
+    const activationsText = max && max > 0 
+      ? `
+        <text x="1020" y="540" class="activations-label">Activations</text>
+        <text x="1020" y="585" class="activations-value">${people?.length || 0} / ${max}</text>
+        ` 
+      : '';
+
 
     const svg = `
-    <svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+    <svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
       <defs>
         <linearGradient id="background" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:#0a1221;stop-opacity:1" />
-          <stop offset="100%" style="stop-color:#1a233a;stop-opacity:1" />
+          <stop offset="0%" style="stop-color:#1c253c;stop-opacity:1" />
+          <stop offset="100%" style="stop-color:#0f172a;stop-opacity:1" />
         </linearGradient>
+        <linearGradient id="code-panel-bg" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" style="stop-color:rgba(255,255,255,0.15)" />
+          <stop offset="100%" style="stop-color:rgba(255,255,255,0.05)" />
+        </linearGradient>
+        
         <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="10" result="coloredBlur"/>
+          <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
           <feMerge>
             <feMergeNode in="coloredBlur"/>
             <feMergeNode in="SourceGraphic"/>
           </feMerge>
         </filter>
+
         <style>
-          .title { font-family: 'Arial', sans-serif; font-size: 40px; fill: #e0e0e0; font-weight: bold; text-anchor: middle; text-transform: uppercase; letter-spacing: 2px; }
-          .percentage { font-family: 'Arial Black', sans-serif; font-size: 180px; fill: url(#percentage-gradient); font-weight: 900; text-anchor: middle; filter: url(#glow); }
-          .code-label { font-family: 'Arial', sans-serif; font-size: 30px; fill: #a0a0a0; text-anchor: middle; text-transform: uppercase; letter-spacing: 1px; }
-          .code { font-family: 'Arial Black', sans-serif; font-size: 80px; fill: #ffffff; font-weight: bold; text-anchor: middle; text-shadow: 0 0 10px #fff, 0 0 20px #fff; }
-          .expiry { font-family: 'Arial', sans-serif; font-size: 24px; fill: #a0a0a0; text-anchor: middle; }
+          .title { font-family: 'Inter', 'Arial', sans-serif; font-size: 32px; fill: #e0e0e0; font-weight: 600; text-anchor: start; letter-spacing: 0.5px; }
+          .bonus-label { font-family: 'Inter', 'Arial', sans-serif; font-size: 24px; fill: #a0a0a0; text-anchor: end; text-transform: uppercase; letter-spacing: 2px; }
+          
+          .code { font-family: 'Inter', 'Arial', sans-serif; font-size: 90px; fill: #ffffff; font-weight: 700; text-anchor: middle; letter-spacing: 8px; }
+          
+          .percentage-label { font-family: 'Inter', 'Arial', sans-serif; font-size: 24px; fill: #a0a0a0; text-anchor: start; }
+          .percentage-value { font-family: 'Inter', 'Arial', sans-serif; font-size: 56px; fill: #ffffff; font-weight: 700; text-anchor: start; }
+          
+          .activations-label { font-family: 'Inter', 'Arial', sans-serif; font-size: 24px; fill: #a0a0a0; text-anchor: end; }
+          .activations-value { font-family: 'Inter', 'Arial', sans-serif; font-size: 56px; fill: #ffffff; font-weight: 700; text-anchor: end; }
+
+          .expiry { font-family: 'Inter', 'Arial', sans-serif; font-size: 20px; fill: #a0a0a0; text-anchor: middle; position: absolute; bottom: 20px;}
         </style>
-        <linearGradient id="percentage-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" style="stop-color:#00ffff; stop-opacity:1"/>
-            <stop offset="100%" style="stop-color:#00b8b8; stop-opacity:1"/>
-        </linearGradient>
+        
+        <clipPath id="ticket-clip">
+          <path d="M40,0 h1120 a10,10 0 0 1 10,10 v5 a5,5 0 0 0 0,10 v10 a5,5 0 0 0 0,10 v10 a5,5 0 0 0 0,10 v10 a5,5 0 0 0 0,10 v10 a5,5 0 0 0 0,10 v10 a5,5 0 0 0 0,10 v10 a5,5 0 0 0 0,10 v10 a5,5 0 0 0 0,10 v10 a5,5 0 0 0 0,10 v10 a5,5 0 0 0 0,10 v10 a5,5 0 0 0 0,10 v10 a5,5 0 0 0 0,10 v10 a5,5 0 0 0 0,10 v10 a5,5 0 0 0 0,10 v10 a5,5 0 0 0 0,10 v10 a5,5 0 0 0 0,10 v10 a5,5 0 0 0 0,10 v10 a5,5 0 0 0 0,10 v10 a5,5 0 0 0 0,10 v10 a5,5 0 0 0 0,10 v10 a5,5 0 0 0 0,10 v10 a5,5 0 0 0 0,10 v10 a5,5 0 0 0 0,10 v10 a5,5 0 0 0 0,10 v10 a5,5 0 0 0 0,10 v10 a5,5 0 0 0 0,10 v10 a5,5 0 0 0 0,10 v10 a5,5 0 0 0 0,10 v5 a10,10 0 0 1 -10,10 H40 a10,10 0 0 1 -10,-10 v-5 a5,5 0 0 0 0,-10 v-10 a5,5 0 0 0 0,-10 v-10 a5,5 0 0 0 0,-10 v-10 a5,5 0 0 0 0,-10 v-10 a5,5 0 0 0 0,-10 v-10 a5,5 0 0 0 0,-10 v-10 a5,5 0 0 0 0,-10 v-10 a5,5 0 0 0 0,-10 v-10 a5,5 0 0 0 0,-10 v-10 a5,5 0 0 0 0,-10 v-10 a5,5 0 0 0 0,-10 v-10 a5,5 0 0 0 0,-10 v-10 a5,5 0 0 0 0,-10 v-10 a5,5 0 0 0 0,-10 v-10 a5,5 0 0 0 0,-10 v-10 a5,5 0 0 0 0,-10 v-10 a5,5 0 0 0 0,-10 v-10 a5,5 0 0 0 0,-10 v-10 a5,5 0 0 0 0,-10 v-10 a5,5 0 0 0 0,-10 v-10 a5,5 0 0 0 0,-10 v-10 a5,5 0 0 0 0,-10 v-10 a5,5 0 0 0 0,-10 v-10 a5,5 0 0 0 0,-10 v-5 a10,10 0 0 1 10,-10 z M1100, 30 a10,10 0 0 1 20,0 v20 a10,10 0 0 1 -20,0 z" />
+        </clipPath>
       </defs>
       
-      <rect width="1200" height="630" fill="url(#background)" />
+      <rect width="1200" height="630" fill="url(#background)" clip-path="url(#ticket-clip)" />
       
       <!-- Grid pattern -->
-      <path d="M0 40 L1200 40 M0 80 L1200 80 M0 120 L1200 120 M0 160 L1200 160 M0 200 L1200 200 M0 240 L1200 240 M0 280 L1200 280 M0 320 L1200 320 M0 360 L1200 360 M0 400 L1200 400 M0 440 L1200 440 M0 480 L1200 480 M0 520 L1200 520 M0 560 L1200 560 M0 600 L1200 600 M40 0 L40 630 M80 0 L80 630 M120 0 L120 630 M160 0 L160 630 M200 0 L200 630 M240 0 L240 630 M280 0 L280 630 M320 0 L320 630 M360 0 L360 630 M400 0 L400 630 M440 0 L440 630 M480 0 L480 630 M520 0 L520 630 M560 0 L560 630 M600 0 L600 630 M640 0 L640 630 M680 0 L680 630 M720 0 L720 630 M760 0 L760 630 M800 0 L800 630 M840 0 L840 630 M880 0 L880 630 M920 0 L920 630 M960 0 L960 630 M1000 0 L1000 630 M1040 0 L1040 630 M1080 0 L1080 630 M1120 0 L1120 630 M1160 0 L1160 630" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+      <path d="M-100 315 H 1300 M 600 0 V 630" stroke="rgba(255,255,255,0.03)" stroke-width="2" />
 
-      <text x="600" y="90" class="title">${title}</text>
-      
-      <text x="600" y="280" class="percentage">${percentage}% OFF</text>
-      
-      <text x="600" y="380" class="code-label">Utilisez le code</text>
-      <text x="600" y="460" class="code">${code}</text>
+      <g clip-path="url(#ticket-clip)">
+        <text x="80" y="90" class="title">${title}</text>
+        <text x="1120" y="90" class="bonus-label">BONUS CODE</text>
+        
+        <rect x="180" y="240" width="840" height="150" rx="20" fill="url(#code-panel-bg)" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" />
+        <text x="600" y="340" class="code" filter="url(#glow)">${code}</text>
 
-      <text x="600" y="560" class="expiry">Expire le ${expiryDate}</text>
+        <line x1="80" y1="480" x2="1120" y2="480" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
+        
+        <text x="180" y="540" class="percentage-label">Réduction</text>
+        <text x="180" y="585" class="percentage-value">${percentage}%</text>
+        
+        ${activationsText}
+
+        <text x="600" y="610" class="expiry">Expire le ${expiryDate}</text>
+      </g>
     </svg>
     `;
     
@@ -96,5 +127,3 @@ const generateDiscountImageFlow = ai.defineFlow(
     return { imageUrl: dataUri };
   }
 );
-
-    
