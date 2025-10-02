@@ -70,7 +70,7 @@ export default function AddAppDialog({ children, open, onOpenChange }: AddAppDia
                 name: values.name,
                 url: values.url,
                 type: values.type,
-                status: true,
+                status: false, // false = operational
             });
             toast({
                 title: "Application ajoutée",

@@ -30,11 +30,11 @@ const AppIcon = ({ type }: { type: Application['type'] }) => {
 };
 
 export default function AppStatusCard({ app, onStatusChange }: AppStatusCardProps) {
-  const isMaintenance = !app.status;
+  const isMaintenance = app.status; // true = maintenance
   const [isConfigOpen, setIsConfigOpen] = useState(false);
 
   const handleSwitchChange = (checked: boolean) => {
-    onStatusChange(app.id, !checked);
+    onStatusChange(app.id, checked); // Pass the switch state directly
   };
 
   return (

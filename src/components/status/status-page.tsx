@@ -36,12 +36,13 @@ const getStatusForDay = (day: Date, history: AppStatusHistory[], currentStatus: 
   const lastStatusBeforeDay = historyBeforeDay.length > 0 ? historyBeforeDay[0].status : currentStatus;
 
   if (relevantHistory.length === 0) {
-    return lastStatusBeforeDay ? 'operational' : 'maintenance';
+    return lastStatusBeforeDay ? 'maintenance' : 'operational';
   }
 
+  // Note: status: true is maintenance, false is operational
   const statuses = [lastStatusBeforeDay, ...relevantHistory.map(h => h.status)];
-  const hasMaintenance = statuses.includes(false);
-  const hasOperational = statuses.includes(true);
+  const hasMaintenance = statuses.includes(true);
+  const hasOperational = statuses.includes(false);
 
   if (hasMaintenance && !hasOperational) return 'maintenance';
   if (!hasMaintenance && hasOperational) return 'operational';
@@ -89,8 +90,8 @@ export default function StatusPage() {
     return () => unsubscribe();
   }, []);
 
-  const allSystemsOperational = apps.every(app => app.status);
-  const operationalApps = apps.filter(app => app.status).length;
+  const allSystemsOperational = apps.every(app => !app.status); // false = operational
+  const operationalApps = apps.filter(app => !app.status).length;
   const totalApps = apps.length;
 
   const groupedApps = apps.reduce((acc, app) => {
@@ -243,7 +244,7 @@ export default function StatusPage() {
           {loading ? <AccordionSkeleton /> : (
             <Accordion type="multiple" defaultValue={Object.keys(groupedApps)} className="w-full space-y-6">
                 {Object.entries(groupedApps).map(([groupName, groupApps]) => {
-                    const isGroupOperational = groupApps.every(app => app.status);
+                    const isGroupOperational = groupApps.every(app => !app.status);
                     return (
                     <AccordionItem value={groupName} key={groupName} className="border-none">
                     <Card className="bg-card/50">
@@ -268,7 +269,7 @@ export default function StatusPage() {
                                     <div key={app.id}>
                                         <div className="flex justify-between items-center mb-2">
                                             <div className="flex items-center gap-2">
-                                                {app.status ? (
+                                                {!app.status ? (
                                                      <CheckCircle2 className="h-5 w-5 text-green-400" />
                                                 ) : (
                                                      <ShieldAlert className="h-5 w-5 text-orange-400" />
@@ -276,7 +277,7 @@ export default function StatusPage() {
                                                
                                                 <p className="font-medium text-foreground">{app.name}</p>
                                             </div>
-                                            <p className={`text-sm ${app.status ? 'text-green-400' : 'text-orange-400'} font-semibold`}>{app.status ? 'Opérationnel' : 'Maintenance'}</p>
+                                            <p className={`text-sm ${!app.status ? 'text-green-400' : 'text-orange-400'} font-semibold`}>{!app.status ? 'Opérationnel' : 'Maintenance'}</p>
                                         </div>
                                         
                                         {renderStatusBars(app)}
