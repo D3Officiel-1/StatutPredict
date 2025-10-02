@@ -33,12 +33,13 @@ const getStatusForDay = (day: Date, history: AppStatusHistory[], currentStatus: 
   });
 
   const historyBeforeDay = history.filter(event => event.timestamp.toDate() < startOfDay);
+  // The history is sorted desc, so the first element is the latest.
   const lastStatusBeforeDay = historyBeforeDay.length > 0 ? historyBeforeDay[0].status : currentStatus;
 
   if (relevantHistory.length === 0) {
     return lastStatusBeforeDay ? 'maintenance' : 'operational';
   }
-
+  
   // Note: status: true is maintenance, false is operational
   const statuses = [lastStatusBeforeDay, ...relevantHistory.map(h => h.status)];
   const hasMaintenance = statuses.includes(true);
@@ -137,7 +138,6 @@ export default function StatusPage() {
     });
 
     return (
-      <TooltipProvider>
         <div className="flex gap-0.5 w-full h-4">
           {days.map((day, i) => {
             const status = getStatusForDay(day, app.statusHistory || [], app.status);
@@ -171,7 +171,6 @@ export default function StatusPage() {
             );
           })}
         </div>
-      </TooltipProvider>
     );
   }
 
@@ -210,6 +209,7 @@ export default function StatusPage() {
       </header>
 
       <main className="container mx-auto px-4 py-8 md:px-6 md:py-12">
+       <TooltipProvider>
         <div className="mx-auto max-w-5xl">
             {loading ? <StatusHeaderSkeleton /> : (
                  <div className="mb-8 text-center">
@@ -301,6 +301,7 @@ export default function StatusPage() {
             </Accordion>
           )}
         </div>
+       </TooltipProvider>
       </main>
 
       <footer className="py-8 text-center text-muted-foreground">
