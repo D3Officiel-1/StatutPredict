@@ -26,6 +26,7 @@ export interface Application {
     status?: boolean;
   };
   statusHistory?: AppStatusHistory[];
+  plans?: PricingPlan[];
 }
 
 export interface ReferralItem {
@@ -114,3 +115,5 @@ export interface MaintenanceEvent {
   appId: string;
   appName: string;
 }
+
+    

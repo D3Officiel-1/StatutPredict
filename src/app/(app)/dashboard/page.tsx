@@ -3,7 +3,7 @@
 
 import { useState, useEffect }
 from 'react';
-import { collection, writeBatch, getDocs, serverTimestamp, addDoc, onSnapshot } from 'firebase/firestore';
+import { collection, writeBatch, getDocs, serverTimestamp, addDoc, onSnapshot, query } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -25,13 +25,14 @@ import { useToast } from '@/hooks/use-toast';
 import CustomLoader from '@/components/ui/custom-loader';
 import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell, Legend } from 'recharts';
 import { Progress } from '@/components/ui/progress';
-import type { Application } from '@/types';
+import type { Application, PricingPlan } from '@/types';
 
 const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
 
 export default function DashboardPage() {
   const [salesData, setSalesData] = useState<any[]>([]);
   const [revenueByApp, setRevenueByApp] = useState<any[]>([]);
+  const [totalRevenue, setTotalRevenue] = useState(0);
   const [isClient, setIsClient] = useState(false);
   const [isAddAppDialogOpen, setIsAddAppDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -55,17 +56,35 @@ export default function DashboardPage() {
     ];
     setSalesData(sales);
 
-    const unsubscribe = onSnapshot(collection(db, 'applications'), (snapshot) => {
-        const appsData: Application[] = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        } as Application));
+    const unsubscribe = onSnapshot(collection(db, 'applications'), async (snapshot) => {
+        const appsDataPromises = snapshot.docs.map(async (doc) => {
+            const app = { id: doc.id, ...doc.data() } as Application;
+            const plansQuery = query(collection(db, `applications/${app.id}/plans`));
+            const plansSnapshot = await getDocs(plansQuery);
+            app.plans = plansSnapshot.docs.map(planDoc => ({ id: planDoc.id, ...planDoc.data() } as PricingPlan));
+            return app;
+        });
+
+        const appsWithPlans = await Promise.all(appsDataPromises);
+
+        let totalRevenueCalculated = 0;
+        const appRevenueData = appsWithPlans.map(app => {
+            // Simulate revenue based on plans
+            const appRevenue = app.plans?.reduce((total, plan) => {
+                const simulatedSubscribers = Math.floor(Math.random() * 100) + 10;
+                return total + (plan.promoPrice ?? plan.price) * simulatedSubscribers;
+            }, 0) || 0;
+            
+            totalRevenueCalculated += appRevenue;
+
+            return {
+                name: app.name,
+                value: appRevenue,
+            };
+        });
         
-        const appRevenueData = appsData.map(app => ({
-            name: app.name,
-            value: Math.floor(Math.random() * 10000) + 2000 // Dummy revenue data
-        }));
         setRevenueByApp(appRevenueData);
+        setTotalRevenue(totalRevenueCalculated);
     });
 
     return () => unsubscribe();
@@ -115,8 +134,7 @@ export default function DashboardPage() {
     }
   };
 
-  const totalRevenue = 45231.89;
-  const revenueGoal = 50000;
+  const revenueGoal = Math.max(totalRevenue * 1.25, 50000); // Set a dynamic goal
   const revenueProgress = (totalRevenue / revenueGoal) * 100;
   
   const totalSubscriptions = 2350;
@@ -334,6 +352,7 @@ export default function DashboardPage() {
                                 backgroundColor: 'hsl(var(--background))',
                                 borderColor: 'hsl(var(--border))'
                             }}
+                            formatter={(value: number) => `${value.toLocaleString('fr-FR')} FCFA`}
                         />
                         <Legend />
                     </PieChart>
@@ -369,7 +388,5 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    
 
     
