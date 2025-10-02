@@ -172,6 +172,7 @@ export default function DiscountCodeManagement() {
                 <TableHead>Titre</TableHead>
                 <TableHead>Code</TableHead>
                 <TableHead className="hidden sm:table-cell">Pourcentage</TableHead>
+                <TableHead className="hidden md:table-cell">Utilisations</TableHead>
                 <TableHead className="hidden md:table-cell">Plan</TableHead>
                 <TableHead className="hidden lg:table-cell">Début</TableHead>
                 <TableHead className="hidden lg:table-cell">Fin</TableHead>
@@ -185,7 +186,7 @@ export default function DiscountCodeManagement() {
               {loading ? (
                   Array.from({ length: 3 }).map((_, i) => (
                       <TableRow key={i}>
-                          <TableCell colSpan={8}>
+                          <TableCell colSpan={9}>
                             <Skeleton className="h-8 w-full" />
                           </TableCell>
                       </TableRow>
@@ -196,6 +197,12 @@ export default function DiscountCodeManagement() {
                     <TableCell className="font-medium">{code.titre}</TableCell>
                     <TableCell>{code.code}</TableCell>
                     <TableCell className="hidden sm:table-cell">{code.pourcentage}%</TableCell>
+                    <TableCell className="hidden md:table-cell">
+                        {code.max && code.max > 0
+                            ? `${code.people?.length || 0} / ${code.max}`
+                            : `${code.people?.length || 0}`
+                        }
+                    </TableCell>
                     <TableCell className="hidden md:table-cell">
                         <Badge variant="secondary" className="capitalize">
                             {code.tous ? 'Tous les forfaits' : code.plan}

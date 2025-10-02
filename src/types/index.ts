@@ -81,6 +81,8 @@ export interface DiscountCode {
   plan: string;
   pourcentage: string;
   tous: boolean;
+  max?: number;
+  people?: string[];
 }
 
 export interface PricingPlan {

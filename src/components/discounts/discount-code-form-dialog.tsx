@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -52,6 +53,7 @@ const formSchema = z.object({
   findate: z.date({ required_error: 'La date de fin est requise.' }),
   tous: z.boolean(),
   plan: z.string().optional(),
+  max: z.coerce.number().min(0, "Le nombre maximum d'utilisations ne peut être négatif.").optional(),
 }).refine(data => data.findate >= data.debutdate, {
   message: "La date de fin ne peut pas être antérieure à la date de début.",
   path: ["findate"],
@@ -82,6 +84,7 @@ export default function DiscountCodeFormDialog({ open, onOpenChange, discountCod
       findate: undefined,
       tous: false,
       plan: '',
+      max: 0,
     },
   });
 
@@ -95,6 +98,7 @@ export default function DiscountCodeFormDialog({ open, onOpenChange, discountCod
         findate: discountCode.findate.toDate(),
         tous: discountCode.tous,
         plan: discountCode.plan,
+        max: discountCode.max || 0,
       });
     } else if (open && !discountCode) {
       form.reset({
@@ -105,6 +109,7 @@ export default function DiscountCodeFormDialog({ open, onOpenChange, discountCod
         findate: new Date(),
         tous: false,
         plan: '',
+        max: 0,
       });
     }
   }, [discountCode, open, form]);
@@ -114,11 +119,15 @@ export default function DiscountCodeFormDialog({ open, onOpenChange, discountCod
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
     try {
-      const dataToSave = {
+      const dataToSave: any = {
         ...values,
         pourcentage: String(values.pourcentage),
         plan: values.tous ? 'tous' : values.plan,
       };
+
+      if (!isEditing) {
+        dataToSave.people = [];
+      }
 
       if (isEditing && discountCode) {
         const docRef = doc(db, 'promo', discountCode.id);
@@ -206,7 +215,7 @@ export default function DiscountCodeFormDialog({ open, onOpenChange, discountCod
                     )}
                     />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormField
                         control={form.control}
                         name="debutdate"
@@ -271,6 +280,18 @@ export default function DiscountCodeFormDialog({ open, onOpenChange, discountCod
                         )}
                     />
                 </div>
+                <FormField
+                    control={form.control}
+                    name="max"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Nombre max d'utilisations</FormLabel>
+                        <FormControl><Input type="number" placeholder="100" {...field} /></FormControl>
+                        <FormDescription>Laissez à 0 pour une utilisation illimitée.</FormDescription>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
                 <div>
                      <FormField
                         control={form.control}

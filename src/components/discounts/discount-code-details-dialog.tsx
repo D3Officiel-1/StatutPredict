@@ -4,7 +4,7 @@
 import { DiscountCode } from '@/types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { X, Calendar, Tag, Percent, FileCheck, FileX, Ticket } from 'lucide-react';
+import { X, Calendar, Tag, Percent, FileCheck, FileX, Ticket, Users } from 'lucide-react';
 import { format } from 'date-fns';
 import { Badge } from '../ui/badge';
 
@@ -58,6 +58,11 @@ export default function DiscountCodeDetailsDialog({ discountCode, open, onOpenCh
     };
 
     const status = getStatusInfo(discountCode);
+    
+    const usage = discountCode.max && discountCode.max > 0
+        ? `${discountCode.people?.length || 0} / ${discountCode.max}`
+        : `${discountCode.people?.length || 0} / ∞`;
+
 
   return (
     <AnimatePresence>
@@ -91,6 +96,7 @@ export default function DiscountCodeDetailsDialog({ discountCode, open, onOpenCh
                 <DetailItem icon={<Tag size={16} />} label="Titre" value={discountCode.titre} />
                 <DetailItem icon={<Ticket size={16} />} label="Code" value={discountCode.code} />
                 <DetailItem icon={<Percent size={16} />} label="Pourcentage" value={`${discountCode.pourcentage}%`} />
+                <DetailItem icon={<Users size={16} />} label="Utilisations" value={usage} />
                 <DetailItem 
                     icon={<FileCheck size={16} />} 
                     label="Valide Pour" 
