@@ -19,6 +19,8 @@ const GenerateDiscountImageInputSchema = z.object({
   expiryDate: z.string().describe('The expiry date of the discount code.'),
   max: z.number().optional().describe('The maximum number of uses.'),
   people: z.array(z.string()).optional().describe('The people who have used the code.'),
+  plan: z.string().optional().describe('The specific plan for the discount.'),
+  tous: z.boolean().optional().describe('Whether the discount is for all plans.'),
 });
 export type GenerateDiscountImageInput = z.infer<
   typeof GenerateDiscountImageInputSchema
@@ -49,11 +51,19 @@ const generateDiscountImageFlow = ai.defineFlow(
     outputSchema: GenerateDiscountImageOutputSchema,
   },
   async (input) => {
-    const { code, percentage, title, expiryDate, max, people } = input;
+    const { code, percentage, title, expiryDate, max, people, plan, tous } = input;
+    
     const activationsText = max && max > 0
       ? `
         <text x="980" y="560" class="activations-label">Activations</text>
         <text x="980" y="615" class="activations-value">${people?.length || 0} / ${max}</text>
+      `
+      : '';
+    
+    const planText = !tous && plan
+      ? `
+        <text x="430" y="615" class="plan-label">Pour le forfait</text>
+        <text x="430" y="560" class="plan-value">${plan}</text>
       `
       : '';
 
@@ -123,6 +133,8 @@ const generateDiscountImageFlow = ai.defineFlow(
           .activations-label { font-family: sans-serif; font-size: 22px; fill: #9ab7c9; text-anchor: end; }
           .activations-value { font-family: sans-serif; font-size: 56px; fill: #ffffff; font-weight: 800; text-anchor: end; }
           .expiry { font-family: sans-serif; font-size: 20px; fill: #9ab7c9; text-anchor: middle; }
+          .plan-label { font-family: sans-serif; font-size: 22px; fill: #9ab7c9; text-anchor: start; }
+          .plan-value { font-family: sans-serif; font-size: 56px; fill: #ffffff; font-weight: 800; text-anchor: start; text-transform: capitalize;}
         </style>
       </defs>
 
@@ -163,6 +175,9 @@ const generateDiscountImageFlow = ai.defineFlow(
         <!-- Left column: reduction -->
         <text x="150" y="560" class="percentage-label">Réduction</text>
         <text x="150" y="620" class="percentage-value">${percentage}%</text>
+
+        <!-- Center column: plan -->
+        ${planText}
 
         <!-- Right column: activations (optionnel) -->
         ${activationsText}

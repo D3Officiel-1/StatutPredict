@@ -171,6 +171,8 @@ export default function DiscountCodeManagement() {
             expiryDate: formatDate(code.findate),
             max: code.max,
             people: code.people,
+            plan: code.plan,
+            tous: code.tous,
         });
 
         if (!result.imageUrl) {
@@ -384,5 +386,7 @@ export default function DiscountCodeManagement() {
     </>
   );
 }
+
+    
 
     
