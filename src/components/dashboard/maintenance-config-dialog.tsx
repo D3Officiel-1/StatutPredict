@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -27,6 +28,7 @@ import { generateMaintenanceMessage } from '@/ai/flows/maintenance-message-gener
 import Image from 'next/image';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import MediaLibrary from './media-library';
+import { Switch } from '../ui/switch';
 
 
 interface MaintenanceConfigDialogProps {
@@ -42,6 +44,7 @@ const formSchema = z.object({
   buttonUrl: z.string().url('Veuillez entrer une URL valide.').optional().or(z.literal('')),
   mediaUrl: z.string().url().optional().or(z.literal('')),
   targetUsers: z.array(z.string()).optional(),
+  status: z.boolean().optional(),
 });
 
 const CLOUDINARY_CLOUD_NAME = 'dlxomrluy';
@@ -70,6 +73,7 @@ export default function MaintenanceConfigDialog({ app, children, open, onOpenCha
       buttonUrl: app.maintenanceConfig?.buttonUrl || '',
       mediaUrl: app.maintenanceConfig?.mediaUrl || '',
       targetUsers: app.maintenanceConfig?.targetUsers || [],
+      status: app.maintenanceConfig?.status || false,
     },
   });
 
@@ -95,6 +99,7 @@ export default function MaintenanceConfigDialog({ app, children, open, onOpenCha
       buttonUrl: app.maintenanceConfig?.buttonUrl || '',
       mediaUrl: mediaUrl,
       targetUsers: app.maintenanceConfig?.targetUsers || [],
+      status: app.maintenanceConfig?.status || false,
     });
     setUploadedMediaUrl(mediaUrl);
   }, [app, form, open]);
@@ -190,6 +195,7 @@ export default function MaintenanceConfigDialog({ app, children, open, onOpenCha
           buttonUrl: values.buttonUrl,
           mediaUrl: uploadedMediaUrl,
           targetUsers: values.targetUsers || [],
+          status: values.status,
         }
       });
       toast({
@@ -358,6 +364,26 @@ export default function MaintenanceConfigDialog({ app, children, open, onOpenCha
                                     ))}
                                 </div>
                                 <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                         <FormField
+                            control={form.control}
+                            name="status"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm mt-4">
+                                <div className="space-y-0.5">
+                                    <FormLabel>Activer la maintenance ciblée</FormLabel>
+                                    <p className='text-sm text-muted-foreground'>
+                                        Met en maintenance uniquement pour les forfaits sélectionnés.
+                                    </p>
+                                </div>
+                                <FormControl>
+                                    <Switch
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                    />
+                                </FormControl>
                                 </FormItem>
                             )}
                         />

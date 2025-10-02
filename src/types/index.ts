@@ -1,3 +1,4 @@
+
 import { Timestamp } from "firebase/firestore";
 
 export type AppType = 'web' | 'mobile' | 'api';
@@ -22,6 +23,7 @@ export interface Application {
     buttonUrl?: string;
     mediaUrl?: string;
     targetUsers?: string[];
+    status?: boolean;
   };
   statusHistory?: AppStatusHistory[];
 }
