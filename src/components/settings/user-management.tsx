@@ -59,6 +59,7 @@ import SendNotificationDialog from './send-notification-dialog';
 import UserDetailsDialog from './user-details-dialog';
 import EditUserDialog from './edit-user-dialog';
 import CustomLoader from '../ui/custom-loader';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 
 export default function UserManagement() {
   const [users, setUsers] = useState<User[]>([]);
@@ -289,16 +290,12 @@ export default function UserManagement() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>Avatar</TableHead>
               <TableHead>Username</TableHead>
               <TableHead className="hidden lg:table-cell">Email</TableHead>
               <TableHead>Statut</TableHead>
               <TableHead className="hidden md:table-cell">Prénom</TableHead>
               <TableHead className="hidden md:table-cell">Nom</TableHead>
-              <TableHead className="hidden lg:table-cell">Code Pronostic</TableHead>
-              <TableHead className="hidden lg:table-cell">Jeu favori</TableHead>
-              <TableHead className="hidden xl:table-cell">Date de naissance</TableHead>
-              <TableHead className="hidden xl:table-cell">Genre</TableHead>
-              <TableHead className="hidden xl:table-cell">Téléphone</TableHead>
               <TableHead>
                 <span className="sr-only">Actions</span>
               </TableHead>
@@ -308,14 +305,20 @@ export default function UserManagement() {
             {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                     <TableRow key={i}>
-                        <TableCell colSpan={11}>
-                           <Skeleton className="h-8 w-full" />
+                        <TableCell colSpan={7}>
+                           <Skeleton className="h-10 w-full" />
                         </TableCell>
                     </TableRow>
                 ))
             ) : (
                 users.map((user) => (
                 <TableRow key={user.id}>
+                    <TableCell>
+                      <Avatar>
+                        <AvatarImage src={user.photoURL} alt={user.username} />
+                        <AvatarFallback>{user.username?.charAt(0).toUpperCase()}</AvatarFallback>
+                      </Avatar>
+                    </TableCell>
                     <TableCell className="font-medium">{user.username || 'N/A'}</TableCell>
                     <TableCell className="hidden lg:table-cell">{user.email}</TableCell>
                     <TableCell>
@@ -325,11 +328,6 @@ export default function UserManagement() {
                     </TableCell>
                     <TableCell className="hidden md:table-cell">{user.firstName || 'N/A'}</TableCell>
                     <TableCell className="hidden md:table-cell">{user.lastName || 'N/A'}</TableCell>
-                    <TableCell className="hidden lg:table-cell">{user.pronosticCode || 'N/A'}</TableCell>
-                    <TableCell className="hidden lg:table-cell">{user.favoriteGame || 'N/A'}</TableCell>
-                    <TableCell className="hidden xl:table-cell">{formatDate(user.dob)}</TableCell>
-                    <TableCell className="hidden xl:table-cell">{user.gender || 'N/A'}</TableCell>
-                    <TableCell className="hidden xl:table-cell">{user.phone || 'N/A'}</TableCell>
                     <TableCell>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>

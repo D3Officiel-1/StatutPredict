@@ -41,6 +41,8 @@ const formSchema = z.object({
   favoriteGame: z.string().optional(),
   pronosticCode: z.string().optional(),
   referralCode: z.string().optional(),
+  photoURL: z.string().url('URL invalide').optional().or(z.literal('')),
+  telegramLinkToken: z.string().optional(),
 });
 
 export default function EditUserDialog({ user, open, onOpenChange, onUserUpdate }: EditUserDialogProps) {
@@ -59,6 +61,8 @@ export default function EditUserDialog({ user, open, onOpenChange, onUserUpdate 
       favoriteGame: user.favoriteGame || '',
       pronosticCode: user.pronosticCode || '',
       referralCode: user.referralCode || '',
+      photoURL: user.photoURL || '',
+      telegramLinkToken: user.telegramLinkToken || '',
     },
   });
 
@@ -172,6 +176,17 @@ export default function EditUserDialog({ user, open, onOpenChange, onUserUpdate 
                             )}
                         />
                     </div>
+                     <FormField
+                            control={form.control}
+                            name="photoURL"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>URL de la photo de profil</FormLabel>
+                                <FormControl><Input {...field} /></FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <FormField
                             control={form.control}
@@ -226,6 +241,17 @@ export default function EditUserDialog({ user, open, onOpenChange, onUserUpdate 
                         render={({ field }) => (
                             <FormItem>
                             <FormLabel>Code de Parrainage</FormLabel>
+                            <FormControl><Input {...field} /></FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="telegramLinkToken"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Token de lien Telegram</FormLabel>
                             <FormControl><Input {...field} /></FormControl>
                             <FormMessage />
                             </FormItem>

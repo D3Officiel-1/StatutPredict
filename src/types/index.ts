@@ -60,6 +60,9 @@ export interface User {
   uid?: string;
   username?: string;
   password?: string;
+  fcmToken?: string;
+  photoURL?: string;
+  telegramLinkToken?: string;
   referralData?: ReferralItem[];
   pricingData?: PricingItem[];
   referrals?: User[];
