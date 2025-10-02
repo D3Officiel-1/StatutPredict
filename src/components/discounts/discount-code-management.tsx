@@ -6,27 +6,6 @@ import { collection, onSnapshot, orderBy, query, deleteDoc, doc, addDoc, updateD
 import { db } from '@/lib/firebase';
 import type { DiscountCode } from '@/types';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
     AlertDialog,
     AlertDialogAction,
     AlertDialogCancel,
@@ -37,15 +16,14 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { MoreHorizontal, PlusCircle, Trash, Edit, Copy, Info, ImageIcon } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { format } from 'date-fns';
 import DiscountCodeFormDialog from './discount-code-form-dialog';
 import CustomLoader from '../ui/custom-loader';
 import DiscountCodeDetailsDialog from './discount-code-details-dialog';
 import { generateDiscountImage } from '@/ai/flows/generate-discount-image';
+import DiscountCodeCard from './discount-code-card';
 
 const CLOUDINARY_CLOUD_NAME = 'dlxomrluy';
 const CLOUDINARY_UPLOAD_PRESET = 'predict_uploads';
@@ -121,14 +99,6 @@ export default function DiscountCodeManagement() {
     }
   };
 
-
-  const formatDate = (timestamp: any) => {
-    if (timestamp && timestamp.toDate) {
-      return format(timestamp.toDate(), 'dd/MM/yyyy');
-    }
-    return 'N/A';
-  };
-
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text).then(() => {
       toast({
@@ -136,23 +106,6 @@ export default function DiscountCodeManagement() {
         description: "Le code a été copié dans le presse-papiers.",
       });
     });
-  };
-
-  const getStatus = (code: DiscountCode) => {
-    const now = new Date();
-    const startDate = code.debutdate?.toDate();
-    const endDate = code.findate?.toDate();
-
-    if (startDate && endDate) {
-      if (now >= startDate && now <= endDate) {
-        return <Badge variant="default" className='bg-green-500/20 text-green-500 border-green-500/30'>Actif</Badge>;
-      } else if (now > endDate) {
-        return <Badge variant="destructive">Expiré</Badge>;
-      } else {
-        return <Badge variant="secondary">Programmé</Badge>;
-      }
-    }
-    return <Badge variant="outline">Inconnu</Badge>;
   };
 
   const handleGenerateImage = async (code: DiscountCode) => {
@@ -163,7 +116,13 @@ export default function DiscountCodeManagement() {
     });
 
     try {
-        // 1. Generate SVG data URI from the AI flow
+        const formatDate = (timestamp: any) => {
+            if (timestamp && timestamp.toDate) {
+                return timestamp.toDate().toLocaleDateString('fr-FR');
+            }
+            return 'N/A';
+        };
+
         const result = await generateDiscountImage({
             code: code.code,
             percentage: code.pourcentage,
@@ -179,7 +138,6 @@ export default function DiscountCodeManagement() {
             throw new Error("L'IA n'a pas pu générer l'image SVG.");
         }
 
-        // 2. Convert SVG data URI to PNG data URI on the client-side
         const pngDataUri = await new Promise<string>((resolve, reject) => {
             const img = new Image();
             img.onload = () => {
@@ -187,25 +145,14 @@ export default function DiscountCodeManagement() {
                 canvas.width = 1200;
                 canvas.height = 630;
                 const ctx = canvas.getContext('2d');
-                if (!ctx) {
-                    return reject(new Error("Impossible d'obtenir le contexte du canvas."));
-                }
+                if (!ctx) return reject(new Error("Impossible d'obtenir le contexte du canvas."));
                 ctx.drawImage(img, 0, 0);
                 resolve(canvas.toDataURL('image/png'));
             };
-            img.onerror = (err) => {
-                console.error("Error loading SVG image for conversion:", err);
-                reject(new Error("Impossible de charger le SVG pour la conversion."));
-            };
+            img.onerror = (err) => reject(new Error("Impossible de charger le SVG pour la conversion."));
             img.src = result.imageUrl;
         });
 
-        toast({
-            title: "Image convertie !",
-            description: "Téléversement vers Cloudinary en cours...",
-        });
-
-        // 3. Upload PNG to Cloudinary
         const formData = new FormData();
         formData.append('file', pngDataUri);
         formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
@@ -215,142 +162,56 @@ export default function DiscountCodeManagement() {
             body: formData,
         });
 
-        if (!response.ok) {
-            throw new Error('Le téléversement sur Cloudinary a échoué');
-        }
+        if (!response.ok) throw new Error('Le téléversement sur Cloudinary a échoué');
         
         const data = await response.json();
         const imageUrl = data.secure_url;
 
-        // 4. Save to media library
-        await addDoc(collection(db, 'media_library'), {
-            url: imageUrl,
-            type: 'image/png',
-            createdAt: new Date(),
-        });
+        await addDoc(collection(db, 'media_library'), { url: imageUrl, type: 'image/png', createdAt: new Date() });
         
-        // 5. Update the discount code with the new image URL
         const codeRef = doc(db, 'promo', code.id);
         await updateDoc(codeRef, { imageUrl: imageUrl });
 
         toast({
-            title: 'Image enregistrée et liée !',
-            description: 'Votre image a été ajoutée à la bibliothèque et liée au bon de réduction.',
+            title: 'Image générée et enregistrée !',
+            description: 'L\'image a été liée au bon de réduction.',
         });
 
     } catch (error) {
-        console.error("Error generating or uploading image:", error);
-        toast({
-            title: "Erreur de génération d'image",
-            description: error instanceof Error ? error.message : "Impossible de créer ou de téléverser l'image.",
-            variant: "destructive",
-        });
+        console.error("Error generating/uploading image:", error);
+        toast({ title: "Erreur de génération d'image", description: error instanceof Error ? error.message : "Une erreur inconnue est survenue.", variant: "destructive" });
     } finally {
         setIsGeneratingImage(null);
     }
   };
 
-
   return (
     <>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle>Codes de réduction</CardTitle>
-            <CardDescription>
-              Liste de tous les codes de réduction créés.
-            </CardDescription>
-          </div>
-          <Button onClick={handleAddCode}>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Ajouter un code
+      <div className="flex justify-end mb-8">
+          <Button onClick={handleAddCode} size="lg">
+              <PlusCircle className="mr-2 h-5 w-5" />
+              Créer un nouveau code
           </Button>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Titre</TableHead>
-                <TableHead>Code</TableHead>
-                <TableHead className="hidden sm:table-cell">Pourcentage</TableHead>
-                <TableHead className="hidden md:table-cell">Utilisations</TableHead>
-                <TableHead className="hidden md:table-cell">Plan</TableHead>
-                <TableHead className="hidden lg:table-cell">Début</TableHead>
-                <TableHead className="hidden lg:table-cell">Fin</TableHead>
-                <TableHead className="hidden md:table-cell">Statut</TableHead>
-                <TableHead>
-                  <span className="sr-only">Actions</span>
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading ? (
-                  Array.from({ length: 3 }).map((_, i) => (
-                      <TableRow key={i}>
-                          <TableCell colSpan={9}>
-                            <Skeleton className="h-8 w-full" />
-                          </TableCell>
-                      </TableRow>
-                  ))
-              ) : (
-                discountCodes.map((code) => (
-                  <TableRow key={code.id}>
-                    <TableCell className="font-medium">{code.titre}</TableCell>
-                    <TableCell>{code.code}</TableCell>
-                    <TableCell className="hidden sm:table-cell">{code.pourcentage}%</TableCell>
-                    <TableCell className="hidden md:table-cell">
-                        {code.max && code.max > 0
-                            ? `${code.people?.length || 0} / ${code.max}`
-                            : `${code.people?.length || 0}`
-                        }
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                        <Badge variant="secondary" className="capitalize">
-                            {code.tous ? 'Tous les forfaits' : code.plan}
-                        </Badge>
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell">{formatDate(code.debutdate)}</TableCell>
-                    <TableCell className="hidden lg:table-cell">{formatDate(code.findate)}</TableCell>
-                    <TableCell className="hidden md:table-cell">{getStatus(code)}</TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                          <Button aria-haspopup="true" size="icon" variant="ghost" disabled={isGeneratingImage === code.id}>
-                              {isGeneratingImage === code.id ? <CustomLoader /> : <MoreHorizontal className="h-4 w-4" />}
-                              <span className="sr-only">Toggle menu</span>
-                          </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                              <DropdownMenuItem onSelect={() => handleDetailsClick(code)}>
-                                  <Info className="mr-2 h-4 w-4" />
-                                  Détails
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onSelect={() => copyToClipboard(code.code)}>
-                                  <Copy className="mr-2 h-4 w-4" />
-                                  Copier le code
-                              </DropdownMenuItem>
-                               <DropdownMenuItem onSelect={() => handleGenerateImage(code)}>
-                                  <ImageIcon className="mr-2 h-4 w-4" />
-                                  Générer une image
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onSelect={() => handleEditCode(code)}>
-                                  <Edit className="mr-2 h-4 w-4" />
-                                  Modifier
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onSelect={() => openDeleteDialog(code)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
-                                  <Trash className="mr-2 h-4 w-4" />
-                                  Supprimer
-                              </DropdownMenuItem>
-                          </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {loading ? (
+          Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-80 w-full rounded-xl" />)
+        ) : (
+          discountCodes.map((code) => (
+            <DiscountCodeCard
+              key={code.id}
+              code={code}
+              isGeneratingImage={isGeneratingImage === code.id}
+              onDetailsClick={() => handleDetailsClick(code)}
+              onCopyToClipboard={() => copyToClipboard(code.code)}
+              onGenerateImage={() => handleGenerateImage(code)}
+              onEdit={() => handleEditCode(code)}
+              onDelete={() => openDeleteDialog(code)}
+            />
+          ))
+        )}
+      </div>
       
       <DiscountCodeFormDialog
         open={isFormOpen}
@@ -386,7 +247,3 @@ export default function DiscountCodeManagement() {
     </>
   );
 }
-
-    
-
-    

@@ -2,11 +2,11 @@ import DiscountCodeManagement from "@/components/discounts/discount-code-managem
 
 export default function DiscountsPage() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight font-headline">Codes de Réduction</h2>
-        <p className="text-muted-foreground">
-          Créez et gérez vos codes de réduction pour les abonnements.
+        <h1 className="text-3xl font-bold tracking-tight font-headline">Générateur de Bonus</h1>
+        <p className="text-muted-foreground mt-2">
+          Créez, visualisez et gérez vos codes de réduction avec une interface dynamique.
         </p>
       </div>
       <DiscountCodeManagement />
