@@ -1,3 +1,4 @@
+
 'use client';
 
 import { usePathname } from 'next/navigation';
@@ -27,8 +28,8 @@ const AppSidebar = () => {
   const pathname = usePathname();
 
   const isActive = (path: string) => {
-    if (path === '/') return pathname === path;
-    return pathname.startsWith(path);
+    if (path === '/dashboard') return pathname === path || pathname.startsWith('/dashboard');
+    return pathname.startsWith(path) && path !== '/';
   };
 
   return (
@@ -47,7 +48,7 @@ const AppSidebar = () => {
            <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              isActive={isActive('/')}
+              isActive={false}
               tooltip="Page de Statut Publique"
             >
               <Link href="/" target="_blank">
