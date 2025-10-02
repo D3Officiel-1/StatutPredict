@@ -157,7 +157,7 @@ export default function MaintenanceFormDialog({ open, onOpenChange, maintenanceE
           >
             <div className="flex justify-between items-center p-6 border-b">
                 <div>
-                  <h2 className="text-xl font-bold font-headline">{isEditing ? 'Modifier' : 'Créer'} un Programme</h2>
+                  <h2 className="text-xl font-bold">{isEditing ? 'Modifier' : 'Créer'} un Programme</h2>
                   <p className="text-sm text-muted-foreground">Remplissez les détails du programme de maintenance.</p>
                 </div>
                 <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)}>

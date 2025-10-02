@@ -113,7 +113,7 @@ export default function AddAppDialog({ children, open, onOpenChange }: AddAppDia
                         >
                             <div className="flex justify-between items-center p-6 border-b">
                                 <div>
-                                    <h2 className="text-xl font-bold font-headline">Ajouter une application</h2>
+                                    <h2 className="text-xl font-bold">Ajouter une application</h2>
                                     <p className="text-sm text-muted-foreground">Remplissez les détails pour enregistrer une nouvelle application.</p>
                                 </div>
                                 <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)}>

@@ -51,7 +51,7 @@ const PlanCard = ({ plan, onEdit, onDelete }: { plan: PricingPlan, onEdit: () =>
                 </div>
             )}
             <div className="flex-grow">
-                <h3 className="text-xl font-bold font-headline">{plan.name}</h3>
+                <h3 className="text-xl font-bold">{plan.name}</h3>
                 <div className="flex items-baseline gap-2 my-4">
                      {plan.promoPrice != null && <span className="text-2xl font-bold line-through text-muted-foreground/50">{plan.price.toLocaleString()}</span>}
                     <span className="text-4xl font-extrabold text-foreground">{(plan.promoPrice ?? plan.price).toLocaleString()}</span>
@@ -178,7 +178,7 @@ export default function PricingPlansListDialog({ open, onOpenChange, app, onAddP
           >
             <div className="flex justify-between items-center mb-6 pb-4 border-b">
               <div>
-                <h2 className="text-xl font-bold font-headline">Forfaits pour {app.name}</h2>
+                <h2 className="text-xl font-bold">Forfaits pour {app.name}</h2>
                 <p className="text-sm text-muted-foreground">Gérez les plans tarifaires de l'application.</p>
               </div>
               <div className='flex items-center gap-2'>

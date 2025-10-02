@@ -103,7 +103,7 @@ export default function PricingManagement() {
             <Card key={app.id} className="flex flex-col">
               <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-4">
                 <div className="space-y-1">
-                  <CardTitle as="h3" className="text-lg font-semibold font-headline">{app.name}</CardTitle>
+                  <CardTitle as="h3" className="text-lg font-semibold">{app.name}</CardTitle>
                   <CardDescription>Gérez les plans tarifaires de cette application.</CardDescription>
                 </div>
                 <div className="flex items-center gap-2">

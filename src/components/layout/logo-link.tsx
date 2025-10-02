@@ -33,11 +33,9 @@ export default function LogoLink() {
             className="flex items-center gap-2 md:gap-3"
         >
             <Image src="https://i.postimg.cc/jS25XGKL/Capture-d-cran-2025-09-03-191656-4-removebg-preview.png" width={32} height={32} alt="Statut Predict Logo" className="h-8 w-8 md:h-10 md:w-10" />
-            <span className="text-base md:text-lg font-bold font-headline text-foreground">
+            <span className="text-base md:text-lg font-bold text-foreground">
             Statut Predict
             </span>
         </Link>
     );
 }
-
-    

@@ -45,7 +45,7 @@ export default function CanalPage() {
       <main className="flex-grow container mx-auto px-4 py-8 md:px-6 md:py-12 flex items-center justify-center">
         <div className="mx-auto max-w-md w-full">
             <div className="mb-8 text-center">
-                <h1 className="text-2xl md:text-4xl font-bold tracking-tight font-headline">Canal Telegram</h1>
+                <h1 className="text-2xl md:text-4xl font-bold tracking-tight">Canal Telegram</h1>
                 <p className="mt-2 text-muted-foreground md:text-base">Accédez à un flux exclusif de nouvelles, d'analyses et d'opportunités. Notre canal Telegram est votre accès direct à l'information privilégiée, conçue pour les esprits visionnaires.</p>
             </div>
           
@@ -58,7 +58,7 @@ export default function CanalPage() {
                     height={50}
                     className="mx-auto mb-3"
                 />
-                <h3 className="text-lg font-semibold mb-2 font-headline">Predict</h3>
+                <h3 className="text-lg font-semibold mb-2">Predict</h3>
                 <p className="text-muted-foreground mb-4">Accédez à un flux exclusif de nouvelles, d'analyses et d'opportunités.</p>
                 <Button asChild style={{ backgroundColor: '#2AABEE', color: 'white' }}>
                     <a href="https://t.me/Predict_D3offiiel" target="_blank" rel="noopener noreferrer">

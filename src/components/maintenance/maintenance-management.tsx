@@ -53,7 +53,7 @@ const MaintenanceEventCard = ({ event, onEdit, onDelete }: { event: MaintenanceE
         <Card className="flex flex-col bg-card/70 hover:bg-card/90 transition-colors duration-300">
             <CardHeader className="flex flex-row items-start justify-between pb-4">
                 <div className="space-y-1">
-                    <CardTitle as="h3" className="text-base font-bold font-headline leading-tight">
+                    <CardTitle as="h3" className="text-base font-bold leading-tight">
                         {event.title}
                     </CardTitle>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">

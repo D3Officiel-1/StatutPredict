@@ -159,7 +159,7 @@ export default function PricingFormDialog({ open, onOpenChange, app, pricingPlan
           >
             <div className="flex justify-between items-center p-6 border-b">
               <div>
-                <h2 className="text-xl font-bold font-headline">{isEditing ? 'Modifier le forfait' : 'Ajouter un forfait'} pour {app.name}</h2>
+                <h2 className="text-xl font-bold">{isEditing ? 'Modifier le forfait' : 'Ajouter un forfait'} pour {app.name}</h2>
                 <p className="text-sm text-muted-foreground">Remplissez les informations ci-dessous.</p>
               </div>
               <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)}>

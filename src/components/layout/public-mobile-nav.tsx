@@ -35,7 +35,7 @@ export default function PublicMobileNav() {
             <div className="flex items-center justify-between p-4 border-b border-border/50">
                  <Link href="/" className="flex items-center gap-2" onClick={() => setIsOpen(false)}>
                     <Image src="https://i.postimg.cc/jS25XGKL/Capture-d-cran-2025-09-03-191656-4-removebg-preview.png" width={32} height={32} alt="Statut Predict Logo" />
-                    <span className="text-lg font-bold font-headline text-foreground">Statut Predict</span>
+                    <span className="text-lg font-bold text-foreground">Statut Predict</span>
                 </Link>
             </div>
           <nav className="flex flex-col flex-1 items-center justify-center gap-6 p-6">
@@ -64,5 +64,3 @@ export default function PublicMobileNav() {
     </Sheet>
   );
 }
-
-    

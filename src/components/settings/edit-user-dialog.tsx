@@ -116,7 +116,7 @@ export default function EditUserDialog({ user, open, onOpenChange, onUserUpdate 
           >
             <div className="flex justify-between items-center p-6 border-b">
               <div>
-                <h2 className="text-xl font-bold font-headline">Modifier {user.username || user.email}</h2>
+                <h2 className="text-xl font-bold">Modifier {user.username || user.email}</h2>
                 <p className="text-sm text-muted-foreground">Mettez à jour les informations de l'utilisateur.</p>
               </div>
               <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)}>

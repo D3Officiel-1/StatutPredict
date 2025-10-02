@@ -96,7 +96,7 @@ export default function PredictPage() {
       <main className="container mx-auto px-4 py-8 md:px-6 md:py-12">
         <div className="space-y-8">
           <div>
-            <h1 className="text-2xl md:text-4xl font-bold tracking-tight font-headline text-center">Prédictions</h1>
+            <h1 className="text-2xl md:text-4xl font-bold tracking-tight text-center">Prédictions</h1>
             <p className="text-muted-foreground mt-2 text-center md:text-base">
               Accédez à chacune de vos applications pour visualiser les prédictions et analyses.
             </p>
@@ -110,7 +110,7 @@ export default function PredictPage() {
                 <Card key={app.id} className="flex flex-col">
                     <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-4">
                     <div className="space-y-1">
-                        <CardTitle as="h3" className="text-lg font-semibold font-headline">{app.name}</CardTitle>
+                        <CardTitle as="h3" className="text-lg font-semibold">{app.name}</CardTitle>
                         <p className="text-sm text-muted-foreground">{app.url}</p>
                     </div>
                     <AppIcon type={app.type} />

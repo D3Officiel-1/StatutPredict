@@ -49,7 +49,7 @@ const AppSidebar = () => {
         <Link href="/dashboard" className="flex items-center gap-3 overflow-hidden" onClick={handleLinkClick}>
           <Image src="https://i.postimg.cc/jS25XGKL/Capture-d-cran-2025-09-03-191656-4-removebg-preview.png" width={40} height={40} alt="Statut Predict Logo" className="shrink-0" />
           <div className={cn("transition-all duration-300", state === 'collapsed' && !isMobile ? "w-0 opacity-0" : "w-auto opacity-100")}>
-            <span className="text-lg font-semibold font-headline text-sidebar-foreground whitespace-nowrap">
+            <span className="text-lg font-semibold text-sidebar-foreground whitespace-nowrap">
               Statut Predict
             </span>
           </div>
@@ -221,5 +221,3 @@ const AppSidebar = () => {
 };
 
 export default AppSidebar;
-
-    

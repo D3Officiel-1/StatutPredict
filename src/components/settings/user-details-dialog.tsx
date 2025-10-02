@@ -61,7 +61,7 @@ export default function UserDetailsDialog({ user, open, onOpenChange }: UserDeta
           >
             <div className="flex justify-between items-start mb-8 pb-6 border-b border-border/50">
                 <div>
-                    <h2 className="text-xl font-bold font-headline">Profil de l'utilisateur</h2>
+                    <h2 className="text-xl font-bold">Profil de l'utilisateur</h2>
                     <p className="text-sm text-muted-foreground">Informations détaillées.</p>
                 </div>
               <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)}>

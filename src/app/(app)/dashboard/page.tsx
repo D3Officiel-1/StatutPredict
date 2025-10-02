@@ -272,9 +272,9 @@ export default function DashboardPage() {
         <CardHeader className="p-0">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <CardTitle as="h2" className="font-headline text-2xl lg:text-3xl">
+              <h2 className="font-bold text-2xl lg:text-3xl">
                 Bonjour, Bienvenue !
-              </CardTitle>
+              </h2>
               <CardDescription className="mt-1 text-base">
                 Voici le résumé de l'activité de votre plateforme.
               </CardDescription>
@@ -459,5 +459,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    

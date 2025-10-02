@@ -19,7 +19,7 @@ const WhatsAppChannelCard = ({ title, description, link }: { title: string, desc
                 height={50}
                 className="mx-auto mb-3"
             />
-            <h3 className="text-lg font-semibold mb-2 font-headline">{title}</h3>
+            <h3 className="text-lg font-semibold mb-2">{title}</h3>
             <p className="text-muted-foreground mb-4">{description}</p>
             <Button asChild style={{ backgroundColor: '#25D366', color: 'white' }}>
                 <a href={link} target="_blank" rel="noopener noreferrer">
@@ -73,7 +73,7 @@ export default function ChainePage() {
             <main className="flex-grow container mx-auto px-4 py-8 md:px-6 md:py-12 flex items-center">
                 <div className="mx-auto w-full max-w-4xl">
                     <div className="mb-8 text-center">
-                        <h1 className="text-2xl md:text-4xl font-bold tracking-tight font-headline">Notre chaîne WhatsApp</h1>
+                        <h1 className="text-2xl md:text-4xl font-bold tracking-tight">Notre chaîne WhatsApp</h1>
                         <p className="mt-2 text-muted-foreground md:text-base">Suivez-nous pour ne rien manquer.</p>
                     </div>
 
