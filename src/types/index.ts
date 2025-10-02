@@ -8,6 +8,8 @@ export interface AppStatusHistory {
   timestamp: Timestamp;
 }
 
+export type HeartbeatStatus = 'healthy' | 'unstable' | 'flatline';
+
 export interface Application {
   id: string;
   name: string;

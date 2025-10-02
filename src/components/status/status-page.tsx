@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { collection, onSnapshot, query, orderBy, getDocs, where, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Power, CheckCircle2, Megaphone, ChevronDown, ShieldAlert } from 'lucide-react';
-import type { Application, AppStatusHistory } from '@/types';
+import type { Application, AppStatusHistory, HeartbeatStatus } from '@/types';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,11 +15,11 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import ResponseTimeChart from '@/components/status/response-time-chart';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '../ui/skeleton';
 import PwaInstallButton from '../pwa-install-button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+import HeartbeatChart from './heartbeat-chart';
 
 const getStatusForDay = (day: Date, history: AppStatusHistory[], currentStatus: boolean): 'operational' | 'maintenance' | 'partial' | 'unknown' => {
   const startOfDay = new Date(day);
@@ -57,6 +57,7 @@ export default function StatusPage() {
   const [apps, setApps] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [heartbeatStatus, setHeartbeatStatus] = useState<HeartbeatStatus>('healthy');
 
   useEffect(() => {
     const q = query(collection(db, 'applications'), orderBy('name'));
@@ -81,6 +82,18 @@ export default function StatusPage() {
 
       const appsData = await Promise.all(appsDataPromises);
       setApps(appsData);
+
+      const totalApps = appsData.length;
+      const maintenanceApps = appsData.filter(app => app.status).length;
+      
+      if (maintenanceApps === 0) {
+        setHeartbeatStatus('healthy');
+      } else if (maintenanceApps === totalApps) {
+        setHeartbeatStatus('flatline');
+      } else {
+        setHeartbeatStatus('unstable');
+      }
+
       setLastUpdated(new Date());
       setLoading(false);
     }, (error) => {
@@ -290,8 +303,8 @@ export default function StatusPage() {
                                 ))}
 
                                 <div className="pt-6">
-                                    <h3 className="text-sm font-medium text-muted-foreground mb-2">Temps de réponse</h3>
-                                    <ResponseTimeChart />
+                                    <h3 className="text-sm font-medium text-muted-foreground mb-2">État du système en temps réel</h3>
+                                    <HeartbeatChart status={heartbeatStatus} />
                                 </div>
                             </CardContent>
                         </AccordionContent>

@@ -177,6 +177,32 @@ input[type=number] {
       transform: scale(0.95);
   }
 
+  .grid-pattern-faded {
+    background-image: linear-gradient(to right, hsl(var(--border) / 0.1) 1px, transparent 1px),
+                      linear-gradient(to bottom, hsl(var(--border) / 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  .filter-glow {
+    filter: drop-shadow(0 0 3px currentColor);
+  }
+
+  .animate-pulse-slow {
+    animation: pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  .animate-draw {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: draw 5s linear infinite;
+  }
+  
+  @keyframes draw {
+    to {
+      stroke-dashoffset: -1000;
+    }
+  }
+
 }
 
 @keyframes flash {
