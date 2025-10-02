@@ -3,7 +3,7 @@
 
 import { useState, useEffect }
 from 'react';
-import { collection, writeBatch, getDocs, serverTimestamp, addDoc } from 'firebase/firestore';
+import { collection, writeBatch, getDocs, serverTimestamp, addDoc, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -23,21 +23,23 @@ import Link from 'next/link';
 import AddAppDialog from '@/components/settings/add-app-dialog';
 import { useToast } from '@/hooks/use-toast';
 import CustomLoader from '@/components/ui/custom-loader';
-import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
+import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell, Legend } from 'recharts';
 import { Progress } from '@/components/ui/progress';
+import type { Application } from '@/types';
+
+const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
 
 export default function DashboardPage() {
   const [salesData, setSalesData] = useState<any[]>([]);
+  const [revenueByApp, setRevenueByApp] = useState<any[]>([]);
   const [isClient, setIsClient] = useState(false);
-  const activeAppsCount = 4;
-  const totalAppsCount = 5;
   const [isAddAppDialogOpen, setIsAddAppDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     setIsClient(true);
-    const data = [
+    const sales = [
         { name: "Jan", total: Math.floor(Math.random() * 2000) + 500 },
         { name: "Fév", total: Math.floor(Math.random() * 3000) + 700 },
         { name: "Mar", total: Math.floor(Math.random() * 2500) + 600 },
@@ -51,7 +53,22 @@ export default function DashboardPage() {
         { name: "Nov", total: Math.floor(Math.random() * 5800) + 1550 },
         { name: "Déc", total: Math.floor(Math.random() * 7000) + 2000 },
     ];
-    setSalesData(data);
+    setSalesData(sales);
+
+    const unsubscribe = onSnapshot(collection(db, 'applications'), (snapshot) => {
+        const appsData: Application[] = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        } as Application));
+        
+        const appRevenueData = appsData.map(app => ({
+            name: app.name,
+            value: Math.floor(Math.random() * 10000) + 2000 // Dummy revenue data
+        }));
+        setRevenueByApp(appRevenueData);
+    });
+
+    return () => unsubscribe();
   }, []);
   
   const handleGlobalMaintenance = async () => {
@@ -247,8 +264,8 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <Card className="lg:col-span-3">
           <CardHeader>
             <CardTitle as="h3">Vue d'ensemble des revenus</CardTitle>
             <CardDescription>
@@ -290,33 +307,69 @@ export default function DashboardPage() {
               </ResponsiveContainer>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle as="h3">Activité Récente</CardTitle>
-            <CardDescription>
-              Un journal des derniers événements sur la plateforme.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-4">
-            {recentActivities.map((activity, index) => (
-              <div key={index} className="flex items-start gap-4">
-                <div className="bg-muted rounded-full p-2">
-                  {activity.type === 'user' && <Users className="h-4 w-4 text-muted-foreground" />}
-                  {activity.type === 'status' && <ShieldAlert className="h-4 w-4 text-muted-foreground" />}
-                  {activity.type === 'discount' && <DollarSign className="h-4 w-4 text-muted-foreground" />}
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm">{activity.description}</p>
-                  <p className="text-xs text-muted-foreground">{activity.time}</p>
-                </div>
-              </div>
-            ))}
-          </CardContent>
+        <Card className="lg:col-span-2">
+            <CardHeader>
+                <CardTitle as="h3">Répartition des revenus</CardTitle>
+                <CardDescription>Part des revenus par application.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                 <ResponsiveContainer width="100%" height={350}>
+                    <PieChart>
+                        <Pie
+                            data={revenueByApp}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={false}
+                            outerRadius={120}
+                            fill="#8884d8"
+                            dataKey="value"
+                            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                        >
+                            {revenueByApp.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            ))}
+                        </Pie>
+                        <Tooltip
+                            contentStyle={{
+                                backgroundColor: 'hsl(var(--background))',
+                                borderColor: 'hsl(var(--border))'
+                            }}
+                        />
+                        <Legend />
+                    </PieChart>
+                </ResponsiveContainer>
+            </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle as="h3">Activité Récente</CardTitle>
+          <CardDescription>
+            Un journal des derniers événements sur la plateforme.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          {recentActivities.map((activity, index) => (
+            <div key={index} className="flex items-start gap-4">
+              <div className="bg-muted rounded-full p-2">
+                {activity.type === 'user' && <Users className="h-4 w-4 text-muted-foreground" />}
+                {activity.type === 'status' && <ShieldAlert className="h-4 w-4 text-muted-foreground" />}
+                {activity.type === 'discount' && <DollarSign className="h-4 w-4 text-muted-foreground" />}
+              </div>
+              <div className="flex-1">
+                <p className="text-sm">{activity.description}</p>
+                <p className="text-xs text-muted-foreground">{activity.time}</p>
+              </div>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
 
     </div>
   );
 }
+
+    
 
     
