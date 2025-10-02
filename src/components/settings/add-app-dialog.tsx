@@ -8,20 +8,13 @@ import { z } from 'zod';
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { AppType } from '@/types';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
     Form,
     FormControl,
+    FormDescription,
     FormField,
     FormItem,
     FormLabel,
@@ -37,6 +30,7 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import CustomLoader from '@/components/ui/custom-loader';
+import { X, Save } from 'lucide-react';
 
 const appSchema = z.object({
     name: z.string().min(2, { message: "Le nom doit contenir au moins 2 caractères." }),
@@ -89,77 +83,108 @@ export default function AddAppDialog({ children, open, onOpenChange }: AddAppDia
             setIsSubmitting(false);
         }
     };
+    
+    const handleOpen = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        onOpenChange(true);
+    }
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogTrigger asChild>
+        <>
+            <div onClick={handleOpen}>
                 {children}
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                    <DialogTitle>Ajouter une nouvelle application</DialogTitle>
-                    <DialogDescription>
-                        Remplissez les détails ci-dessous pour ajouter une nouvelle application à votre tableau de bord.
-                    </DialogDescription>
-                </DialogHeader>
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(handleAddApp)} className="grid gap-4 py-4">
-                        <FormField
-                            control={form.control}
-                            name="name"
-                            render={({ field }) => (
-                                <FormItem className="grid grid-cols-4 items-center gap-4">
-                                    <FormLabel className="text-right">Nom</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="Mon App" className="col-span-3" {...field} />
-                                    </FormControl>
-                                    <FormMessage className="col-span-4 pl-20" />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="url"
-                            render={({ field }) => (
-                                <FormItem className="grid grid-cols-4 items-center gap-4">
-                                    <FormLabel className="text-right">URL/API</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="app.example.com" className="col-span-3" {...field} />
-                                    </FormControl>
-                                    <FormMessage className="col-span-4 pl-20" />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="type"
-                            render={({ field }) => (
-                                <FormItem className="grid grid-cols-4 items-center gap-4">
-                                    <FormLabel className="text-right">Type</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                        <FormControl>
-                                            <SelectTrigger className="col-span-3">
-                                                <SelectValue placeholder="Sélectionnez un type" />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            <SelectItem value="web">Web</SelectItem>
-                                            <SelectItem value="mobile">Mobile</SelectItem>
-                                            <SelectItem value="api">API</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    <FormMessage className="col-span-4 pl-20"/>
-                                </FormItem>
-                            )}
-                        />
-                        <DialogFooter>
-                            <Button type="submit" disabled={isSubmitting}>
-                                {isSubmitting ? <CustomLoader /> : "Ajouter l'application"}
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </Form>
-            </DialogContent>
-        </Dialog>
+            </div>
+            <AnimatePresence>
+                {open && (
+                    <motion.div
+                        className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-end z-50"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => onOpenChange(false)}
+                    >
+                        <motion.div
+                            className="bg-card w-full max-w-lg h-full flex flex-col"
+                            initial={{ x: "100%" }}
+                            animate={{ x: "0%" }}
+                            exit={{ x: "100%" }}
+                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="flex justify-between items-center p-6 border-b">
+                                <div>
+                                    <h2 className="text-xl font-bold font-headline">Ajouter une application</h2>
+                                    <p className="text-sm text-muted-foreground">Remplissez les détails pour enregistrer une nouvelle application.</p>
+                                </div>
+                                <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
+                                    <X className="h-5 w-5" />
+                                </Button>
+                            </div>
+                            
+                            <div className="flex-1 overflow-y-auto p-6">
+                                <Form {...form}>
+                                    <form onSubmit={form.handleSubmit(handleAddApp)} className="space-y-8">
+                                        <FormField
+                                            control={form.control}
+                                            name="name"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel className="text-base">Nom de l'application</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Ex: Portail Client" {...field} className="text-base py-6" />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={form.control}
+                                            name="url"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel className="text-base">URL / Endpoint</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Ex: app.domaine.com" {...field} className="text-base py-6" />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={form.control}
+                                            name="type"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel className="text-base">Type d'application</FormLabel>
+                                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                        <FormControl>
+                                                            <SelectTrigger className="text-base py-6">
+                                                                <SelectValue placeholder="Sélectionnez un type" />
+                                                            </SelectTrigger>
+                                                        </FormControl>
+                                                        <SelectContent>
+                                                            <SelectItem value="web">Web</SelectItem>
+                                                            <SelectItem value="mobile">Mobile</SelectItem>
+                                                            <SelectItem value="api">API</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </form>
+                                </Form>
+                            </div>
+
+                            <div className="p-6 border-t bg-background/90 sticky bottom-0">
+                                <Button type="submit" onClick={form.handleSubmit(handleAddApp)} disabled={isSubmitting} className="w-full text-lg py-6">
+                                    {isSubmitting ? <CustomLoader /> : <><Save className="mr-2" /> Ajouter l'application</>}
+                                </Button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </>
     );
 }
