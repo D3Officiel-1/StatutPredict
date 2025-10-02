@@ -76,9 +76,6 @@ export default function DashboardPage() {
                     allPlans.push({ id: doc.id, appId: appsData[index].id, ...doc.data() } as PricingPlan);
                 });
             });
-
-            // Map for quick lookup: planId -> plan object
-            const plansMap = new Map(allPlans.map(p => [p.id, p]));
             
             // Map for app revenue: appId -> revenue
             const appRevenueMap = new Map<string, number>(appsData.map(app => [app.id, 0]));
@@ -122,10 +119,12 @@ export default function DashboardPage() {
                 });
             });
 
-            const revenueByAppData = appsData.map(app => ({
-                name: app.name,
-                value: appRevenueMap.get(app.id) || 0
-            }));
+            const revenueByAppData = appsData
+                .map(app => ({
+                    name: app.name,
+                    value: appRevenueMap.get(app.id) || 0
+                }))
+                .filter(item => item.value > 0); // Filter out apps with no revenue
 
             const totalRevenueCalculated = Array.from(appRevenueMap.values()).reduce((sum, current) => sum + current, 0);
 
@@ -436,7 +435,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    
-
-    
