@@ -53,12 +53,7 @@ const generateDiscountImageFlow = ai.defineFlow(
   async (input) => {
     const { code, percentage, title, expiryDate, max, people, plan, tous } = input;
     
-    const activationsText = max && max > 0
-      ? `
-        <text x="980" y="560" class="activations-label">Activations</text>
-        <text x="980" y="615" class="activations-value">${people?.length || 0} / ${max}</text>
-      `
-      : '';
+    const activationsText = '';
     
     const planTranslations: { [key: string]: string } = {
         'hourly': 'Heure',
@@ -211,5 +206,3 @@ const generateDiscountImageFlow = ai.defineFlow(
     return { imageUrl: dataUri };
   }
 );
-
-    
