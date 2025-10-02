@@ -6,6 +6,7 @@ import Image from 'next/image';
 import PwaInstallButton from '@/components/pwa-install-button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import PublicMobileNav from '@/components/layout/public-mobile-nav';
 
 const WhatsAppChannelCard = ({ title, description, link }: { title: string, description: string, link: string }) => (
     <Card>
@@ -38,7 +39,7 @@ export default function ChainePage() {
     ];
 
     return (
-        <div className="min-h-screen">
+        <div className="min-h-screen flex flex-col">
             <header className="bg-background/95 sticky top-0 z-10 border-b backdrop-blur-sm">
                 <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
                     <div className="flex-1">
@@ -66,12 +67,15 @@ export default function ChainePage() {
                             Chaîne
                         </Link>
                     </nav>
-                    <PwaInstallButton />
+                    <div className="flex flex-1 justify-end items-center gap-2">
+                        <PwaInstallButton />
+                        <PublicMobileNav />
+                    </div>
                 </div>
             </header>
 
-            <main className="container mx-auto px-4 py-8 md:px-6 md:py-12">
-                <div className="mx-auto max-w-4xl">
+            <main className="flex-grow container mx-auto px-4 py-8 md:px-6 md:py-12 flex items-center">
+                <div className="mx-auto w-full max-w-4xl">
                     <div className="mb-8 text-center">
                         <h1 className="text-4xl font-bold tracking-tight font-headline">Notre chaîne WhatsApp</h1>
                         <p className="mt-2 text-muted-foreground">Suivez-nous pour ne rien manquer.</p>

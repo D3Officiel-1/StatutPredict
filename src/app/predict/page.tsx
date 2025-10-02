@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -11,6 +12,7 @@ import type { Application } from '@/types';
 import Image from 'next/image';
 import { Skeleton } from '@/components/ui/skeleton';
 import PwaInstallButton from '@/components/pwa-install-button';
+import PublicMobileNav from '@/components/layout/public-mobile-nav';
 
 const AppIcon = ({ type }: { type: Application['type'] }) => {
   const className = "h-6 w-6 text-muted-foreground";
@@ -88,7 +90,10 @@ export default function PredictPage() {
                   Chaîne
               </Link>
           </nav>
-          <PwaInstallButton />
+          <div className="flex flex-1 justify-end items-center gap-2">
+            <PwaInstallButton />
+            <PublicMobileNav />
+          </div>
         </div>
       </header>
 

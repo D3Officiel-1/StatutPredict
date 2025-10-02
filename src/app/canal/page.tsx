@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -6,6 +7,7 @@ import Script from 'next/script';
 import PwaInstallButton from '@/components/pwa-install-button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import PublicMobileNav from '@/components/layout/public-mobile-nav';
 
 export default function CanalPage() {
   return (
@@ -37,7 +39,10 @@ export default function CanalPage() {
                   Chaîne
               </Link>
           </nav>
-          <PwaInstallButton />
+          <div className="flex flex-1 justify-end items-center gap-2">
+            <PwaInstallButton />
+            <PublicMobileNav />
+          </div>
         </div>
       </header>
 
@@ -45,7 +50,7 @@ export default function CanalPage() {
         <div className="mx-auto max-w-md">
             <div className="mb-8 text-center">
                 <h1 className="text-4xl font-bold tracking-tight font-headline">Canal Telegram</h1>
-                <p className="mt-2 text-muted-foreground">Suivez nos dernières publications directement ici.</p>
+                <p className="mt-2 text-muted-foreground">Accédez à un flux exclusif de nouvelles, d'analyses et d'opportunités. Notre canal Telegram est votre accès direct à l'information privilégiée, conçue pour les esprits visionnaires.</p>
             </div>
           
             <Card>

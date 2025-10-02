@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -11,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import PwaInstallButton from '@/components/pwa-install-button';
+import PublicMobileNav from '@/components/layout/public-mobile-nav';
 
 interface MaintenanceEvent {
   id: string;
@@ -137,7 +139,10 @@ export default function MaintenancePage() {
                   Chaîne
               </Link>
           </nav>
-          <PwaInstallButton />
+          <div className="flex flex-1 justify-end items-center gap-2">
+            <PwaInstallButton />
+            <PublicMobileNav />
+          </div>
         </div>
       </header>
 

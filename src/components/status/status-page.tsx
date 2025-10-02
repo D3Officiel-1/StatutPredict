@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -20,6 +21,7 @@ import { Skeleton } from '../ui/skeleton';
 import PwaInstallButton from '../pwa-install-button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import HeartbeatChart from './heartbeat-chart';
+import PublicMobileNav from '../layout/public-mobile-nav';
 
 const getStatusForDay = (day: Date, history: AppStatusHistory[], currentStatus: boolean): 'operational' | 'maintenance' | 'partial' | 'unknown' => {
   const startOfDay = new Date(day);
@@ -217,7 +219,10 @@ export default function StatusPage() {
                   Chaîne
               </Link>
           </nav>
-          <PwaInstallButton />
+          <div className="flex flex-1 justify-end items-center gap-2">
+            <PwaInstallButton />
+            <PublicMobileNav />
+          </div>
         </div>
       </header>
 
