@@ -90,6 +90,12 @@ input[type=number] {
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+
+    --sidebar-foreground: 240 27% 93%;
+    --sidebar-accent: 240 25% 25%;
+    --sidebar-accent-foreground: 240 27% 93%;
+    --sidebar-border: 240 25% 21%;
+    --sidebar-ring: 195 100% 50%;
   }
 }
 
@@ -99,6 +105,7 @@ input[type=number] {
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-sans), sans-serif;
   }
 }
 
@@ -108,10 +115,10 @@ input[type=number] {
   }
   @keyframes infinite-scroll {
     from {
-      transform: translateX(-50%);
+      transform: translateX(0);
     }
     to {
-      transform: translateX(0);
+      transform: translateX(-50%);
     }
   }
 
