@@ -11,7 +11,7 @@ import PublicMobileNav from '@/components/layout/public-mobile-nav';
 
 export default function CanalPage() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen flex flex-col">
       <header className="bg-background/95 sticky top-0 z-10 border-b backdrop-blur-sm">
         <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
           <div className="flex-1">
@@ -46,11 +46,11 @@ export default function CanalPage() {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8 md:px-6 md:py-12">
-        <div className="mx-auto max-w-md">
+      <main className="flex-grow container mx-auto px-4 py-8 md:px-6 md:py-12 flex items-center justify-center">
+        <div className="mx-auto max-w-md w-full">
             <div className="mb-8 text-center">
                 <h1 className="text-3xl md:text-4xl font-bold tracking-tight font-headline">Canal Telegram</h1>
-                <p className="mt-2 text-muted-foreground">Accédez à un flux exclusif de nouvelles, d'analyses et d'opportunités. Notre canal Telegram est votre accès direct à l'information privilégiée, conçue pour les esprits visionnaires.</p>
+                <p className="mt-2 text-muted-foreground md:text-base">Accédez à un flux exclusif de nouvelles, d'analyses et d'opportunités. Notre canal Telegram est votre accès direct à l'information privilégiée, conçue pour les esprits visionnaires.</p>
             </div>
           
             <Card>
@@ -63,7 +63,7 @@ export default function CanalPage() {
                     className="mx-auto mb-3"
                 />
                 <h3 className="text-lg font-semibold mb-2 font-headline">Predict</h3>
-                <p className="text-muted-foreground mb-4">Accédez à un flux exclusif de nouvelles, d'analyses et d'opportunités. Notre canal Telegram est votre accès direct à l'information privilégiée, conçue pour les esprits visionnaires.</p>
+                <p className="text-muted-foreground mb-4">Accédez à un flux exclusif de nouvelles, d'analyses et d'opportunités.</p>
                 <Button asChild style={{ backgroundColor: '#2AABEE', color: 'white' }}>
                     <a href="https://t.me/Predict_D3offiiel" target="_blank" rel="noopener noreferrer">
                         Rejoindre le canal
@@ -71,17 +71,6 @@ export default function CanalPage() {
                 </Button>
               </CardContent>
             </Card>
-
-             <div className="mt-8">
-                 <div id="tg-embed">
-                    <Script
-                        async
-                        src="https://telegram.org/js/telegram-widget.js?22"
-                        data-telegram-post="Predict_D3offiiel/15"
-                        data-width="100%"
-                    />
-                </div>
-            </div>
         </div>
       </main>
 
