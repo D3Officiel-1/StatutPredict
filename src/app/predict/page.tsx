@@ -66,9 +66,9 @@ export default function PredictPage() {
        <header className="bg-background/95 sticky top-0 z-10 border-b backdrop-blur-sm">
         <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
           <div className="flex-1">
-            <Link href="/login" className="flex items-center gap-3">
-              <Image src="https://i.postimg.cc/jS25XGKL/Capture-d-cran-2025-09-03-191656-4-removebg-preview.png" width={40} height={40} alt="Statut Predict Logo" />
-              <span className="text-lg font-bold font-headline text-foreground">
+            <Link href="/login" className="flex items-center gap-2 md:gap-3">
+              <Image src="https://i.postimg.cc/jS25XGKL/Capture-d-cran-2025-09-03-191656-4-removebg-preview.png" width={32} height={32} alt="Statut Predict Logo" className="md:h-10 md:w-10" />
+              <span className="text-base md:text-lg font-bold font-headline text-foreground">
                 Statut Predict
               </span>
             </Link>
