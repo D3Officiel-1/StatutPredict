@@ -1,7 +1,8 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect }
+from 'react';
 import { collection, writeBatch, getDocs, serverTimestamp, addDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
@@ -16,36 +17,42 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import Link from 'next/link';
 import AddAppDialog from '@/components/settings/add-app-dialog';
 import { useToast } from '@/hooks/use-toast';
 import CustomLoader from '@/components/ui/custom-loader';
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
-
-const salesData = [
-  { name: "Jan", total: Math.floor(Math.random() * 2000) + 500 },
-  { name: "Fév", total: Math.floor(Math.random() * 2000) + 500 },
-  { name: "Mar", total: Math.floor(Math.random() * 2000) + 500 },
-  { name: "Avr", total: Math.floor(Math.random() * 2000) + 500 },
-  { name: "Mai", total: Math.floor(Math.random() * 2000) + 500 },
-  { name: "Jui", total: Math.floor(Math.random() * 2000) + 500 },
-  { name: "Jul", total: Math.floor(Math.random() * 2000) + 500 },
-  { name: "Aoû", total: Math.floor(Math.random() * 2000) + 500 },
-  { name: "Sep", total: Math.floor(Math.random() * 2000) + 500 },
-  { name: "Oct", total: Math.floor(Math.random() * 2000) + 500 },
-  { name: "Nov", total: Math.floor(Math.random() * 2000) + 500 },
-  { name: "Déc", total: Math.floor(Math.random() * 2000) + 500 },
-];
+import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
+import { Progress, CircleProgress } from '@/components/ui/progress';
 
 export default function DashboardPage() {
+  const [salesData, setSalesData] = useState<any[]>([]);
+  const [isClient, setIsClient] = useState(false);
   const activeAppsCount = 4;
   const totalAppsCount = 5;
   const [isAddAppDialogOpen, setIsAddAppDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
+  useEffect(() => {
+    setIsClient(true);
+    const data = [
+        { name: "Jan", total: Math.floor(Math.random() * 2000) + 500 },
+        { name: "Fév", total: Math.floor(Math.random() * 3000) + 700 },
+        { name: "Mar", total: Math.floor(Math.random() * 2500) + 600 },
+        { name: "Avr", total: Math.floor(Math.random() * 4000) + 800 },
+        { name: "Mai", total: Math.floor(Math.random() * 3500) + 900 },
+        { name: "Jui", total: Math.floor(Math.random() * 5000) + 1200 },
+        { name: "Jul", total: Math.floor(Math.random() * 4800) + 1100 },
+        { name: "Aoû", total: Math.floor(Math.random() * 5500) + 1500 },
+        { name: "Sep", total: Math.floor(Math.random() * 5200) + 1400 },
+        { name: "Oct", total: Math.floor(Math.random() * 6000) + 1600 },
+        { name: "Nov", total: Math.floor(Math.random() * 5800) + 1550 },
+        { name: "Déc", total: Math.floor(Math.random() * 7000) + 2000 },
+    ];
+    setSalesData(data);
+  }, []);
+  
   const handleGlobalMaintenance = async () => {
     setIsSubmitting(true);
     try {
@@ -90,24 +97,55 @@ export default function DashboardPage() {
     }
   };
 
+  const totalRevenue = 45231.89;
+  const revenueGoal = 50000;
+  const revenueProgress = (totalRevenue / revenueGoal) * 100;
+  
+  const totalSubscriptions = 2350;
+  const subscriptionsGoal = 3000;
+  const subscriptionsProgress = (totalSubscriptions / subscriptionsGoal) * 100;
+
+  const totalSignups = 12234;
+  const signupsGoal = 15000;
+  const signupsProgress = (totalSignups / signupsGoal) * 100;
+
+  const activeUsers = 573;
+  const activeUsersGoal = 1000;
+  const activeUsersProgress = (activeUsers / activeUsersGoal) * 100;
+
+  const recentActivities = [
+    { type: 'user', description: 'Nouvel utilisateur : john.doe@example.com', time: 'il y a 5 minutes' },
+    { type: 'status', description: 'L\'app "Portail Client" est passée en maintenance', time: 'il y a 2 heures' },
+    { type: 'user', description: 'Nouvel utilisateur : jane.doe@example.com', time: 'il y a 8 heures' },
+    { type: 'discount', description: 'Nouveau code promo "SUMMER24" créé', time: 'il y a 1 jour' },
+  ];
+
+  if (!isClient) {
+    return (
+        <div className="flex items-center justify-center h-full">
+            <CustomLoader size="large" />
+        </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-8">
       <Card className="border-0 shadow-none bg-transparent">
         <CardHeader className="p-0">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <CardTitle as="h2" className="font-headline text-2xl">
-                Bonjour !
+              <CardTitle as="h2" className="font-headline text-2xl lg:text-3xl">
+                Bonjour, Bienvenue !
               </CardTitle>
-              <CardDescription className="mt-1">
-                Voici l'état de vos applications. {activeAppsCount} sur {totalAppsCount} sont actives.
+              <CardDescription className="mt-1 text-base">
+                Voici le résumé de l'activité de votre plateforme.
               </CardDescription>
             </div>
             <div className="flex gap-2">
               <Button asChild variant="outline">
                 <Link href="/" target="_blank">
                   <ExternalLink />
-                  Voir la page de statut
+                  Page de statut
                 </Link>
               </Button>
               <AlertDialog>
@@ -147,7 +185,7 @@ export default function DashboardPage() {
         </CardHeader>
       </Card>
       
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle as="h3" className="text-sm font-medium">
@@ -156,10 +194,11 @@ export default function DashboardPage() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">45,231.89 FCFA</div>
+            <div className="text-2xl font-bold">{totalRevenue.toLocaleString('fr-FR')} FCFA</div>
             <p className="text-xs text-muted-foreground">
               +20.1% depuis le mois dernier
             </p>
+            <Progress value={revenueProgress} className="mt-4 h-2" />
           </CardContent>
         </Card>
         <Card>
@@ -170,10 +209,11 @@ export default function DashboardPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">+2350</div>
+            <div className="text-2xl font-bold">+{totalSubscriptions}</div>
             <p className="text-xs text-muted-foreground">
               +180.1% depuis le mois dernier
             </p>
+            <Progress value={subscriptionsProgress} className="mt-4 h-2" />
           </CardContent>
         </Card>
         <Card>
@@ -182,10 +222,11 @@ export default function DashboardPage() {
             <BarChartIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">+12,234</div>
+            <div className="text-2xl font-bold">+{totalSignups.toLocaleString('fr-FR')}</div>
             <p className="text-xs text-muted-foreground">
               +19% depuis le mois dernier
             </p>
+            <Progress value={signupsProgress} className="mt-4 h-2" />
           </CardContent>
         </Card>
         <Card>
@@ -196,44 +237,85 @@ export default function DashboardPage() {
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">+573</div>
+            <div className="text-2xl font-bold">+{activeUsers}</div>
             <p className="text-xs text-muted-foreground">
               +201 depuis la dernière heure
             </p>
+             <Progress value={activeUsersProgress} className="mt-4 h-2" />
           </CardContent>
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle as="h3">Vue d'ensemble</CardTitle>
-          <CardDescription>
-            Un aperçu de l'activité de votre plateforme.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="pl-2">
-            <ResponsiveContainer width="100%" height={350}>
-                <BarChart data={salesData}>
-                    <XAxis
-                        dataKey="name"
-                        stroke="#888888"
-                        fontSize={12}
-                        tickLine={false}
-                        axisLine={false}
-                    />
-                    <YAxis
-                        stroke="#888888"
-                        fontSize={12}
-                        tickLine={false}
-                        axisLine={false}
-                        tickFormatter={(value) => `${value}`}
-                    />
-                    <Bar dataKey="total" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                </BarChart>
-            </ResponsiveContainer>
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle as="h3">Vue d'ensemble des revenus</CardTitle>
+            <CardDescription>
+              Aperçu des revenus mensuels pour l'année en cours.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pl-2">
+              <ResponsiveContainer width="100%" height={350}>
+                  <AreaChart data={salesData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                      <defs>
+                          <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                          </linearGradient>
+                      </defs>
+                      <XAxis
+                          dataKey="name"
+                          stroke="#888888"
+                          fontSize={12}
+                          tickLine={false}
+                          axisLine={false}
+                      />
+                      <YAxis
+                          stroke="#888888"
+                          fontSize={12}
+                          tickLine={false}
+                          axisLine={false}
+                          tickFormatter={(value) => `${(value as number / 1000)}k`}
+                      />
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                      <Tooltip 
+                        contentStyle={{
+                          backgroundColor: 'hsl(var(--background))',
+                          borderColor: 'hsl(var(--border))'
+                        }}
+                      />
+                      <Area type="monotone" dataKey="total" stroke="hsl(var(--primary))" fillOpacity={1} fill="url(#colorTotal)" />
+                  </AreaChart>
+              </ResponsiveContainer>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle as="h3">Activité Récente</CardTitle>
+            <CardDescription>
+              Un journal des derniers événements sur la plateforme.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4">
+            {recentActivities.map((activity, index) => (
+              <div key={index} className="flex items-start gap-4">
+                <div className="bg-muted rounded-full p-2">
+                  {activity.type === 'user' && <Users className="h-4 w-4 text-muted-foreground" />}
+                  {activity.type === 'status' && <ShieldAlert className="h-4 w-4 text-muted-foreground" />}
+                  {activity.type === 'discount' && <DollarSign className="h-4 w-4 text-muted-foreground" />}
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm">{activity.description}</p>
+                  <p className="text-xs text-muted-foreground">{activity.time}</p>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
 
     </div>
   );
 }
+
+    

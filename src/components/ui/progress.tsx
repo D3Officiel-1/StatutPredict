@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -25,4 +26,61 @@ const Progress = React.forwardRef<
 ))
 Progress.displayName = ProgressPrimitive.Root.displayName
 
-export { Progress }
+interface CircleProgressProps extends React.HTMLAttributes<HTMLDivElement> {
+  value?: number;
+  size?: number;
+  strokeWidth?: number;
+}
+
+const CircleProgress = React.forwardRef<HTMLDivElement, CircleProgressProps>(
+  ({ className, value = 0, size = 100, strokeWidth = 10, ...props }, ref) => {
+    const radius = (size - strokeWidth) / 2;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (value / 100) * circumference;
+
+    return (
+      <div
+        ref={ref}
+        className={cn("relative inline-flex items-center justify-center", className)}
+        style={{ width: size, height: size }}
+        {...props}
+      >
+        <svg className="absolute top-0 left-0" width={size} height={size}>
+          <circle
+            className="text-secondary"
+            stroke="currentColor"
+            strokeWidth={strokeWidth}
+            fill="transparent"
+            r={radius}
+            cx={size / 2}
+            cy={size / 2}
+          />
+          <circle
+            className="text-primary"
+            stroke="currentColor"
+            strokeWidth={strokeWidth}
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+            strokeLinecap="round"
+            fill="transparent"
+            r={radius}
+            cx={size / 2}
+            cy={size / 2}
+            style={{
+              transition: 'stroke-dashoffset 0.5s ease-in-out',
+              transform: 'rotate(-90deg)',
+              transformOrigin: '50% 50%',
+            }}
+          />
+        </svg>
+        <span className="text-lg font-bold text-foreground">{`${Math.round(value)}%`}</span>
+      </div>
+    );
+  }
+);
+CircleProgress.displayName = "CircleProgress";
+
+
+export { Progress, CircleProgress }
+
+    
