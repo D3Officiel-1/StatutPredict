@@ -240,16 +240,16 @@ export default function UserManagement() {
                     Inviter un utilisateur
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-md bg-card/90 border-border/50 rounded-xl">
                 <DialogHeader>
-                    <DialogTitle>Inviter un nouvel utilisateur</DialogTitle>
+                    <DialogTitle className="font-headline text-xl">Inviter un nouvel utilisateur</DialogTitle>
                     <DialogDescription>
-                        Entrez l'email de l'utilisateur pour lui envoyer une invitation.
+                        Entrez l'email pour créer un nouveau profil utilisateur.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="email" className="text-right">Email</Label>
+                    <div className="space-y-2">
+                        <Label htmlFor="email" className="text-muted-foreground">Email</Label>
                         <Input id="email" type="email" placeholder="utilisateur@example.com" className="col-span-3" value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} />
                     </div>
                 </div>
