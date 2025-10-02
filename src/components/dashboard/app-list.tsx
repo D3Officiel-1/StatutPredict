@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, onSnapshot, doc, updateDoc, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, onSnapshot, doc, updateDoc, addDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import AppStatusCard from './app-status-card';
 import type { Application } from '@/types';
@@ -12,7 +12,8 @@ export default function AppList() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, 'applications'), (snapshot) => {
+    const q = query(collection(db, 'applications'), orderBy('name'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
       const appsData: Application[] = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
@@ -77,3 +78,5 @@ const CardSkeleton = () => (
         </div>
     </div>
 )
+
+      

@@ -3,11 +3,11 @@
 
 import { useState, useEffect }
 from 'react';
-import { collection, writeBatch, getDocs, serverTimestamp, addDoc, onSnapshot, query, where, collectionGroup } from 'firebase/firestore';
+import { collection, writeBatch, getDocs, serverTimestamp, addDoc, onSnapshot, query, where, collectionGroup, orderBy, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ShieldAlert, Plus, ExternalLink, Users, DollarSign, Activity, BarChart as BarChartIcon } from 'lucide-react';
+import { ShieldAlert, Plus, ExternalLink, Users, DollarSign, Activity, BarChart as BarChartIcon, TicketPercent } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,9 +25,19 @@ import { useToast } from '@/hooks/use-toast';
 import CustomLoader from '@/components/ui/custom-loader';
 import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell, Legend } from 'recharts';
 import { Progress } from '@/components/ui/progress';
-import type { Application, PricingPlan, User, PricingItem } from '@/types';
+import type { Application, PricingPlan, User, PricingItem, DiscountCode, AppStatusHistory } from '@/types';
+import { formatDistanceToNow } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
 const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
+
+type RecentActivity = {
+  type: 'user' | 'status' | 'discount';
+  description: string;
+  time: string;
+  timestamp: Date;
+  icon: React.ReactNode;
+};
 
 export default function DashboardPage() {
   const [salesData, setSalesData] = useState<any[]>([]);
@@ -39,6 +49,7 @@ export default function DashboardPage() {
   const [isClient, setIsClient] = useState(false);
   const [isAddAppDialogOpen, setIsAddAppDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [recentActivities, setRecentActivities] = useState<RecentActivity[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -61,12 +72,13 @@ export default function DashboardPage() {
 
     const appsQuery = query(collection(db, 'applications'));
     const usersQuery = query(collection(db, 'users'));
-
+    
     // Combined listener for apps and users
     const unsubscribe = onSnapshot(usersQuery, (usersSnapshot) => {
         getDocs(appsQuery).then(async (appsSnapshot) => {
             const appsData = appsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Application));
-            
+            const appNameMap = new Map(appsData.map(app => [app.id, app.name]));
+
             // 1. Fetch all plans for all apps
             const allPlans: PricingPlan[] = [];
             const plansPromises = appsData.map(app => getDocs(collection(db, `applications/${app.id}/plans`)));
@@ -131,6 +143,61 @@ export default function DashboardPage() {
             setRevenueByApp(revenueByAppData);
             setTotalRevenue(totalRevenueCalculated);
             setTotalSubscriptions(activeSubscriptionsCount);
+            
+            // 4. Fetch recent activities
+            const fetchRecentActivities = async () => {
+                const activities: RecentActivity[] = [];
+
+                // New Users
+                const newUsersQuery = query(collection(db, 'users'), orderBy('createdAt', 'desc'), limit(5));
+                const newUsersSnapshot = await getDocs(newUsersQuery);
+                newUsersSnapshot.forEach(doc => {
+                    const user = doc.data() as User;
+                    activities.push({
+                        type: 'user',
+                        description: `Nouvel utilisateur : ${user.email}`,
+                        timestamp: user.createdAt.toDate(),
+                        time: formatDistanceToNow(user.createdAt.toDate(), { addSuffix: true, locale: fr }),
+                        icon: <Users className="h-4 w-4 text-muted-foreground" />
+                    });
+                });
+
+                // App Status Changes
+                const statusHistoryQuery = query(collection(db, 'app_status_history'), orderBy('timestamp', 'desc'), limit(5));
+                const statusHistorySnapshot = await getDocs(statusHistoryQuery);
+                statusHistorySnapshot.forEach(doc => {
+                    const history = doc.data() as AppStatusHistory;
+                    const appName = appNameMap.get(history.appId) || 'App inconnue';
+                    const statusText = history.status ? 'est passée en maintenance' : 'est de nouveau opérationnelle';
+                    activities.push({
+                        type: 'status',
+                        description: `L'app "${appName}" ${statusText}`,
+                        timestamp: history.timestamp.toDate(),
+                        time: formatDistanceToNow(history.timestamp.toDate(), { addSuffix: true, locale: fr }),
+                        icon: <ShieldAlert className="h-4 w-4 text-muted-foreground" />
+                    });
+                });
+
+                // New Discount Codes
+                const newDiscountsQuery = query(collection(db, 'promo'), orderBy('debutdate', 'desc'), limit(5));
+                const newDiscountsSnapshot = await getDocs(newDiscountsQuery);
+                newDiscountsSnapshot.forEach(doc => {
+                    const discount = doc.data() as DiscountCode;
+                    activities.push({
+                        type: 'discount',
+                        description: `Nouveau code promo : "${discount.code}" créé`,
+                        timestamp: discount.debutdate.toDate(),
+                        time: formatDistanceToNow(discount.debutdate.toDate(), { addSuffix: true, locale: fr }),
+                        icon: <TicketPercent className="h-4 w-4 text-muted-foreground" />
+                    });
+                });
+
+                // Sort all activities by timestamp
+                activities.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+                setRecentActivities(activities.slice(0, 5)); // Get top 5 overall
+            };
+            fetchRecentActivities();
+
         });
 
         // Other user-based stats
@@ -195,13 +262,6 @@ export default function DashboardPage() {
 
   const activeUsersGoal = Math.max(activeUsers * 1.25, 100);
   const activeUsersProgress = activeUsers > 0 ? (activeUsers / activeUsersGoal) * 100 : 0;
-
-  const recentActivities = [
-    { type: 'user', description: 'Nouvel utilisateur : john.doe@example.com', time: 'il y a 5 minutes' },
-    { type: 'status', description: 'L\'app "Portail Client" est passée en maintenance', time: 'il y a 2 heures' },
-    { type: 'user', description: 'Nouvel utilisateur : jane.doe@example.com', time: 'il y a 8 heures' },
-    { type: 'discount', description: 'Nouveau code promo "SUMMER24" créé', time: 'il y a 1 jour' },
-  ];
 
   if (!isClient) {
     return (
@@ -416,22 +476,26 @@ export default function DashboardPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-          {recentActivities.map((activity, index) => (
-            <div key={index} className="flex items-start gap-4">
-              <div className="bg-muted rounded-full p-2">
-                {activity.type === 'user' && <Users className="h-4 w-4 text-muted-foreground" />}
-                {activity.type === 'status' && <ShieldAlert className="h-4 w-4 text-muted-foreground" />}
-                {activity.type === 'discount' && <DollarSign className="h-4 w-4 text-muted-foreground" />}
+          {recentActivities.length > 0 ? (
+            recentActivities.map((activity, index) => (
+              <div key={index} className="flex items-start gap-4">
+                <div className="bg-muted rounded-full p-2">
+                  {activity.icon}
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm">{activity.description}</p>
+                  <p className="text-xs text-muted-foreground">{activity.time}</p>
+                </div>
               </div>
-              <div className="flex-1">
-                <p className="text-sm">{activity.description}</p>
-                <p className="text-xs text-muted-foreground">{activity.time}</p>
-              </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p className="text-sm text-muted-foreground text-center py-4">Aucune activité récente à afficher.</p>
+          )}
         </CardContent>
       </Card>
 
     </div>
   );
 }
+
+      
