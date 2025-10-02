@@ -1,48 +1,22 @@
-
 'use client';
 
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Globe, Users } from "lucide-react";
+import AppSettings from '@/components/settings/app-settings';
 
-interface SettingsNavProps extends React.HTMLAttributes<HTMLElement> {
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
-}
-
-export default function SettingsNav({ className, activeTab, setActiveTab, ...props }: SettingsNavProps) {
-  const navItems = [
-    {
-      id: 'applications',
-      title: 'Applications',
-      icon: <Globe className="mr-2 h-4 w-4" />,
-    },
-    {
-      id: 'users',
-      title: 'Utilisateurs',
-      icon: <Users className="mr-2 h-4 w-4" />,
-    },
-  ];
-
+export default function SettingsPage() {
   return (
-    <nav
-      className={cn(
-        "flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1",
-        className
-      )}
-      {...props}
-    >
-      {navItems.map((item) => (
-        <Button
-          key={item.id}
-          variant={activeTab === item.id ? "default" : "ghost"}
-          className="w-full justify-start"
-          onClick={() => setActiveTab(item.id)}
-        >
-          {item.icon}
-          {item.title}
-        </Button>
-      ))}
-    </nav>
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-bold tracking-tight font-headline">Paramètres des applications</h2>
+        <p className="text-muted-foreground">
+          Gérez les paramètres de vos applications.
+        </p>
+      </div>
+
+      <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
+        <div className="flex-1 lg:max-w-4xl">
+            <AppSettings />
+        </div>
+      </div>
+    </div>
   );
 }
