@@ -45,19 +45,6 @@ const AppSidebar = () => {
 
       <SidebarContent className="flex-1 flex items-center justify-center p-2">
         <SidebarMenu className="w-full text-center">
-           <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              isActive={false}
-              tooltip="Page de Statut Publique"
-              className="justify-center text-lg"
-            >
-              <Link href="/" target="_blank">
-                <ShieldCheck className="h-5 w-5" />
-                <span>Page Publique</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
@@ -113,19 +100,6 @@ const AppSidebar = () => {
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              isActive={isActive('/users')}
-              tooltip="Utilisateurs"
-              className="justify-center text-lg"
-            >
-              <Link href="/users">
-                <Users className="h-5 w-5" />
-                <span>Utilisateurs</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
               isActive={isActive('/discounts')}
               tooltip="Codes de réduction"
               className="justify-center text-lg"
@@ -136,7 +110,7 @@ const AppSidebar = () => {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
-          <SidebarMenuItem>
+           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
               isActive={isActive('/maintenance-programs')}
@@ -150,6 +124,19 @@ const AppSidebar = () => {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              isActive={isActive('/users')}
+              tooltip="Utilisateurs"
+              className="justify-center text-lg"
+            >
+              <Link href="/users">
+                <Users className="h-5 w-5" />
+                <span>Utilisateurs</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
             <SidebarMenuButton 
               asChild
               isActive={isActive('/settings')}
@@ -159,6 +146,19 @@ const AppSidebar = () => {
               <Link href="/settings">
                 <Settings className="h-5 w-5" />
                 <span>Paramètres</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              isActive={false}
+              tooltip="Page de Statut Publique"
+              className="justify-center text-lg"
+            >
+              <Link href="/" target="_blank">
+                <ShieldCheck className="h-5 w-5" />
+                <span>Page Publique</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
