@@ -1,13 +1,20 @@
+
 import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
-import { Inter as FontSans } from "next/font/google"
+import { Inter as FontSans, Orbitron } from "next/font/google"
 import { cn } from "@/lib/utils"
 
 const fontSans = FontSans({
   subsets: ["latin"],
   variable: "--font-sans",
 })
+
+const fontHeadline = Orbitron({
+  subsets: ['latin'],
+  weight: ['400', '700', '900'],
+  variable: '--font-headline',
+});
 
 export const metadata: Metadata = {
   title: 'Centre de Statut',
@@ -48,7 +55,8 @@ export default function RootLayout({
        <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased",
-          fontSans.variable
+          fontSans.variable,
+          fontHeadline.variable
         )}
       >
         {children}
@@ -57,3 +65,5 @@ export default function RootLayout({
     </html>
   );
 }
+
+    

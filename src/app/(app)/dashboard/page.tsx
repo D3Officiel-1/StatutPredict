@@ -23,8 +23,8 @@ import Link from 'next/link';
 import AddAppDialog from '@/components/settings/add-app-dialog';
 import { useToast } from '@/hooks/use-toast';
 import CustomLoader from '@/components/ui/custom-loader';
-import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell, Legend } from 'recharts';
-import { Progress } from '@/components/ui/progress';
+import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell, Legend, RadialBarChart, RadialBar } from 'recharts';
+import { Progress, CircleProgress } from '@/components/ui/progress';
 import type { Application, PricingPlan, User, PricingItem, DiscountCode, AppStatusHistory } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -194,7 +194,7 @@ export default function DashboardPage() {
 
                 // Sort all activities by timestamp
                 activities.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-                setRecentActivities(activities.slice(0, 5)); // Get top 5 overall
+                setRecentActivities(activities.slice(0, 7));
             };
             fetchRecentActivities();
 
@@ -251,17 +251,12 @@ export default function DashboardPage() {
     }
   };
 
-  const revenueGoal = Math.max(totalRevenue * 1.25, 50000); // Set a dynamic goal
-  const revenueProgress = totalRevenue > 0 ? (totalRevenue / revenueGoal) * 100 : 0;
-  
-  const subscriptionsGoal = Math.max(totalSubscriptions * 1.25, 100);
-  const subscriptionsProgress = totalSubscriptions > 0 ? (totalSubscriptions / subscriptionsGoal) * 100 : 0;
-
-  const signupsGoal = Math.max(totalSignups * 1.25, 500);
-  const signupsProgress = totalSignups > 0 ? (totalSignups / signupsGoal) * 100 : 0;
-
-  const activeUsersGoal = Math.max(activeUsers * 1.25, 100);
-  const activeUsersProgress = activeUsers > 0 ? (activeUsers / activeUsersGoal) * 100 : 0;
+  const kpiData = [
+    { name: 'Revenus', value: totalRevenue, goal: Math.max(totalRevenue * 1.25, 50000), format: (v: number) => `${v.toLocaleString('fr-FR')} FCFA`, icon: DollarSign },
+    { name: 'Abonnements', value: totalSubscriptions, goal: Math.max(totalSubscriptions * 1.25, 100), format: (v: number) => `+${v}`, icon: Users },
+    { name: 'Inscriptions', value: totalSignups, goal: Math.max(totalSignups * 1.25, 500), format: (v: number) => `+${v.toLocaleString('fr-FR')}`, icon: BarChartIcon },
+    { name: 'Utilisateurs Actifs', value: activeUsers, goal: Math.max(activeUsers * 1.25, 100), format: (v: number) => `+${v}`, icon: Activity },
+  ];
 
   if (!isClient) {
     return (
@@ -329,68 +324,27 @@ export default function DashboardPage() {
       </Card>
       
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle as="h3" className="text-sm font-medium">
-              Revenu Total
-            </CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalRevenue.toLocaleString('fr-FR')} FCFA</div>
-            <p className="text-xs text-muted-foreground">
-              Basé sur les abonnements actifs
-            </p>
-            <Progress value={revenueProgress} className="mt-4 h-2" />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle as="h3" className="text-sm font-medium">
-              Abonnements
-            </CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">+{totalSubscriptions}</div>
-            <p className="text-xs text-muted-foreground">
-              Nombre d'abonnements actifs
-            </p>
-            <Progress value={subscriptionsProgress} className="mt-4 h-2" />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle as="h3" className="text-sm font-medium">Inscriptions</CardTitle>
-            <BarChartIcon className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">+{totalSignups.toLocaleString('fr-FR')}</div>
-            <p className="text-xs text-muted-foreground">
-              Total des utilisateurs enregistrés
-            </p>
-            <Progress value={signupsProgress} className="mt-4 h-2" />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle as="h3" className="text-sm font-medium">
-              Utilisateurs Actifs
-            </CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">+{activeUsers}</div>
-            <p className="text-xs text-muted-foreground">
-              Utilisateurs actuellement en ligne
-            </p>
-             <Progress value={activeUsersProgress} className="mt-4 h-2" />
-          </CardContent>
-        </Card>
+        {kpiData.map((kpi, i) => (
+          <Card key={i}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle as="h3" className="text-sm font-medium">
+                {kpi.name}
+              </CardTitle>
+              <kpi.icon className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{kpi.format(kpi.value)}</div>
+              <p className="text-xs text-muted-foreground">
+                Objectif: {kpi.format(kpi.goal)}
+              </p>
+              <Progress value={(kpi.value / kpi.goal) * 100} className="mt-4 h-2" />
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        <Card className="lg:col-span-3">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle as="h3">Vue d'ensemble des revenus</CardTitle>
             <CardDescription>
@@ -423,7 +377,7 @@ export default function DashboardPage() {
                       <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
                       <Tooltip 
                         contentStyle={{
-                          backgroundColor: 'hsl(var(--background))',
+                          backgroundColor: 'hsl(var(--card))',
                           borderColor: 'hsl(var(--border))'
                         }}
                       />
@@ -432,70 +386,78 @@ export default function DashboardPage() {
               </ResponsiveContainer>
           </CardContent>
         </Card>
-        <Card className="lg:col-span-2">
-            <CardHeader>
-                <CardTitle as="h3">Répartition des revenus</CardTitle>
-                <CardDescription>Part des revenus par application (réelle).</CardDescription>
-            </CardHeader>
-            <CardContent>
-                 <ResponsiveContainer width="100%" height={350}>
-                    <PieChart>
-                        <Pie
-                            data={revenueByApp}
-                            cx="50%"
-                            cy="50%"
-                            labelLine={false}
-                            outerRadius={120}
-                            fill="#8884d8"
-                            dataKey="value"
-                            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                        >
-                            {revenueByApp.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                            ))}
-                        </Pie>
-                        <Tooltip
-                            contentStyle={{
-                                backgroundColor: 'hsl(var(--background))',
-                                borderColor: 'hsl(var(--border))'
-                            }}
-                            formatter={(value: number) => `${value.toLocaleString('fr-FR')} FCFA`}
-                        />
-                        <Legend />
-                    </PieChart>
-                </ResponsiveContainer>
-            </CardContent>
-        </Card>
+        <div className="lg:col-span-1 flex flex-col gap-6">
+            <Card>
+                <CardHeader>
+                    <CardTitle as="h3">Répartition des revenus</CardTitle>
+                    <CardDescription>Part des revenus par application.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                     <ResponsiveContainer width="100%" height={150}>
+                        <PieChart>
+                            <Pie
+                                data={revenueByApp}
+                                cx="50%"
+                                cy="50%"
+                                labelLine={false}
+                                outerRadius={60}
+                                fill="#8884d8"
+                                dataKey="value"
+                                stroke="hsl(var(--background))"
+                                strokeWidth={4}
+                            >
+                                {revenueByApp.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                ))}
+                            </Pie>
+                            <Tooltip
+                                contentStyle={{
+                                    backgroundColor: 'hsl(var(--card))',
+                                    borderColor: 'hsl(var(--border))'
+                                }}
+                                formatter={(value: number) => `${value.toLocaleString('fr-FR')} FCFA`}
+                            />
+                        </PieChart>
+                    </ResponsiveContainer>
+                    <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs mt-2">
+                        {revenueByApp.map((entry, index) => (
+                            <div key={`legend-${index}`} className="flex items-center gap-1.5">
+                                <span className="h-2 w-2 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
+                                <span>{entry.name}</span>
+                            </div>
+                        ))}
+                    </div>
+                </CardContent>
+            </Card>
+            <Card className="flex-grow">
+                <CardHeader>
+                <CardTitle as="h3">Activité Récente</CardTitle>
+                <CardDescription>
+                    Derniers événements sur la plateforme.
+                </CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col gap-4">
+                {recentActivities.length > 0 ? (
+                    recentActivities.slice(0,3).map((activity, index) => (
+                    <div key={index} className="flex items-start gap-4">
+                        <div className="bg-muted rounded-full p-2">
+                        {activity.icon}
+                        </div>
+                        <div className="flex-1">
+                        <p className="text-sm leading-tight">{activity.description}</p>
+                        <p className="text-xs text-muted-foreground">{activity.time}</p>
+                        </div>
+                    </div>
+                    ))
+                ) : (
+                    <p className="text-sm text-muted-foreground text-center py-4">Aucune activité récente.</p>
+                )}
+                </CardContent>
+            </Card>
+        </div>
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle as="h3">Activité Récente</CardTitle>
-          <CardDescription>
-            Un journal des derniers événements sur la plateforme.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4">
-          {recentActivities.length > 0 ? (
-            recentActivities.map((activity, index) => (
-              <div key={index} className="flex items-start gap-4">
-                <div className="bg-muted rounded-full p-2">
-                  {activity.icon}
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm">{activity.description}</p>
-                  <p className="text-xs text-muted-foreground">{activity.time}</p>
-                </div>
-              </div>
-            ))
-          ) : (
-            <p className="text-sm text-muted-foreground text-center py-4">Aucune activité récente à afficher.</p>
-          )}
-        </CardContent>
-      </Card>
-
     </div>
   );
 }
 
-      
+    
