@@ -60,12 +60,18 @@ const generateDiscountImageFlow = ai.defineFlow(
       `
       : '';
     
+    const planTranslations: { [key: string]: string } = {
+        'hourly': 'Heure',
+        'daily': 'Jour',
+        'weekly': 'Semaine',
+        'monthly': 'Mois'
+    };
+
     const planText = !tous && plan
-      ? `
-        <text x="430" y="615" class="plan-label">Pour le forfait</text>
-        <text x="430" y="560" class="plan-value">${plan}</text>
-      `
-      : '';
+    ? `
+      <text x="600" y="96" class="plan-header">${planTranslations[plan] || plan}</text>
+    `
+    : '';
 
     // Perforations (left + right) -> on génère les <circle> puis on les met dans le mask pour "découper"
     const perforationRadius = 10;
@@ -133,8 +139,7 @@ const generateDiscountImageFlow = ai.defineFlow(
           .activations-label { font-family: sans-serif; font-size: 22px; fill: #9ab7c9; text-anchor: end; }
           .activations-value { font-family: sans-serif; font-size: 56px; fill: #ffffff; font-weight: 800; text-anchor: end; }
           .expiry { font-family: sans-serif; font-size: 20px; fill: #9ab7c9; text-anchor: middle; }
-          .plan-label { font-family: sans-serif; font-size: 22px; fill: #9ab7c9; text-anchor: start; }
-          .plan-value { font-family: sans-serif; font-size: 56px; fill: #ffffff; font-weight: 800; text-anchor: start; text-transform: capitalize;}
+          .plan-header { font-family: sans-serif; font-size: 24px; fill: #a5d8ff; font-weight: 600; text-anchor: middle; text-transform: uppercase; letter-spacing: 1.5px; }
         </style>
       </defs>
 
@@ -151,6 +156,7 @@ const generateDiscountImageFlow = ai.defineFlow(
 
         <!-- Header -->
         <text x="86" y="96" class="title">${title}</text>
+        ${planText}
         <text x="1114" y="90" class="bonus-label">BONUS CODE</text>
 
         <!-- Big glossy code box -->
@@ -175,9 +181,6 @@ const generateDiscountImageFlow = ai.defineFlow(
         <!-- Left column: reduction -->
         <text x="150" y="560" class="percentage-label">Réduction</text>
         <text x="150" y="620" class="percentage-value">${percentage}%</text>
-
-        <!-- Center column: plan -->
-        ${planText}
 
         <!-- Right column: activations (optionnel) -->
         ${activationsText}
