@@ -224,3 +224,5 @@ export default function ActivatePlanDialog({ user, open, onOpenChange }: Activat
     </AnimatePresence>
   );
 }
+
+    

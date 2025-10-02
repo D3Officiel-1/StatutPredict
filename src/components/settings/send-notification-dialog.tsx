@@ -152,134 +152,138 @@ export default function SendNotificationDialog({ user, open, onOpenChange }: Sen
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-end z-50"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={() => onOpenChange(false)}
         >
           <motion.div
-            className="bg-card p-6 rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="bg-card w-full max-w-2xl h-full flex flex-col"
+            initial={{ x: "100%" }}
+            animate={{ x: "0%" }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", stiffness: 300, damping: 35 }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-center p-6 border-b">
               <div>
-                <h2 className="text-lg font-semibold">Envoyer à {user.username || user.email}</h2>
+                <h2 className="text-xl font-bold font-headline">Notifier {user.username || user.email}</h2>
                 <p className="text-sm text-muted-foreground">Rédigez et envoyez une notification personnelle.</p>
               </div>
               <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
-                <X className="h-4 w-4" />
+                <X className="h-5 w-5" />
               </Button>
             </div>
-
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Titre</FormLabel>
-                      <FormControl><Input placeholder="Commission de parrainage reçue" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="message"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Message</FormLabel>
-                      <FormControl><Textarea rows={4} placeholder="Vous avez reçu 1000 FCFA..." {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField
-                    control={form.control}
-                    name="type"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Type de notification</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
-                            <SelectContent>
-                                <SelectItem value="info">Info</SelectItem>
-                                <SelectItem value="referral">Parrainage</SelectItem>
-                                <SelectItem value="subscription">Abonnement</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                    />
-                    <FormField
-                    control={form.control}
-                    name="link"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Lien (optionnel)</FormLabel>
-                        <FormControl><Input placeholder="/referral" {...field} /></FormControl>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                    />
-                </div>
-                
-                <Tabs defaultValue="upload" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="upload"><Upload className="mr-2 h-4 w-4"/>Téléverser</TabsTrigger>
-                    <TabsTrigger value="library"><GalleryHorizontal className="mr-2 h-4 w-4"/>Bibliothèque</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="upload">
-                    <div className="rounded-md border p-4 mt-2">
-                      <FormField
+            <div className="flex-1 overflow-y-auto">
+                <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full">
+                    <div className="p-6 space-y-8 flex-1">
+                        <FormField
                         control={form.control}
-                        name="mediaUrl"
-                        render={() => (
-                          <FormItem>
-                            <FormLabel>Média (optionnel)</FormLabel>
-                            <FormControl><Input type="file" accept="image/*,video/*" onChange={handleFileUpload} disabled={isUploading} /></FormControl>
+                        name="title"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Titre</FormLabel>
+                            <FormControl><Input placeholder="Commission de parrainage reçue" {...field} /></FormControl>
                             <FormMessage />
-                          </FormItem>
+                            </FormItem>
                         )}
-                      />
-                      {isUploading && <CustomLoader />}
-                      {uploadedMediaUrl && (
-                        <div className="mt-4 relative w-full h-40">
-                          {uploadedMediaUrl.includes('video') ? (
-                            <video src={uploadedMediaUrl} controls className="w-full h-full object-contain rounded-md" />
-                          ) : (
-                            <Image src={uploadedMediaUrl} alt="Média" layout="fill" className="rounded-md object-contain" />
-                          )}
+                        />
+                        <FormField
+                        control={form.control}
+                        name="message"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Message</FormLabel>
+                            <FormControl><Textarea rows={4} placeholder="Vous avez reçu 1000 FCFA..." {...field} /></FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <FormField
+                            control={form.control}
+                            name="type"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>Type de notification</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="info">Info</SelectItem>
+                                        <SelectItem value="referral">Parrainage</SelectItem>
+                                        <SelectItem value="subscription">Abonnement</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                            />
+                            <FormField
+                            control={form.control}
+                            name="link"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>Lien (optionnel)</FormLabel>
+                                <FormControl><Input placeholder="/referral" {...field} /></FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                            />
                         </div>
-                      )}
+                        
+                        <Tabs defaultValue="upload" className="w-full">
+                        <TabsList className="grid w-full grid-cols-2">
+                            <TabsTrigger value="upload"><Upload className="mr-2 h-4 w-4"/>Téléverser</TabsTrigger>
+                            <TabsTrigger value="library"><GalleryHorizontal className="mr-2 h-4 w-4"/>Bibliothèque</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="upload">
+                            <div className="rounded-md border p-4 mt-2">
+                            <FormField
+                                control={form.control}
+                                name="mediaUrl"
+                                render={() => (
+                                <FormItem>
+                                    <FormLabel>Média (optionnel)</FormLabel>
+                                    <FormControl><Input type="file" accept="image/*,video/*" onChange={handleFileUpload} disabled={isUploading} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                            {isUploading && <CustomLoader />}
+                            {uploadedMediaUrl && (
+                                <div className="mt-4 relative w-full h-40">
+                                {uploadedMediaUrl.includes('video') ? (
+                                    <video src={uploadedMediaUrl} controls className="w-full h-full object-contain rounded-md" />
+                                ) : (
+                                    <Image src={uploadedMediaUrl} alt="Média" layout="fill" className="rounded-md object-contain" />
+                                )}
+                                </div>
+                            )}
+                            </div>
+                        </TabsContent>
+                        <TabsContent value="library">
+                            <div className="mt-2">
+                            <MediaLibrary mediaItems={mediaLibrary} onSelect={handleMediaSelect} />
+                            </div>
+                        </TabsContent>
+                        </Tabs>
                     </div>
-                  </TabsContent>
-                  <TabsContent value="library">
-                    <div className="mt-2">
-                      <MediaLibrary mediaItems={mediaLibrary} onSelect={handleMediaSelect} />
-                    </div>
-                  </TabsContent>
-                </Tabs>
 
-                <div className="flex justify-end gap-2">
-                  <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Annuler</Button>
-                  <Button type="submit" disabled={isSubmitting || isUploading}>
-                    {isSubmitting ? <CustomLoader /> : <><Send className="mr-2 h-4 w-4" /> Envoyer</>}
-                  </Button>
-                </div>
-              </form>
-            </Form>
+                    <div className="p-6 border-t bg-background/90 sticky bottom-0">
+                        <Button type="submit" disabled={isSubmitting || isUploading} className="w-full text-lg py-6">
+                            {isSubmitting ? <CustomLoader /> : <><Send className="mr-2 h-4 w-4" /> Envoyer</>}
+                        </Button>
+                    </div>
+                </form>
+                </Form>
+            </div>
           </motion.div>
         </motion.div>
       )}
     </AnimatePresence>
   );
 }
+
+    

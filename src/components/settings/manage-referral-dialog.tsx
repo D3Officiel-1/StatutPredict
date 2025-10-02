@@ -125,23 +125,23 @@ export default function ManageReferralDialog({ user, open, onOpenChange, onUserU
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={() => onOpenChange(false)}
         >
           <motion.div
-            className="bg-card p-6 rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto"
+            className="bg-card/90 border border-border/50 p-6 rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col"
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-center mb-6 pb-4 border-b">
               <div>
-                <h2 className="text-lg font-semibold">Parrainages de {user.username || user.email}</h2>
+                <h2 className="text-xl font-bold font-headline">Parrainages de {user.username || user.email}</h2>
                 <p className="text-sm text-muted-foreground">Consultez, ajoutez des parrainages et gérez le solde.</p>
               </div>
               <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
@@ -149,8 +149,8 @@ export default function ManageReferralDialog({ user, open, onOpenChange, onUserU
               </Button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="md:col-span-1 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 flex-grow overflow-hidden">
+                <div className="md:col-span-1 flex flex-col gap-6 overflow-y-auto">
                      <Card>
                         <CardHeader>
                             <CardTitle className="text-base">Modifier le solde</CardTitle>
@@ -193,15 +193,15 @@ export default function ManageReferralDialog({ user, open, onOpenChange, onUserU
                            </div>
                         </CardContent>
                     </Card>
-                    <Card>
+                    <Card className="flex flex-col">
                         <CardHeader>
                             <CardTitle className="text-base flex items-center gap-2">
                                 <Users className="h-5 w-5" />
                                 Filleuls ({user.referrals?.length ?? 0})
                             </CardTitle>
                         </CardHeader>
-                        <CardContent>
-                            <ScrollArea className="h-48">
+                        <CardContent className="flex-grow">
+                            <ScrollArea className="h-full max-h-48">
                                 <div className="space-y-2">
                                     {user.referrals && user.referrals.length > 0 ? (
                                         user.referrals.map((filleul) => (
@@ -210,7 +210,7 @@ export default function ManageReferralDialog({ user, open, onOpenChange, onUserU
                                             </div>
                                         ))
                                     ) : (
-                                        <p className="text-sm text-muted-foreground text-center py-10">Aucun filleul pour cet utilisateur.</p>
+                                        <p className="text-sm text-muted-foreground text-center py-10">Aucun filleul.</p>
                                     )}
                                 </div>
                             </ScrollArea>
@@ -218,13 +218,13 @@ export default function ManageReferralDialog({ user, open, onOpenChange, onUserU
                     </Card>
                 </div>
 
-                <div className="md:col-span-2 space-y-6">
-                   <Card>
+                <div className="md:col-span-2 flex flex-col">
+                   <Card className="flex-grow flex flex-col">
                         <CardHeader>
                             <CardTitle className="text-base">Historique des commissions</CardTitle>
                         </CardHeader>
-                        <CardContent>
-                            <ScrollArea className="h-[35rem]">
+                        <CardContent className="flex-grow overflow-hidden">
+                            <ScrollArea className="h-full">
                                 <div className="space-y-4">
                                 {user.referralData && user.referralData.length > 0 ? (
                                     user.referralData.map((referral, index) => (
@@ -242,7 +242,9 @@ export default function ManageReferralDialog({ user, open, onOpenChange, onUserU
                                         </div>
                                     ))
                                 ) : (
-                                    <p className="text-sm text-muted-foreground text-center py-10">Aucune commission reçue.</p>
+                                    <div className="h-full flex items-center justify-center">
+                                        <p className="text-sm text-muted-foreground text-center py-10">Aucune commission reçue.</p>
+                                    </div>
                                 )}
                                 </div>
                             </ScrollArea>
@@ -251,7 +253,7 @@ export default function ManageReferralDialog({ user, open, onOpenChange, onUserU
                 </div>
             </div>
 
-            <div className="flex justify-end gap-2 mt-6">
+            <div className="flex justify-end gap-2 mt-6 pt-4 border-t">
                 <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Fermer</Button>
             </div>
           </motion.div>
@@ -273,3 +275,5 @@ export default function ManageReferralDialog({ user, open, onOpenChange, onUserU
     </>
   );
 }
+
+    
