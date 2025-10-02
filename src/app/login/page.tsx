@@ -71,7 +71,7 @@ export default function LoginPage() {
       <div className="absolute top-4 left-4">
         <Button asChild variant="ghost">
           <Link href="/">
-            &larr; Retour à la page de statut
+            &larr; Retour
           </Link>
         </Button>
       </div>
