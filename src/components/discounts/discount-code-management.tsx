@@ -161,7 +161,9 @@ export default function DiscountCodeManagement() {
         title: "Génération d'image en cours...",
         description: `Création de l'image pour le code "${code.titre}".`,
     });
+
     try {
+        // 1. Generate SVG data URI from the AI flow
         const result = await generateDiscountImage({
             code: code.code,
             percentage: code.pourcentage,
@@ -169,50 +171,76 @@ export default function DiscountCodeManagement() {
             expiryDate: formatDate(code.findate),
         });
 
-        if (result.imageUrl) {
-            toast({
-                title: "Image générée !",
-                description: "Téléversement vers Cloudinary en cours...",
-            });
-
-            // Upload to Cloudinary
-            const formData = new FormData();
-            formData.append('file', result.imageUrl);
-            formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-            
-            const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/upload`, {
-                method: 'POST',
-                body: formData,
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                
-                await addDoc(collection(db, 'media_library'), {
-                  url: data.secure_url,
-                  type: 'image/png',
-                  createdAt: new Date(),
-                });
-                
-                toast({
-                  title: 'Image enregistrée !',
-                  description: 'Votre image de bon de réduction a été ajoutée à la bibliothèque.',
-                });
-            } else {
-                throw new Error('Cloudinary upload failed');
-            }
+        if (!result.imageUrl) {
+            throw new Error("L'IA n'a pas pu générer l'image SVG.");
         }
+
+        // 2. Convert SVG data URI to PNG data URI on the client-side
+        const pngDataUri = await new Promise<string>((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 1200;
+                canvas.height = 630;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) {
+                    return reject(new Error("Impossible d'obtenir le contexte du canvas."));
+                }
+                ctx.drawImage(img, 0, 0);
+                resolve(canvas.toDataURL('image/png'));
+            };
+            img.onerror = (err) => {
+                console.error("Error loading SVG image for conversion:", err);
+                reject(new Error("Impossible de charger le SVG pour la conversion."));
+            };
+            img.src = result.imageUrl;
+        });
+
+        toast({
+            title: "Image convertie !",
+            description: "Téléversement vers Cloudinary en cours...",
+        });
+
+        // 3. Upload PNG to Cloudinary
+        const formData = new FormData();
+        formData.append('file', pngDataUri);
+        formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+        const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/upload`, {
+            method: 'POST',
+            body: formData,
+        });
+
+        if (!response.ok) {
+            throw new Error('Le téléversement sur Cloudinary a échoué');
+        }
+        
+        const data = await response.json();
+
+        // 4. Save to media library
+        await addDoc(collection(db, 'media_library'), {
+            url: data.secure_url,
+            type: 'image/png',
+            createdAt: new Date(),
+        });
+
+        toast({
+            title: 'Image enregistrée !',
+            description: 'Votre image de bon de réduction a été ajoutée à la bibliothèque.',
+        });
+
     } catch (error) {
         console.error("Error generating or uploading image:", error);
         toast({
             title: "Erreur de génération d'image",
-            description: "Impossible de créer ou de téléverser l'image.",
+            description: error instanceof Error ? error.message : "Impossible de créer ou de téléverser l'image.",
             variant: "destructive",
         });
     } finally {
         setIsGeneratingImage(null);
     }
   };
+
 
   return (
     <>
