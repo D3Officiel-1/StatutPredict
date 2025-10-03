@@ -14,6 +14,7 @@ async function callTelegramApi(method: string, body: object) {
   const url = `${TELEGRAM_API_BASE}/bot${botToken}/${method}`;
 
   try {
+    const fetch = (await import('node-fetch')).default;
     const response = await fetch(url, {
       method: 'POST',
       headers: {
@@ -22,13 +23,14 @@ async function callTelegramApi(method: string, body: object) {
       body: JSON.stringify(body),
     });
 
+    const responseData = await response.json();
+
     if (!response.ok) {
-      const errorBody = await response.json();
-      console.error(`Telegram API error: ${response.status} ${response.statusText}`, errorBody);
-      throw new Error(`Telegram API request failed: ${errorBody.description || 'Unknown error'}`);
+      console.error(`Telegram API error: ${response.status} ${response.statusText}`, responseData);
+      throw new Error(`Telegram API request failed: ${(responseData as any).description || 'Unknown error'}`);
     }
 
-    return await response.json();
+    return responseData;
   } catch (error) {
     console.error('Error calling Telegram API:', error);
     throw error;
@@ -46,4 +48,19 @@ export async function sendMessage(chatId: string, text: string) {
     chat_id: chatId,
     text: text,
   });
+}
+
+/**
+ * Sends a photo to a specific Telegram chat.
+ * @param chatId The ID of the chat to send the photo to.
+ * @param photoUrl The URL of the photo to send.
+ * @param caption The caption for the photo.
+ * @returns The result from the Telegram API.
+ */
+export async function sendPhoto(chatId: string, photoUrl: string, caption: string) {
+    return await callTelegramApi('sendPhoto', {
+        chat_id: chatId,
+        photo: photoUrl,
+        caption: caption,
+    });
 }
