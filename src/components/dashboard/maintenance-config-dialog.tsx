@@ -207,7 +207,7 @@ export default function MaintenanceConfigDialog({ app, children, open, onOpenCha
         console.error("Error updating maintenance config: ", error);
         toast({
             title: 'Erreur',
-            description: 'Impossible d\\'enregistrer la configuration. Veuillez réessayer.',
+            description: 'Impossible de sauvegarder la configuration Veuillez réessayer',
             variant: 'destructive',
         });
     } finally {
