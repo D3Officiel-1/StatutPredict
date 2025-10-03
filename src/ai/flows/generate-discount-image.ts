@@ -21,6 +21,8 @@ const GenerateDiscountImageInputSchema = z.object({
   people: z.array(z.string()).optional().describe('The people who have used the code.'),
   plan: z.string().optional().describe('The specific plan for the discount.'),
   tous: z.boolean().optional().describe('Whether the discount is for all plans.'),
+  buttonTitle: z.string().optional().describe('The title for the optional call-to-action button.'),
+  buttonUrl: z.string().url().optional().describe('The URL for the optional call-to-action button.'),
 });
 export type GenerateDiscountImageInput = z.infer<
   typeof GenerateDiscountImageInputSchema
@@ -51,7 +53,7 @@ const generateDiscountImageFlow = ai.defineFlow(
     outputSchema: GenerateDiscountImageOutputSchema,
   },
   async (input) => {
-    const { code, percentage, title, expiryDate, max, people, plan, tous } = input;
+    const { code, percentage, title, expiryDate, max, people, plan, tous, buttonTitle, buttonUrl } = input;
     
     const activationsText = max && max > 0
     ? `
@@ -70,6 +72,17 @@ const generateDiscountImageFlow = ai.defineFlow(
     const planText = !tous && plan
     ? `
       <text x="600" y="96" class="plan-header">${planTranslations[plan] || plan}</text>
+    `
+    : '';
+
+    const buttonText = buttonTitle && buttonUrl
+    ? `
+      <a href="${buttonUrl}" target="_blank">
+        <g transform="translate(425, 420)">
+            <rect width="350" height="60" rx="12" fill="#1c92d3" class="button-bg" />
+            <text x="175" y="38" class="button-text">${buttonTitle}</text>
+        </g>
+      </a>
     `
     : '';
 
@@ -120,6 +133,14 @@ const generateDiscountImageFlow = ai.defineFlow(
             <feMergeNode in="SourceGraphic"/>
           </feMerge>
         </filter>
+        
+        <filter id="buttonGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="12" result="blur"/>
+            <feMerge>
+                <feMergeNode in="blur"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
 
         <!-- Mask to create ticket perforation cutouts -->
         <mask id="ticketMask">
@@ -140,6 +161,9 @@ const generateDiscountImageFlow = ai.defineFlow(
           .activations-value { font-family: sans-serif; font-size: 56px; fill: #ffffff; font-weight: 800; text-anchor: end; }
           .expiry { font-family: sans-serif; font-size: 20px; fill: #9ab7c9; text-anchor: middle; }
           .plan-header { font-family: sans-serif; font-size: 24px; fill: #a5d8ff; font-weight: 600; text-anchor: middle; text-transform: uppercase; letter-spacing: 1.5px; }
+          .button-text { font-family: sans-serif; font-size: 22px; fill: #ffffff; font-weight: 700; text-anchor: middle; }
+          .button-bg { transition: all 0.2s ease; filter: brightness(1); }
+          .button-bg:hover { filter: brightness(1.2); }
         </style>
       </defs>
 
@@ -174,6 +198,8 @@ const generateDiscountImageFlow = ai.defineFlow(
           <!-- the code text centered -->
           <text x="450" y="125" class="code" filter="url(#codeGlow)">${code}</text>
         </g>
+        
+        ${buttonText}
 
         <!-- Divider line -->
         <line x1="100" y1="500" x2="1100" y2="500" stroke="rgba(255,255,255,0.06)" stroke-width="1" />

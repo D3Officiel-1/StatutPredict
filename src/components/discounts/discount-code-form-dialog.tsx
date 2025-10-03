@@ -54,6 +54,8 @@ const formSchema = z.object({
   tous: z.boolean(),
   plan: z.string().optional(),
   max: z.coerce.number().min(0, "Le nombre maximum d'utilisations ne peut être négatif.").optional(),
+  buttonTitle: z.string().optional(),
+  buttonUrl: z.string().url('Veuillez entrer une URL valide.').optional().or(z.literal('')),
 }).refine(data => data.findate >= data.debutdate, {
   message: "La date de fin ne peut pas être antérieure à la date de début.",
   path: ["findate"],
@@ -85,6 +87,8 @@ export default function DiscountCodeFormDialog({ open, onOpenChange, discountCod
       tous: false,
       plan: '',
       max: 0,
+      buttonTitle: '',
+      buttonUrl: '',
     },
   });
 
@@ -99,6 +103,8 @@ export default function DiscountCodeFormDialog({ open, onOpenChange, discountCod
         tous: discountCode.tous,
         plan: discountCode.plan,
         max: discountCode.max || 0,
+        buttonTitle: discountCode.buttonTitle || '',
+        buttonUrl: discountCode.buttonUrl || '',
       });
     } else if (open && !discountCode) {
       form.reset({
@@ -110,6 +116,8 @@ export default function DiscountCodeFormDialog({ open, onOpenChange, discountCod
         tous: false,
         plan: '',
         max: 0,
+        buttonTitle: '',
+        buttonUrl: '',
       });
     }
   }, [discountCode, open, form]);
@@ -340,6 +348,38 @@ export default function DiscountCodeFormDialog({ open, onOpenChange, discountCod
                     />
                 )}
 
+                <div className="space-y-4 rounded-lg border bg-background/50 p-4">
+                    <h4 className="text-base font-semibold">Bouton d'action sur l'image (Optionnel)</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField
+                            control={form.control}
+                            name="buttonTitle"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Titre du bouton</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Ex: Profiter de l'offre" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="buttonUrl"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>URL de redirection</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="https://votre-site.com/promo" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                </div>
+
                 <div className="flex justify-end gap-2 mt-8">
                   <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Annuler</Button>
                   <Button type="submit" disabled={isSubmitting}>
@@ -354,7 +394,3 @@ export default function DiscountCodeFormDialog({ open, onOpenChange, discountCod
     </AnimatePresence>
   );
 }
-
-    
-
-    

@@ -7,16 +7,18 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-import { Copy, Edit, ImageIcon, Info, MoreVertical, Percent, Ticket, Trash } from 'lucide-react';
+import { Copy, Edit, ImageIcon, Info, MoreVertical, Percent, Send, Ticket, Trash } from 'lucide-react';
 import Image from 'next/image';
 import CustomLoader from '../ui/custom-loader';
 
 interface DiscountCodeCardProps {
   code: DiscountCode;
   isGeneratingImage: boolean;
+  isSharing: boolean;
   onDetailsClick: () => void;
   onCopyToClipboard: () => void;
   onGenerateImage: () => void;
+  onShare: () => void;
   onEdit: () => void;
   onDelete: () => void;
 }
@@ -51,9 +53,11 @@ const StatusIndicator = ({ code }: { code: DiscountCode }) => {
 export default function DiscountCodeCard({
   code,
   isGeneratingImage,
+  isSharing,
   onDetailsClick,
   onCopyToClipboard,
   onGenerateImage,
+  onShare,
   onEdit,
   onDelete,
 }: DiscountCodeCardProps) {
@@ -61,6 +65,8 @@ export default function DiscountCodeCard({
   const usage = code.max && code.max > 0
     ? `${code.people?.length || 0} / ${code.max}`
     : `${code.people?.length || 0} / ∞`;
+    
+  const isLoading = isGeneratingImage || isSharing;
     
   return (
     <Card className="group relative overflow-hidden rounded-xl border-2 border-transparent transition-all duration-300 hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/20">
@@ -86,14 +92,15 @@ export default function DiscountCodeCard({
             </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 text-white/70 hover:bg-white/10 hover:text-white" disabled={isGeneratingImage}>
-                {isGeneratingImage ? <CustomLoader /> : <MoreVertical className="h-4 w-4" />}
+              <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 text-white/70 hover:bg-white/10 hover:text-white" disabled={isLoading}>
+                {isLoading ? <CustomLoader /> : <MoreVertical className="h-4 w-4" />}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onSelect={onDetailsClick}><Info className="mr-2" /> Détails</DropdownMenuItem>
               <DropdownMenuItem onSelect={onCopyToClipboard}><Copy className="mr-2" /> Copier le code</DropdownMenuItem>
               <DropdownMenuItem onSelect={onGenerateImage}><ImageIcon className="mr-2" /> (Re)générer l'image</DropdownMenuItem>
+              <DropdownMenuItem onSelect={onShare}><Send className="mr-2" /> Partager sur Telegram</DropdownMenuItem>
               <DropdownMenuItem onSelect={onEdit}><Edit className="mr-2" /> Modifier</DropdownMenuItem>
               <DropdownMenuItem onSelect={onDelete} className="text-destructive focus:text-destructive"><Trash className="mr-2" /> Supprimer</DropdownMenuItem>
             </DropdownMenuContent>

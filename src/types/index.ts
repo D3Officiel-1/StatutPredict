@@ -96,6 +96,8 @@ export interface DiscountCode {
   max?: number;
   people?: string[];
   imageUrl?: string;
+  buttonTitle?: string;
+  buttonUrl?: string;
 }
 
 export interface PricingPlan {
@@ -121,5 +123,3 @@ export interface MaintenanceEvent {
   appId: string;
   appName: string;
 }
-
-    

@@ -16,13 +16,14 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, PlusCircle, Trash, Edit, Copy, Info, ImageIcon } from 'lucide-react';
+import { PlusCircle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import DiscountCodeFormDialog from './discount-code-form-dialog';
 import CustomLoader from '../ui/custom-loader';
 import DiscountCodeDetailsDialog from './discount-code-details-dialog';
 import { generateDiscountImage } from '@/ai/flows/generate-discount-image';
+import { sendTelegramStory } from '@/ai/flows/send-telegram-story';
 import DiscountCodeCard from './discount-code-card';
 
 const CLOUDINARY_CLOUD_NAME = 'dlxomrluy';
@@ -38,6 +39,7 @@ export default function DiscountCodeManagement() {
   const [codeToDelete, setCodeToDelete] = useState<DiscountCode | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isGeneratingImage, setIsGeneratingImage] = useState<string | null>(null);
+  const [isSharing, setIsSharing] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -132,6 +134,8 @@ export default function DiscountCodeManagement() {
             people: code.people,
             plan: code.plan,
             tous: code.tous,
+            buttonTitle: code.buttonTitle,
+            buttonUrl: code.buttonUrl,
         });
 
         if (!result.imageUrl) {
@@ -176,12 +180,52 @@ export default function DiscountCodeManagement() {
             title: 'Image générée et enregistrée !',
             description: 'L\'image a été liée au bon de réduction.',
         });
+        return imageUrl;
 
     } catch (error) {
         console.error("Error generating/uploading image:", error);
         toast({ title: "Erreur de génération d'image", description: error instanceof Error ? error.message : "Une erreur inconnue est survenue.", variant: "destructive" });
+        return null;
     } finally {
         setIsGeneratingImage(null);
+    }
+  };
+
+  const handleShare = async (code: DiscountCode) => {
+    setIsSharing(code.id);
+    let imageUrl = code.imageUrl;
+
+    if (!imageUrl) {
+        toast({ title: 'Image manquante', description: "Génération d'une nouvelle image avant le partage." });
+        imageUrl = await handleGenerateImage(code);
+    }
+
+    if (!imageUrl) {
+        toast({ title: "Échec du partage", description: "Impossible de générer ou de trouver l'image pour le partage.", variant: "destructive" });
+        setIsSharing(null);
+        return;
+    }
+
+    try {
+        const caption = `| |${code.code}| |`;
+        const result = await sendTelegramStory({
+            caption: caption,
+            photoUrl: imageUrl
+        });
+
+        if (result.success) {
+            toast({
+                title: 'Code partagé !',
+                description: `Le code de réduction a été publié sur Telegram.`,
+            });
+        } else {
+            throw new Error('La réponse du flux de partage a indiqué un échec.');
+        }
+    } catch (error) {
+        console.error("Error sharing to Telegram:", error);
+        toast({ title: "Erreur de partage", description: "Impossible de publier sur Telegram.", variant: "destructive" });
+    } finally {
+        setIsSharing(null);
     }
   };
 
@@ -203,9 +247,11 @@ export default function DiscountCodeManagement() {
               key={code.id}
               code={code}
               isGeneratingImage={isGeneratingImage === code.id}
+              isSharing={isSharing === code.id}
               onDetailsClick={() => handleDetailsClick(code)}
               onCopyToClipboard={() => copyToClipboard(code.code)}
               onGenerateImage={() => handleGenerateImage(code)}
+              onShare={() => handleShare(code)}
               onEdit={() => handleEditCode(code)}
               onDelete={() => openDeleteDialog(code)}
             />
