@@ -270,7 +270,7 @@ export default function DashboardPage() {
     <div className="flex flex-col gap-8">
       <Card className="border-0 shadow-none bg-transparent">
         <CardHeader className="p-0">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <h2 className="font-bold text-2xl lg:text-3xl">
                 Bonjour, Bienvenue !
@@ -279,7 +279,7 @@ export default function DashboardPage() {
                 Voici le résumé de l'activité de votre plateforme.
               </CardDescription>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <Button asChild variant="outline">
                 <Link href="/" target="_blank">
                   <ExternalLink />
