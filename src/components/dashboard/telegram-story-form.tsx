@@ -19,7 +19,7 @@ import CustomLoader from '@/components/ui/custom-loader';
 import { Camera, Upload, GalleryHorizontal } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MediaLibrary from './media-library';
-import { Input } from '../ui/input';
+import { Input } from '@/components/ui/input';
 import Image from 'next/image';
 
 const CLOUDINARY_CLOUD_NAME = 'dlxomrluy';
@@ -235,3 +235,5 @@ export default function TelegramStoryForm() {
     </Card>
   );
 }
+
+    

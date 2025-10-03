@@ -18,7 +18,7 @@ import { db } from '@/lib/firebase';
 import type { MediaItem } from '@/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MediaLibrary from './media-library';
-import { Input } from '../ui/input';
+import { Input } from '@/components/ui/input';
 import Image from 'next/image';
 import { Checkbox } from '../ui/checkbox';
 
@@ -295,3 +295,5 @@ export default function TelegramMessageForm() {
     </Card>
   );
 }
+
+    

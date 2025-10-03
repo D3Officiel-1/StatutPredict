@@ -22,7 +22,7 @@ import CustomLoader from '@/components/ui/custom-loader';
 import { Checkbox } from '../ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MediaLibrary from './media-library';
-import { Input } from '../ui/input';
+import { Input } from '@/components/ui/input';
 import Image from 'next/image';
 
 const formSchema = z.object({
@@ -224,7 +224,7 @@ export default function NotificationForm() {
       console.error('Error sending notification:', error);
       toast({
         title: 'Erreur',
-        description: 'Impossible d\'envoyer ou de sauvegarder la notification.',
+        description: 'Impossible d\\'envoyer ou de sauvegarder la notification.',
         variant: 'destructive',
       });
     } finally {
@@ -248,7 +248,10 @@ export default function NotificationForm() {
                 name="currentEvents"
                 render={({ field }) => (
                     <FormItem>
-                    <FormLabel className="text-base font-semibold">Événements actuels</FormLabel>
+                    <FormLabel className="text-base font-semibold">
+                      <span className="sm:hidden">Événements</span>
+                      <span className="hidden sm:inline">Événements actuels</span>
+                    </FormLabel>
                     <FormControl>
                         <Textarea placeholder="Décrivez un événement, ex: 'Mise à jour majeure du serveur prévue ce soir...'" {...field} />
                     </FormControl>
@@ -445,3 +448,5 @@ export default function NotificationForm() {
     </Card>
   );
 }
+
+    
