@@ -18,7 +18,7 @@ export default function CustomLoader({ className, size = 'medium' }: CustomLoade
       <img
         src="https://1play.gamedev-tech.cc/lucky_grm/assets/media/c544881eb170e73349e4c92d1706a96c.svg"
         alt="Chargement..."
-        className={cn('animate-spin', sizeClasses[size])}
+        className={cn(sizeClasses[size])}
       />
     </div>
   );
