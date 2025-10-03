@@ -4,6 +4,10 @@
     {
       "path": "/api/cron/daily-summary",
       "schedule": "0 5 * * *"
+    },
+    {
+      "path": "/api/cron/community-post",
+      "schedule": "0 12 * * *"
     }
   ]
 }
