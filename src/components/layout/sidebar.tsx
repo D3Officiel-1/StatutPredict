@@ -22,6 +22,7 @@ import {
   Banknote,
   Wrench,
   X,
+  Bot,
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -99,6 +100,19 @@ const AppSidebar = () => {
               <Link href="/notifications" onClick={handleLinkClick}>
                 <Send className="h-5 w-5" />
                 <span>Notifications</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+           <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              isActive={isActive('/auto-poster')}
+              tooltip="Auto-Poster"
+              className="justify-start text-base"
+            >
+              <Link href="/auto-poster" onClick={handleLinkClick}>
+                <Bot className="h-5 w-5" />
+                <span>Auto-Poster</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

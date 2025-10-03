@@ -39,6 +39,9 @@ function getPageTitle(pathname: string): string {
   if (pathname.startsWith('/maintenance-programs')) {
     return 'Programmes de maintenance';
   }
+  if (pathname.startsWith('/auto-poster')) {
+    return 'Auto-Poster';
+  }
   return 'Centre de Statut';
 }
 
