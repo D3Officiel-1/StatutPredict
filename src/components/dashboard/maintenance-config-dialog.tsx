@@ -27,7 +27,7 @@ import { Checkbox } from '../ui/checkbox';
 import { generateMaintenanceMessage } from '@/ai/flows/maintenance-message-generator';
 import Image from 'next/image';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import MediaLibrary from './media-library';
+import MediaLibrary from '@/components/dashboard/media-library';
 import { Switch } from '../ui/switch';
 
 
@@ -207,7 +207,7 @@ export default function MaintenanceConfigDialog({ app, children, open, onOpenCha
         console.error("Error updating maintenance config: ", error);
         toast({
             title: 'Erreur',
-            description: 'Impossible d\'enregistrer la configuration. Veuillez réessayer.',
+            description: 'Impossible d\\'enregistrer la configuration. Veuillez réessayer.',
             variant: 'destructive',
         });
     } finally {
@@ -439,4 +439,3 @@ export default function MaintenanceConfigDialog({ app, children, open, onOpenCha
     </>
   );
 }
-
