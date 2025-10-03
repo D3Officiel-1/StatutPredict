@@ -103,3 +103,29 @@ export async function sendPhoto(
   return await callTelegramApi('sendPhoto', body);
 }
 
+/**
+ * Pins a message in a specific Telegram chat.
+ * @param chatId The ID of the chat where the message should be pinned.
+ * @param messageId The ID of the message to pin.
+ * @returns The result from the Telegram API.
+ */
+export async function pinChatMessage(chatId: string, messageId: number) {
+  return await callTelegramApi('pinChatMessage', {
+    chat_id: chatId,
+    message_id: messageId,
+    disable_notification: false,
+  });
+}
+
+/**
+ * Unpins a message in a specific Telegram chat.
+ * @param chatId The ID of the chat where the message should be unpinned.
+ * @param messageId The ID of the message to unpin.
+ * @returns The result from the Telegram API.
+ */
+export async function unpinChatMessage(chatId: string, messageId: number) {
+  return await callTelegramApi('unpinChatMessage', {
+    chat_id: chatId,
+    message_id: messageId,
+  });
+}

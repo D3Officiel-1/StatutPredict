@@ -8,3 +8,5 @@ import '@/ai/flows/send-telegram-message.ts';
 import '@/ai/flows/send-telegram-story.ts';
 import '@/ai/flows/auto-telegram-poster.ts';
 import '@/ai/flows/daily-summary-poster.ts';
+import '@/ai/flows/pin-telegram-message.ts';
+import '@/ai/flows/unpin-telegram-message.ts';
