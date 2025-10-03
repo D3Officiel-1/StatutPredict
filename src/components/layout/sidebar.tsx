@@ -61,21 +61,18 @@ const AppSidebar = () => {
         )}
       </SidebarHeader>
 
-      <SidebarContent className="flex-1 flex items-center justify-center p-2">
-        <SidebarMenu className="w-full">
+      <SidebarContent className="flex-1 flex flex-col p-4">
+        <SidebarMenu className="w-full flex-1">
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
               isActive={isActive('/dashboard')}
               tooltip="Tableau de bord"
-              className="justify-center text-lg"
+              className="justify-start text-base"
             >
               <Link href="/dashboard" onClick={handleLinkClick}>
                 <LayoutDashboard className="h-5 w-5" />
-                <span className={cn(
-                  "transition-all duration-200", 
-                  state === 'collapsed' && !isMobile ? "w-0 opacity-0" : "w-full opacity-100"
-                )}>Tableau de bord</span>
+                <span>Tableau de bord</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -84,14 +81,11 @@ const AppSidebar = () => {
               asChild
               isActive={isActive('/status')}
               tooltip="Statut des applications"
-              className="justify-center text-lg"
+              className="justify-start text-base"
             >
               <Link href="/status" onClick={handleLinkClick}>
                 <HeartPulse className="h-5 w-5" />
-                <span className={cn(
-                  "transition-all duration-200", 
-                  state === 'collapsed' && !isMobile ? "w-0 opacity-0" : "w-full opacity-100"
-                )}>Statut</span>
+                <span>Statut</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -100,14 +94,11 @@ const AppSidebar = () => {
               asChild
               isActive={isActive('/notifications')}
               tooltip="Notifications"
-              className="justify-center text-lg"
+              className="justify-start text-base"
             >
               <Link href="/notifications" onClick={handleLinkClick}>
                 <Send className="h-5 w-5" />
-                <span className={cn(
-                  "transition-all duration-200", 
-                  state === 'collapsed' && !isMobile ? "w-0 opacity-0" : "w-full opacity-100"
-                )}>Notifications</span>
+                <span>Notifications</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -116,14 +107,11 @@ const AppSidebar = () => {
               asChild
               isActive={isActive('/pricing')}
               tooltip="Tarifs"
-              className="justify-center text-lg"
+              className="justify-start text-base"
             >
               <Link href="/pricing" onClick={handleLinkClick}>
                 <Banknote className="h-5 w-5" />
-                <span className={cn(
-                  "transition-all duration-200", 
-                  state === 'collapsed' && !isMobile ? "w-0 opacity-0" : "w-full opacity-100"
-                )}>Tarifs</span>
+                <span>Tarifs</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -132,14 +120,11 @@ const AppSidebar = () => {
               asChild
               isActive={isActive('/discounts')}
               tooltip="Codes de réduction"
-              className="justify-center text-lg"
+              className="justify-start text-base"
             >
               <Link href="/discounts" onClick={handleLinkClick}>
                 <TicketPercent className="h-5 w-5" />
-                <span className={cn(
-                  "transition-all duration-200", 
-                  state === 'collapsed' && !isMobile ? "w-0 opacity-0" : "w-full opacity-100"
-                )}>Codes de réduction</span>
+                <span>Codes de réduction</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -148,14 +133,11 @@ const AppSidebar = () => {
               asChild
               isActive={isActive('/maintenance-programs')}
               tooltip="Maintenance"
-              className="justify-center text-lg"
+              className="justify-start text-base"
             >
               <Link href="/maintenance-programs" onClick={handleLinkClick}>
                 <Wrench className="h-5 w-5" />
-                <span className={cn(
-                  "transition-all duration-200", 
-                  state === 'collapsed' && !isMobile ? "w-0 opacity-0" : "w-full opacity-100"
-                )}>Maintenance</span>
+                <span>Maintenance</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -164,14 +146,11 @@ const AppSidebar = () => {
               asChild
               isActive={isActive('/users')}
               tooltip="Utilisateurs"
-              className="justify-center text-lg"
+              className="justify-start text-base"
             >
               <Link href="/users" onClick={handleLinkClick}>
                 <Users className="h-5 w-5" />
-                <span className={cn(
-                  "transition-all duration-200", 
-                  state === 'collapsed' && !isMobile ? "w-0 opacity-0" : "w-full opacity-100"
-                )}>Utilisateurs</span>
+                <span>Utilisateurs</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -180,30 +159,27 @@ const AppSidebar = () => {
               asChild
               isActive={isActive('/settings')}
               tooltip="Paramètres"
-              className="justify-center text-lg"
+              className="justify-start text-base"
             >
               <Link href="/settings" onClick={handleLinkClick}>
                 <Settings className="h-5 w-5" />
-                <span className={cn(
-                  "transition-all duration-200", 
-                  state === 'collapsed' && !isMobile ? "w-0 opacity-0" : "w-full opacity-100"
-                )}>Paramètres</span>
+                <span>Paramètres</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
-          <SidebarMenuItem>
+        </SidebarMenu>
+
+        <SidebarMenu className="w-full mt-auto">
+           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
               isActive={false}
               tooltip="Page de Statut Publique"
-              className="justify-center text-lg"
+              className="justify-start text-base"
             >
               <Link href="/" target="_blank" onClick={handleLinkClick}>
                 <ShieldCheck className="h-5 w-5" />
-                <span className={cn(
-                  "transition-all duration-200", 
-                  state === 'collapsed' && !isMobile ? "w-0 opacity-0" : "w-full opacity-100"
-                )}>Page Publique</span>
+                <span>Page Publique</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
