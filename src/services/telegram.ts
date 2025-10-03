@@ -55,12 +55,29 @@ export async function sendMessage(chatId: string, text: string) {
  * @param chatId The ID of the chat to send the photo to.
  * @param photoUrl The URL of the photo to send.
  * @param caption The caption for the photo.
+ * @param replyMarkup Optional inline keyboard markup.
  * @returns The result from the Telegram API.
  */
-export async function sendPhoto(chatId: string, photoUrl: string, caption: string) {
-    return await callTelegramApi('sendPhoto', {
-        chat_id: chatId,
-        photo: photoUrl,
-        caption: caption,
-    });
+export async function sendPhoto(
+  chatId: string,
+  photoUrl: string,
+  caption: string,
+  replyMarkup?: object
+) {
+  const body: {
+    chat_id: string;
+    photo: string;
+    caption: string;
+    reply_markup?: object;
+  } = {
+    chat_id: chatId,
+    photo: photoUrl,
+    caption: caption,
+  };
+
+  if (replyMarkup) {
+    body.reply_markup = replyMarkup;
+  }
+
+  return await callTelegramApi('sendPhoto', body);
 }

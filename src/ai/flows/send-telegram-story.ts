@@ -16,6 +16,8 @@ import { sendPhoto as sendTelegramPhotoService } from '@/services/telegram';
 const SendTelegramStoryInputSchema = z.object({
   caption: z.string().describe('The caption for the photo.'),
   photoUrl: z.string().url().describe('The URL of the photo to send.'),
+  buttonTitle: z.string().optional().describe('The title for the optional call-to-action button.'),
+  buttonUrl: z.string().url().optional().describe('The URL for the optional call-to-action button.'),
 });
 export type SendTelegramStoryInput = z.infer<
   typeof SendTelegramStoryInputSchema
@@ -47,7 +49,19 @@ const sendTelegramStoryFlow = ai.defineFlow(
       throw new Error('TELEGRAM_CHANNEL_ID is not set in environment variables.');
     }
 
-    const result = await sendTelegramPhotoService(chatId, input.photoUrl, input.caption);
+    let replyMarkup;
+    if (input.buttonTitle && input.buttonUrl) {
+      replyMarkup = {
+        inline_keyboard: [[{ text: input.buttonTitle, url: input.buttonUrl }]],
+      };
+    }
+
+    const result = await sendTelegramPhotoService(
+      chatId,
+      input.photoUrl,
+      input.caption,
+      replyMarkup
+    );
     
     if (result.ok) {
       return {

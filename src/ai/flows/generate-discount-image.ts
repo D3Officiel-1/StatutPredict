@@ -75,17 +75,6 @@ const generateDiscountImageFlow = ai.defineFlow(
     `
     : '';
 
-    const buttonText = buttonTitle && buttonUrl
-    ? `
-      <a href="${buttonUrl}" target="_blank">
-        <g transform="translate(425, 420)">
-            <rect width="350" height="60" rx="12" fill="#1c92d3" class="button-bg" />
-            <text x="175" y="38" class="button-text">${buttonTitle}</text>
-        </g>
-      </a>
-    `
-    : '';
-
     // Perforations (left + right) -> on génère les <circle> puis on les met dans le mask pour "découper"
     const perforationRadius = 10;
     const spacing = 28;
@@ -134,14 +123,6 @@ const generateDiscountImageFlow = ai.defineFlow(
           </feMerge>
         </filter>
         
-        <filter id="buttonGlow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="12" result="blur"/>
-            <feMerge>
-                <feMergeNode in="blur"/>
-                <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-        </filter>
-
         <!-- Mask to create ticket perforation cutouts -->
         <mask id="ticketMask">
           <!-- Visible area (white) -->
@@ -161,9 +142,6 @@ const generateDiscountImageFlow = ai.defineFlow(
           .activations-value { font-family: sans-serif; font-size: 56px; fill: #ffffff; font-weight: 800; text-anchor: end; }
           .expiry { font-family: sans-serif; font-size: 20px; fill: #9ab7c9; text-anchor: middle; }
           .plan-header { font-family: sans-serif; font-size: 24px; fill: #a5d8ff; font-weight: 600; text-anchor: middle; text-transform: uppercase; letter-spacing: 1.5px; }
-          .button-text { font-family: sans-serif; font-size: 22px; fill: #ffffff; font-weight: 700; text-anchor: middle; }
-          .button-bg { transition: all 0.2s ease; filter: brightness(1); }
-          .button-bg:hover { filter: brightness(1.2); }
         </style>
       </defs>
 
@@ -199,8 +177,6 @@ const generateDiscountImageFlow = ai.defineFlow(
           <text x="450" y="125" class="code" filter="url(#codeGlow)">${code}</text>
         </g>
         
-        ${buttonText}
-
         <!-- Divider line -->
         <line x1="100" y1="500" x2="1100" y2="500" stroke="rgba(255,255,255,0.06)" stroke-width="1" />
 

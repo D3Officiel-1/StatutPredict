@@ -210,7 +210,9 @@ export default function DiscountCodeManagement() {
         const caption = `| |${code.code}| |`;
         const result = await sendTelegramStory({
             caption: caption,
-            photoUrl: imageUrl
+            photoUrl: imageUrl,
+            buttonTitle: code.buttonTitle,
+            buttonUrl: code.buttonUrl,
         });
 
         if (result.success) {
