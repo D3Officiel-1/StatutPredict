@@ -134,8 +134,6 @@ export default function DiscountCodeManagement() {
             people: code.people,
             plan: code.plan,
             tous: code.tous,
-            buttonTitle: code.buttonTitle,
-            buttonUrl: code.buttonUrl,
         });
 
         if (!result.imageUrl) {
@@ -207,7 +205,7 @@ export default function DiscountCodeManagement() {
     }
 
     try {
-        const caption = `| |${code.code}| |`;
+        const caption = `✨ Copiez votre code bonus et activez-le maintenant ! ✨\n\n|| ${code.code} ||`;
         const result = await sendTelegramStory({
             caption: caption,
             photoUrl: imageUrl,
