@@ -19,7 +19,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { Sparkles, Send, Upload, GalleryHorizontal } from 'lucide-react';
 import CustomLoader from '@/components/ui/custom-loader';
-import { Checkbox } from '../ui/checkbox';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MediaLibrary from './media-library';
 import { Input } from '@/components/ui/input';

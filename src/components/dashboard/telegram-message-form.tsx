@@ -20,7 +20,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MediaLibrary from './media-library';
 import { Input } from '@/components/ui/input';
 import Image from 'next/image';
-import { Checkbox } from '../ui/checkbox';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const CLOUDINARY_CLOUD_NAME = 'dlxomrluy';
 const CLOUDINARY_UPLOAD_PRESET = 'predict_uploads';
