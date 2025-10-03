@@ -48,21 +48,21 @@ export default function HeartbeatChart({ status }: HeartbeatChartProps) {
       <div className="absolute inset-0 grid-pattern-faded"></div>
       
       {/* SVG Container */}
-      <div className="w-full h-full animate-infinite-scroll">
+      <div className="w-full h-full">
         <svg
-            className="w-[200%] h-full"
+            className="w-full h-full"
             preserveAspectRatio="none"
-            viewBox="0 0 600 100"
+            viewBox="0 0 300 100"
         >
             <path
-                d={`${currentPath} L300,50 ${currentPath.replace('M0,50', 'L300,50')}`}
-                className={cn('filter-glow animate-pulse-slow', getLineColor())}
+                d={currentPath}
+                className={cn('filter-glow animate-draw', getLineColor())}
                 strokeWidth="3"
                 strokeLinecap="round"
                 fill="none"
             />
             <path
-                d={`${currentPath} L300,50 ${currentPath.replace('M0,50', 'L300,50')}`}
+                d={currentPath}
                 className={cn(getLineColor())}
                 strokeWidth="1.5"
                 strokeLinecap="round"
@@ -78,3 +78,4 @@ export default function HeartbeatChart({ status }: HeartbeatChartProps) {
     </div>
   );
 }
+
