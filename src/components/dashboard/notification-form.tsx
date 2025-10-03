@@ -21,7 +21,7 @@ import { Sparkles, Send, Upload, GalleryHorizontal } from 'lucide-react';
 import CustomLoader from '@/components/ui/custom-loader';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import MediaLibrary from './media-library';
+import MediaLibrary from '@/components/dashboard/media-library';
 import { Input } from '@/components/ui/input';
 import Image from 'next/image';
 
@@ -448,5 +448,3 @@ export default function NotificationForm() {
     </Card>
   );
 }
-
-    

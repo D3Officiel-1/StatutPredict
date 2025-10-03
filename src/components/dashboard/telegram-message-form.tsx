@@ -17,7 +17,7 @@ import { collection, onSnapshot, orderBy, query, addDoc } from 'firebase/firesto
 import { db } from '@/lib/firebase';
 import type { MediaItem } from '@/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import MediaLibrary from './media-library';
+import MediaLibrary from '@/components/dashboard/media-library';
 import { Input } from '@/components/ui/input';
 import Image from 'next/image';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -295,5 +295,3 @@ export default function TelegramMessageForm() {
     </Card>
   );
 }
-
-    
