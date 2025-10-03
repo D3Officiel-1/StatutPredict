@@ -21,7 +21,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import CustomLoader from '../ui/custom-loader';
-import { X, Save, Users, PlusCircle, Copy } from 'lucide-react';
+import { X, Save, Users, PlusCircle, Copy, Link as LinkIcon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '../ui/card';
 import { ScrollArea } from '../ui/scroll-area';
 import { Input } from '../ui/input';
@@ -63,11 +63,11 @@ export default function ManageReferralDialog({ user, open, onOpenChange, onUserU
     return 'N/A';
   };
 
-  const copyToClipboard = (text: string | undefined) => {
+  const copyToClipboard = (text: string | undefined, message: string) => {
     if(!text) {
         toast({
             title: "Erreur",
-            description: "Aucun code à copier.",
+            description: "Rien à copier.",
             variant: "destructive",
         });
         return;
@@ -75,12 +75,12 @@ export default function ManageReferralDialog({ user, open, onOpenChange, onUserU
     navigator.clipboard.writeText(text).then(() => {
       toast({
         title: "Copié !",
-        description: "Le code a été copié dans le presse-papiers.",
+        description: message,
       });
     }, (err) => {
       toast({
         title: "Erreur",
-        description: "Impossible de copier le code.",
+        description: "Impossible de copier le texte.",
         variant: "destructive",
       });
       console.error('Could not copy text: ', err);
@@ -119,6 +119,10 @@ export default function ManageReferralDialog({ user, open, onOpenChange, onUserU
     setSelectedFilleul(filleul);
     setIsCommissionDialogOpen(true);
   }
+  
+  const referralLink = user.referralCode 
+    ? `${window.location.origin}/register?ref=${user.referralCode}` 
+    : undefined;
 
   return (
     <>
@@ -182,13 +186,19 @@ export default function ManageReferralDialog({ user, open, onOpenChange, onUserU
                     </Card>
                     <Card>
                         <CardHeader>
-                            <CardTitle className="text-base">Code de parrainage</CardTitle>
+                            <CardTitle className="text-base">Lien de parrainage</CardTitle>
                         </CardHeader>
-                        <CardContent>
-                           <div className="flex items-center justify-between p-3 bg-muted/50 rounded-md">
-                                <span className="font-mono text-sm">{user.referralCode || 'N/A'}</span>
-                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => copyToClipboard(user.referralCode)}>
+                        <CardContent className="space-y-3">
+                           <div className="flex items-center justify-between p-2 text-sm bg-muted/50 rounded-md">
+                                <span className="font-mono text-xs truncate">{user.referralCode || 'N/A'}</span>
+                                <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => copyToClipboard(user.referralCode, "Le code de parrainage a été copié.")}>
                                     <Copy className="h-4 w-4" />
+                                </Button>
+                           </div>
+                           <div className="flex items-center justify-between p-2 text-sm bg-muted/50 rounded-md">
+                                <span className="font-mono text-xs truncate">{referralLink || 'N/A'}</span>
+                                <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => copyToClipboard(referralLink, "Le lien de parrainage a été copié.")}>
+                                    <LinkIcon className="h-4 w-4" />
                                 </Button>
                            </div>
                         </CardContent>

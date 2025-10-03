@@ -74,6 +74,7 @@ export interface User {
   referrals?: User[];
   referralCommissions?: any[]; // For commissions earned
   activeAppId?: string; // To know which app's plans to fetch
+  referrer?: string; // ID of the user who referred this user
 }
 
 export interface MediaItem {
