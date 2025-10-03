@@ -10,6 +10,7 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import { sendTelegramMessage } from './send-telegram-message';
+import { pinChatMessage } from '@/services/telegram';
 import { collection, getDocs, query, where, Timestamp, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Application, PricingPlan, DiscountCode, MaintenanceEvent } from '@/types';
@@ -69,6 +70,10 @@ const dailySummaryPosterFlow = ai.defineFlow(
   },
   async ({ contentTypes }) => {
     const results: string[] = [];
+    const chatId = process.env.TELEGRAM_CHANNEL_ID;
+    if (!chatId) {
+      throw new Error('TELEGRAM_CHANNEL_ID is not set in environment variables.');
+    }
     
     for (const contentType of contentTypes) {
         let topic = '';
@@ -166,9 +171,18 @@ const dailySummaryPosterFlow = ai.defineFlow(
                 const messageToSend = generatedContent as unknown as string;
                 const sendResult = await sendTelegramMessage({ message: messageToSend, parse_mode: 'MarkdownV2' });
 
-                if (sendResult.success) {
-                    results.push(`Post pour "${topic}" envoyé avec succès.`);
+                if (sendResult.success && sendResult.messageId) {
+                    results.push(`Post pour "${topic}" envoyé avec succès (ID: ${sendResult.messageId}).`);
                     postGenerated = true;
+
+                    // Pin the message automatically
+                    try {
+                        await pinChatMessage(chatId, sendResult.messageId);
+                        results.push(`Message ${sendResult.messageId} épinglé avec succès.`);
+                    } catch (pinError) {
+                        const errorMessage = pinError instanceof Error ? pinError.message : 'Unknown pin error';
+                        results.push(`Échec de l'épinglage du message ${sendResult.messageId}: ${errorMessage}`);
+                    }
                 } else {
                     results.push(`Échec de l'envoi du message pour "${topic}".`);
                 }

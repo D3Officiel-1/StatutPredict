@@ -113,7 +113,7 @@ export async function pinChatMessage(chatId: string, messageId: number) {
   return await callTelegramApi('pinChatMessage', {
     chat_id: chatId,
     message_id: messageId,
-    disable_notification: false,
+    disable_notification: true,
   });
 }
 
