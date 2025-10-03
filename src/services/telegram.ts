@@ -68,13 +68,15 @@ export async function sendMessage(chatId: string, text: string, parseMode?: stri
  * @param photoUrl The URL of the photo to send.
  * @param caption The caption for the photo.
  * @param replyMarkup Optional inline keyboard markup.
+ * @param hasSpoiler Optional flag to send the photo as a spoiler.
  * @returns The result from the Telegram API.
  */
 export async function sendPhoto(
   chatId: string,
   photoUrl: string,
   caption: string,
-  replyMarkup?: object
+  replyMarkup?: object,
+  hasSpoiler?: boolean
 ) {
   const body: {
     chat_id: string;
@@ -82,6 +84,7 @@ export async function sendPhoto(
     caption: string;
     parse_mode: string;
     reply_markup?: object;
+    has_spoiler?: boolean;
   } = {
     chat_id: chatId,
     photo: photoUrl,
@@ -92,6 +95,11 @@ export async function sendPhoto(
   if (replyMarkup) {
     body.reply_markup = replyMarkup;
   }
+  
+  if (hasSpoiler) {
+    body.has_spoiler = true;
+  }
 
   return await callTelegramApi('sendPhoto', body);
 }
+
