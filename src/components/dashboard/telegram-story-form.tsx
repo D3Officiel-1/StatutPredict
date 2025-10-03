@@ -28,6 +28,8 @@ const CLOUDINARY_UPLOAD_PRESET = 'predict_uploads';
 const formSchema = z.object({
   caption: z.string().min(1, { message: 'La légende ne peut pas être vide.' }),
   photoUrl: z.string().url({ message: 'Veuillez sélectionner ou téléverser une image.' }),
+  buttonTitle: z.string().optional(),
+  buttonUrl: z.string().url('Veuillez entrer une URL valide.').optional().or(z.literal('')),
 });
 
 export default function TelegramStoryForm() {
@@ -54,6 +56,8 @@ export default function TelegramStoryForm() {
     defaultValues: {
       caption: '',
       photoUrl: '',
+      buttonTitle: '',
+      buttonUrl: '',
     },
   });
 
@@ -124,7 +128,9 @@ export default function TelegramStoryForm() {
     try {
       const result = await sendTelegramStory({ 
         caption: values.caption,
-        photoUrl: values.photoUrl
+        photoUrl: values.photoUrl,
+        buttonTitle: values.buttonTitle,
+        buttonUrl: values.buttonUrl,
       });
 
       if (result.success) {
@@ -222,6 +228,38 @@ export default function TelegramStoryForm() {
                       <Image src={uploadedMediaUrl} alt="Image sélectionnée" layout="fill" className="object-contain" />
                   </div>
               )}
+            </div>
+
+            <div className="space-y-4 rounded-lg border bg-background/50 p-4">
+                <h4 className="text-base font-semibold">Bouton d'action (Optionnel)</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                        control={form.control}
+                        name="buttonTitle"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Titre du bouton</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="Ex: Profiter de l'offre" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="buttonUrl"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>URL de redirection</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="https://votre-site.com/promo" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
             </div>
 
           </CardContent>
