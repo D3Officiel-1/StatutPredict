@@ -46,7 +46,7 @@ export default function CanalPage() {
         <div className="mx-auto max-w-md w-full">
             <div className="mb-8 text-center">
                 <h1 className="text-2xl md:text-4xl font-bold tracking-tight">Canal Telegram</h1>
-                <p className="mt-2 text-muted-foreground md:text-base">Accédez à un flux exclusif de nouvelles, d'analyses et d'opportunités. Notre canal Telegram est votre accès direct à l'information privilégiée, conçue pour les esprits visionnaires.</p>
+                <p className="mt-2 text-muted-foreground md:text-base">Accédez à un flux exclusif de nouvelles, d'analyses et d'opportunités.</p>
             </div>
           
             <Card>
@@ -59,7 +59,7 @@ export default function CanalPage() {
                     className="mx-auto mb-3"
                 />
                 <h3 className="text-lg font-semibold mb-2">Predict</h3>
-                <p className="text-muted-foreground mb-4">Accédez à un flux exclusif de nouvelles, d'analyses et d'opportunités.</p>
+                <p className="text-muted-foreground mb-4">Notre canal Telegram est votre accès direct à l'information privilégiée, conçue pour les esprits visionnaires.</p>
                 <Button asChild style={{ backgroundColor: '#2AABEE', color: 'white' }}>
                     <a href="https://t.me/Predict_D3officiel" target="_blank" rel="noopener noreferrer">
                         Rejoindre le canal
