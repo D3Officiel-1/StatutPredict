@@ -41,14 +41,26 @@ async function callTelegramApi(method: string, body: object) {
  * Sends a message to a specific Telegram chat.
  * @param chatId The ID of the chat to send the message to.
  * @param text The text of the message to send.
+ * @param parseMode Optional parse mode for the message (e.g., MarkdownV2).
  * @returns The result from the Telegram API.
  */
-export async function sendMessage(chatId: string, text: string) {
-  return await callTelegramApi('sendMessage', {
+export async function sendMessage(chatId: string, text: string, parseMode?: string) {
+  const body: {
+    chat_id: string;
+    text: string;
+    parse_mode?: string;
+  } = {
     chat_id: chatId,
     text: text,
-  });
+  };
+
+  if (parseMode) {
+    body.parse_mode = parseMode;
+  }
+
+  return await callTelegramApi('sendMessage', body);
 }
+
 
 /**
  * Sends a photo to a specific Telegram chat.
@@ -68,11 +80,13 @@ export async function sendPhoto(
     chat_id: string;
     photo: string;
     caption: string;
+    parse_mode: string;
     reply_markup?: object;
   } = {
     chat_id: chatId,
     photo: photoUrl,
     caption: caption,
+    parse_mode: 'MarkdownV2',
   };
 
   if (replyMarkup) {

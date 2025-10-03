@@ -55,11 +55,21 @@ const sendTelegramStoryFlow = ai.defineFlow(
         inline_keyboard: [[{ text: input.buttonTitle, url: input.buttonUrl }]],
       };
     }
+    
+    // Telegram's MarkdownV2 requires escaping of special characters.
+    // Let's create a simple helper for the ones we're likely to encounter.
+    const escapeMarkdown = (text: string) => {
+      const charsToEscape = ['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!'];
+      return text.replace(new RegExp(`([${charsToEscape.join('\\')}])`, 'g'), '\\$1');
+    };
+
+    const caption = `✨ ${escapeMarkdown(input.caption)} ✨\n\n${escapeMarkdown('Copiez votre code bonus et activez-le maintenant !')}\n\n||${input.caption.split(' ')[0]}||`;
+
 
     const result = await sendTelegramPhotoService(
       chatId,
       input.photoUrl,
-      input.caption,
+      input.caption, // Sending raw caption, service will handle parsing
       replyMarkup
     );
     

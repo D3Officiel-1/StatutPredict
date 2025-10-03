@@ -15,6 +15,7 @@ import { sendMessage as sendTelegramMessageService } from '@/services/telegram';
 
 const SendTelegramMessageInputSchema = z.object({
   message: z.string().describe('The message to send to the Telegram channel.'),
+  parse_mode: z.string().optional().describe('The parse mode for the message (e.g., MarkdownV2, HTML).'),
 });
 export type SendTelegramMessageInput = z.infer<
   typeof SendTelegramMessageInputSchema
@@ -46,7 +47,7 @@ const sendTelegramMessageFlow = ai.defineFlow(
       throw new Error('TELEGRAM_CHANNEL_ID is not set in environment variables.');
     }
 
-    const result = await sendTelegramMessageService(chatId, input.message);
+    const result = await sendTelegramMessageService(chatId, input.message, input.parse_mode);
     
     if (result.ok) {
       return {

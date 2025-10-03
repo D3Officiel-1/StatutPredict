@@ -205,7 +205,7 @@ export default function DiscountCodeManagement() {
     }
 
     try {
-        const caption = `✨ Copiez votre code bonus et activez-le maintenant ! ✨\n\n|| ${code.code} ||`;
+        const caption = `✨ Offre Spéciale : ${code.titre} ! ✨\n\nBénéficiez de *${code.pourcentage}%* de réduction avec le code promo : ||${code.code}||`;
         const result = await sendTelegramStory({
             caption: caption,
             photoUrl: imageUrl,

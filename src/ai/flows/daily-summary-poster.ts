@@ -47,6 +47,7 @@ const generationPrompt = ai.definePrompt({
     Your tone is professional, informative, and slightly formal.
     Based on the provided data, generate a compelling and concise post for the channel about the topic of the day.
     The post should be formatted for Telegram using Markdown (e.g., *bold*, _italic_).
+    It may contain spoilers using the ||spoiler|| syntax, which you must preserve.
 
     IMPORTANT: If the provided data is empty or indicates "No data available", you MUST output the exact string "NO_POST" and nothing else.
 
@@ -125,7 +126,7 @@ const dailySummaryPosterFlow = ai.defineFlow(
                     
                     if (activeDiscounts.length > 0) {
                         dataForPrompt = `Voici les promotions actuellement disponibles :\n` + activeDiscounts.map(d =>
-                            `- *${d.code}* : ${d.pourcentage}% de réduction sur le forfait "${d.plan}" jusqu'au ${formatDate(d.findate)}. Titre: ${d.titre}.`
+                            `- ||${d.code}|| : ${d.pourcentage}% de réduction sur le forfait "${d.plan}" jusqu'au ${formatDate(d.findate)}. Titre: *${d.titre}*.`
                         ).join('\n');
                     }
                     break;
@@ -150,7 +151,7 @@ const dailySummaryPosterFlow = ai.defineFlow(
                     
                     if (maintenanceEvents.length > 0) {
                         dataForPrompt = `Maintenances prévues pour aujourd'hui (${formatDate(new Date())}):\n` + maintenanceEvents.map(m =>
-                            `- *${m.title}* pour l'application "${m.appName}". Statut: ${m.status}. Description: ${m.description}`
+                            `- *${m.title}* pour "${m.appName}". Statut: ${m.status}. Description: ||${m.description}||`
                         ).join('\n');
                     }
                     break;
@@ -163,7 +164,7 @@ const dailySummaryPosterFlow = ai.defineFlow(
                 results.push(`Aucun post généré pour: ${topic} (données vides ou décision de l'IA).`);
             } else {
                 const messageToSend = generatedContent as unknown as string;
-                const sendResult = await sendTelegramMessage({ message: messageToSend });
+                const sendResult = await sendTelegramMessage({ message: messageToSend, parse_mode: 'MarkdownV2' });
 
                 if (sendResult.success) {
                     results.push(`Post pour "${topic}" envoyé avec succès.`);
